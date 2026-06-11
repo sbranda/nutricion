@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>App Nutrición</title>
+
+<!-- PWA Meta Tags -->
+<meta name="application-name" content="Nutrición">
+<meta name="description" content="Plan de comidas y seguimiento de peso personalizado">
+<meta name="theme-color" content="#080e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nutrición">
+
+<!-- PWA Icons generados con SVG inline como data URI -->
+<link rel="manifest" href="data:application/json;charset=utf-8,{&quot;name&quot;:&quot;App Nutrición&quot;,&quot;short_name&quot;:&quot;Nutrición&quot;,&quot;description&quot;:&quot;Plan de comidas y seguimiento de peso&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23080e1a&quot;,&quot;theme_color&quot;:&quot;%23080e1a&quot;,&quot;orientation&quot;:&quot;portrait&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23080e1a'/%3E%3Ctext x='256' y='340' font-size='260' text-anchor='middle'%3E🥗%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;512x512&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+
+<!-- Apple touch icon inline SVG -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23080e1a'/%3E%3Ctext x='256' y='340' font-size='260' text-anchor='middle'%3E🥗%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #080e1a;
+    --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --muted: #475569;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --green: #34d399;
+    --red: #f87171;
+    --pink: #f472b6;
+    --purple: #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; padding-bottom: calc(70px + env(safe-area-inset-bottom)); padding-top: env(safe-area-inset-top); }
+
+  /* PWA splash screen fix */
+  @media (display-mode: standalone) {
+    body { padding-top: env(safe-area-inset-top); }
+    .tab-bar { padding-bottom: env(safe-area-inset-bottom); }
+  }
+
+  /* TAB BAR */
+  .tab-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #0c1829;
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 0 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    transition: color 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); }
+  .tab-icon { font-size: 20px; }
+  .tab-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== PLAN STYLES ===== */
+  .eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 5px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  .selector-title { font-family: 'DM Serif Display', serif; font-size: 32px; text-align: center; background: linear-gradient(90deg, #34d399, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.2; }
+  .selector-sub { color: var(--muted); font-size: 13px; text-align: center; margin-bottom: 48px; }
+  .selector-label { color: #94a3b8; font-size: 15px; margin-bottom: 20px; }
+  .selector-btns { display: flex; gap: 16px; width: 100%; max-width: 320px; }
+  .selector-btn { flex: 1; padding: 24px 16px; border-radius: 18px; border: 2px solid; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .selector-btn:hover { transform: translateY(-2px); }
+  .selector-btn .emoji { font-size: 38px; }
+  .selector-btn .sex-label { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; }
+  .selector-btn .kcal-label { font-size: 11px; color: var(--muted); text-align: center; }
+  #btn-hombre { border-color: rgba(52,211,153,0.3); }
+  #btn-hombre .sex-label { color: #34d399; }
+  #btn-hombre:hover { border-color: #34d399; background: rgba(52,211,153,0.07); }
+  #btn-mujer { border-color: rgba(244,114,182,0.3); }
+  #btn-mujer .sex-label { color: #f472b6; }
+  #btn-mujer:hover { border-color: #f472b6; background: rgba(244,114,182,0.07); }
+  #selector { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; background: linear-gradient(160deg, #0a0f1e 0%, #1a0a2e 100%); }
+  #plan-content { display: none; }
+  #plan-content.visible { display: block; }
+  .plan-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; color: #94a3b8; cursor: pointer; font-size: 12px; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .back-btn:hover { background: rgba(255,255,255,0.09); }
+  .header-center { text-align: center; flex: 1; }
+  .header-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 4px; margin-bottom: 2px; }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 17px; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header-right { font-family: 'DM Mono', monospace; font-size: 10px; text-align: right; min-width: 60px; }
+  .days-row { display: flex; overflow-x: auto; gap: 6px; padding: 12px 14px 4px; scrollbar-width: none; }
+  .days-row::-webkit-scrollbar { display: none; }
+  .day-btn { flex: 0 0 auto; padding: 8px 13px; border-radius: 10px; border: 2px solid var(--border); background: var(--card); cursor: pointer; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 1px; transition: all 0.2s; color: var(--muted); }
+  .day-header { padding: 10px 16px 4px; display: flex; justify-content: space-between; align-items: center; }
+  .day-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
+  .kcal-badge { font-family: 'DM Mono', monospace; font-size: 13px; border-radius: 20px; padding: 4px 13px; border: 1px solid; }
+  .progress-wrap { padding: 6px 16px 2px; }
+  .progress-bar { background: rgba(255,255,255,0.06); border-radius: 6px; height: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+  .progress-note { font-family: 'DM Mono', monospace; font-size: 10px; margin-top: 3px; }
+  .meals { padding: 6px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .meal-card { border-radius: 14px; border: 1px solid var(--border); background: var(--card); overflow: hidden; transition: border-color 0.2s; cursor: pointer; }
+  .meal-card.open { background: rgba(255,255,255,0.05); }
+  .meal-top { display: flex; align-items: center; justify-content: space-between; padding: 13px; }
+  .meal-left { display: flex; align-items: center; gap: 10px; }
+  .meal-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .meal-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; margin-bottom: 2px; }
+  .meal-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .meal-right { display: flex; align-items: center; gap: 7px; }
+  .meal-card.open .meal-arrow { transform: rotate(180deg); }
+  .meal-arrow { color: var(--muted); font-size: 14px; transition: transform 0.2s; }
+  .meal-items { border-top: 1px solid rgba(255,255,255,0.05); padding: 11px 13px 13px; display: none; }
+  .meal-card.open .meal-items { display: block; }
+  .meal-item { display: flex; align-items: center; gap: 9px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .meal-check-btn { width: 28px; height: 28px; border-radius: 8px; border: 2px solid; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: all 0.2s; margin-left: 4px; }
+  .meal-check-btn:hover { opacity: 0.8; }
+  .meal-card.done .meal-name { text-decoration: line-through; opacity: 0.5; }
+  .meal-card.done .meal-top { opacity: 0.7; }
+  .done-counter { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #64748b; margin: 0 16px 8px; display: inline-block; }
+  .tips-box { margin: 0 16px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); padding: 14px; }
+  .tips-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; margin-bottom: 10px; }
+  .tip-row { display: flex; align-items: center; gap: 9px; padding: 5px 0; font-size: 13px; }
+  body.hombre .plan-header { background: linear-gradient(90deg, #0f2744, #0a1f1a); }
+  body.hombre #screen-plan { background: linear-gradient(160deg, #0a0f1e 0%, #0f1f35 50%, #0a1a14 100%); }
+  body.hombre .header-eyebrow { color: #064e3b; }
+  body.hombre .header-title { background: linear-gradient(90deg,#34d399,#60a5fa); }
+  body.hombre .header-right { color: #064e3b; }
+  body.hombre .day-btn.active { border-color: #34d399; background: linear-gradient(135deg,#065f46,#0f4c3a); color: #34d399; }
+  body.hombre .day-title { color: #e2e8f0; }
+  body.hombre .kcal-badge { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.25); color: #34d399; }
+  body.hombre .progress-fill { background: linear-gradient(90deg,#34d399,#60a5fa); }
+  body.hombre .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.hombre .progress-note { color: #064e3b; }
+  body.hombre .tips-eyebrow { color: #064e3b; }
+  body.hombre .tip-row { color: #94a3b8; }
+  body.mujer .plan-header { background: linear-gradient(90deg,#2d1b4e,#1a0a2e); }
+  body.mujer #screen-plan { background: linear-gradient(160deg,#1a0a2e 0%,#2d1b4e 40%,#0f1a2e 100%); }
+  body.mujer .header-eyebrow { color: #6b21a8; }
+  body.mujer .header-title { background: linear-gradient(90deg,#f472b6,#a78bfa); }
+  body.mujer .header-right { color: #6b21a8; }
+  body.mujer .day-btn.active { border-color: #f472b6; background: linear-gradient(135deg,#6b21a8,#4c1d95); color: #f472b6; }
+  body.mujer .day-title { color: #f3e8ff; }
+  body.mujer .kcal-badge { background: rgba(244,114,182,0.1); border-color: rgba(244,114,182,0.25); color: #f472b6; }
+  body.mujer .progress-fill { background: linear-gradient(90deg,#f472b6,#a78bfa); }
+  body.mujer .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.mujer .progress-note { color: #7c3aed; }
+  body.mujer .tips-eyebrow { color: #7c3aed; }
+  body.mujer .tip-row { color: #a78bfa; }
+
+  /* ===== PESO STYLES ===== */
+  .peso-header { background: linear-gradient(90deg, #0c1829, #0a1020); border-bottom: 1px solid var(--border); padding: 20px 18px 14px; text-align: center; }
+  .peso-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 5px; color: var(--muted); margin-bottom: 6px; }
+  .peso-title { font-family: 'DM Serif Display', serif; font-size: 24px; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 16px 16px 8px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 10px; text-align: center; }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1; }
+  .stat-unit { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .input-section { padding: 8px 16px 12px; }
+  .input-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .input-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); margin-bottom: 12px; }
+  .input-row { display: flex; gap: 10px; align-items: center; }
+  .weight-input { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 18px; font-family: 'DM Mono', monospace; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  .weight-input:focus { border-color: var(--accent); }
+  .weight-input::placeholder { color: var(--muted); font-size: 14px; }
+  .date-input { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 10px; padding: 12px 10px; color: var(--text); font-size: 13px; font-family: 'DM Mono', monospace; outline: none; transition: border-color 0.2s; width: 130px; }
+  .date-input:focus { border-color: var(--accent); }
+  .save-btn { background: linear-gradient(135deg, #0ea5e9, #6366f1); border: none; border-radius: 10px; padding: 12px 18px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+  .save-btn:hover { opacity: 0.85; }
+  .meta-row { display: flex; gap: 10px; margin-top: 10px; }
+  .meta-input { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-size: 13px; font-family: 'DM Mono', monospace; outline: none; }
+  .meta-input:focus { border-color: var(--accent2); }
+  .meta-input::placeholder { color: var(--muted); font-size: 12px; }
+  .meta-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .chart-section { padding: 4px 16px 12px; }
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .chart-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); }
+  .chart-filters { display: flex; gap: 6px; }
+  .filter-btn { font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.08); }
+  .history-section { padding: 4px 16px 20px; }
+  .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .history-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted); }
+  .clear-btn { font-size: 11px; color: #ef4444; background: transparent; border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .history-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .history-weight { font-family: 'DM Serif Display', serif; font-size: 20px; }
+  .history-diff { font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 8px; border-radius: 8px; }
+  .diff-down { color: var(--green); background: rgba(52,211,153,0.1); }
+  .diff-up { color: var(--red); background: rgba(248,113,113,0.1); }
+  .diff-same { color: var(--muted); background: rgba(255,255,255,0.05); }
+  .history-note { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 2px; }
+  .delete-entry { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 4px; transition: color 0.15s; }
+  .delete-entry:hover { color: var(--red); }
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 14px; }
+  .empty-state .emoji { font-size: 32px; margin-bottom: 10px; display: block; }
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e293b; border: 1px solid var(--border); border-radius: 12px; padding: 10px 20px; font-size: 13px; color: var(--text); transition: transform 0.3s ease; z-index: 200; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .goal-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .goal-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- SCREEN: PLAN -->
+<div id="screen-plan" class="screen active">
+  <div id="selector">
+    <div class="eyebrow">Plan Nutricional</div>
+    <h1 class="selector-title">Bajar de Peso · 30+</h1>
+    <p class="selector-sub">4 comidas · Déficit fuerte · Semana completa</p>
+    <p class="selector-label">¿Para quién es el plan?</p>
+    <div class="selector-btns">
+      <button class="selector-btn" id="btn-hombre" onclick="selectSex('hombre')">
+        <span class="emoji">👨</span>
+        <span class="sex-label">Hombre</span>
+        <span class="kcal-label">1.200–1.400 kcal/día</span>
+      </button>
+      <button class="selector-btn" id="btn-mujer" onclick="selectSex('mujer')">
+        <span class="emoji">👩</span>
+        <span class="sex-label">Mujer</span>
+        <span class="kcal-label">1.000–1.200 kcal/día</span>
+      </button>
+    </div>
+  </div>
+  <div id="plan-content">
+    <div class="plan-header">
+      <button class="back-btn" onclick="goBack()">← Cambiar</button>
+      <div class="header-center">
+        <div class="header-eyebrow">PLAN NUTRICIONAL</div>
+        <div class="header-title" id="header-title"></div>
+      </div>
+      <div class="header-right" id="header-right"></div>
+    </div>
+    <div class="days-row" id="days-row"></div>
+    <div class="day-header">
+      <h2 class="day-title" id="day-title"></h2>
+      <div class="kcal-badge" id="kcal-badge"></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-note" id="progress-note"></div>
+    </div>
+    <div style="padding:6px 16px 0">
+      <span class="done-counter" id="done-counter">0 de 4 comidas completadas</span>
+    </div>
+    <div class="meals" id="meals"></div>
+    <div class="tips-box">
+      <div class="tips-eyebrow">REGLAS DIARIAS</div>
+      <div id="tips-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: PESO -->
+<div id="screen-peso" class="screen">
+  <div class="peso-header">
+    <div class="peso-eyebrow">SEGUIMIENTO PERSONAL</div>
+    <h1 class="peso-title">Mi Progreso de Peso</h1>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">ACTUAL</div>
+      <div class="stat-value" id="stat-current" style="color:var(--accent)">—</div>
+      <div class="stat-unit">kg</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">OBJETIVO</div>
+      <div class="stat-value" id="stat-goal" style="color:var(--accent2)">—</div>
+      <div class="stat-unit">kg</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">PERDIDO</div>
+      <div class="stat-value" id="stat-lost" style="color:var(--green)">—</div>
+      <div class="stat-unit">kg</div>
+    </div>
+  </div>
+  <div class="input-section">
+    <div class="input-card">
+      <div class="input-title">REGISTRAR PESO</div>
+      <div class="input-row">
+        <input class="weight-input" id="weight-input" type="number" step="0.1" min="30" max="300" placeholder="ej: 82.5">
+        <input class="date-input" id="date-input" type="date">
+        <button class="save-btn" onclick="saveEntry()">Guardar</button>
+      </div>
+      <div class="meta-row">
+        <div style="flex:1">
+          <div class="meta-label">Nota (opcional)</div>
+          <input class="meta-input" id="note-input" type="text" placeholder="ej: después de entrenar...">
+        </div>
+      </div>
+      <div class="goal-row">
+        <span class="goal-label">Meta:</span>
+        <input class="meta-input" id="goal-input" type="number" step="0.1" min="30" max="300" placeholder="Peso objetivo (kg)" style="max-width:180px">
+        <button onclick="saveGoal()" style="background:rgba(129,140,248,0.15);border:1px solid rgba(129,140,248,0.3);border-radius:8px;padding:7px 12px;color:var(--accent2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Fijar meta</button>
+      </div>
+    </div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">EVOLUCIÓN</div>
+        <div class="chart-filters">
+          <button class="filter-btn active" onclick="setFilter('all',this)">TODO</button>
+          <button class="filter-btn" onclick="setFilter('30',this)">30D</button>
+          <button class="filter-btn" onclick="setFilter('7',this)">7D</button>
+        </div>
+      </div>
+      <canvas id="weightChart" height="180"></canvas>
+      <div id="chart-empty" class="empty-state" style="display:none">
+        <span class="emoji">📊</span>Registrá tu primer peso para ver el gráfico
+      </div>
+    </div>
+  </div>
+  <div class="history-section">
+    <div class="history-header">
+      <div class="history-title">HISTORIAL</div>
+      <button class="clear-btn" onclick="clearAll()">Borrar todo</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="empty-state"><span class="emoji">⚖️</span>Aún no hay registros.<br>Ingresá tu peso para empezar.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" id="tab-plan" onclick="showTab('plan')">
+    <span class="tab-icon">🥗</span>
+    <span class="tab-label">PLAN</span>
+  </button>
+  <button class="tab-btn" id="tab-peso" onclick="showTab('peso')">
+    <span class="tab-icon">⚖️</span>
+    <span class="tab-label">PESO</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== TAB NAVIGATION =====
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'peso') renderPeso();
+}
+
+// ===== PLAN DATA =====
+const planData = {
+  hombre: {
+    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400,
+    mealAccents:{desayuno:"#f97316",merienda:"#a855f7",almuerzo:"#22c55e",cena:"#3b82f6"},
+    tips:[["💧","2 litros de agua por día"],["🚶","30 min de caminata mínimo"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 7-8 horas"],["❌","Sin azúcar, frituras ni harinas blancas de noche"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:1170,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Café sin azúcar"],kcal:320},merienda:{name:"Fruta + mate",items:["1 manzana","Mate sin azúcar"],kcal:80},almuerzo:{name:"Pollo + ensalada",items:["150g pechuga a la plancha","Lechuga, tomate, pepino","1 cda aceite de oliva"],kcal:420},cena:{name:"Merluza + brócoli",items:["150g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:350}}},
+      {day:"Martes",short:"MAR",total:1110,meals:{desayuno:{name:"Avena con banana",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:300},merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela"],kcal:90},almuerzo:{name:"Lentejas + vegetales",items:["1 taza lentejas cocidas","Cebolla y pimiento salteados","Ensalada verde"],kcal:430},cena:{name:"Omelette + espinaca",items:["3 claras + 1 huevo","Espinaca y tomate salteados"],kcal:290}}},
+      {day:"Miércoles",short:"MIÉ",total:1170,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:360},merienda:{name:"Zanahoria + mate",items:["1 zanahoria cruda","Mate sin azúcar"],kcal:60},almuerzo:{name:"Salmón + puré de zapallo",items:["150g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:450},cena:{name:"Atún + ensalada",items:["1 lata atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:300}}},
+      {day:"Jueves",short:"JUE",total:1220,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té verde"],kcal:310},merienda:{name:"Naranja + mate",items:["1 naranja","Mate sin azúcar"],kcal:70},almuerzo:{name:"Carne magra + vegetales",items:["150g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:480},cena:{name:"Pollo al limón + coliflor",items:["150g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:360}}},
+      {day:"Viernes",short:"VIE",total:1140,meals:{desayuno:{name:"Yogur + granola light",items:["200g yogur descremado","2 cdas granola sin azúcar"],kcal:330},merienda:{name:"Pepino + mate",items:["½ pepino en rodajas","Mate sin azúcar"],kcal:40},almuerzo:{name:"Arroz integral + pollo",items:["½ taza arroz integral","150g pollo desmenuzado","Pimiento y cebolla salteados"],kcal:490},cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:280}}},
+      {day:"Sábado",short:"SÁB",total:1330,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla","Café sin azúcar"],kcal:370},merienda:{name:"Manzana + almendras",items:["1 manzana","8 almendras"],kcal:130},almuerzo:{name:"Milanesa al horno",items:["150g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:490},cena:{name:"Pescado + espárragos",items:["200g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:340}}},
+      {day:"Domingo",short:"DOM",total:1230,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:380},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:60},almuerzo:{name:"Asado light",items:["150g vacío o tira magra","Chimichurri casero","Ensalada grande mixta"],kcal:500},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","2 tostadas integrales","Tomate y rúcula"],kcal:290}}}
+    ]
+  },
+  mujer: {
+    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200,
+    mealAccents:{desayuno:"#f472b6",merienda:"#a78bfa",almuerzo:"#34d399",cena:"#60a5fa"},
+    tips:[["💧","2 litros de agua, idealmente antes de cada comida"],["🚶","30-40 min de caminata o actividad diaria"],["🌙","Cenar liviano y al menos 2hs antes de dormir"],["😴","Dormir 7-8hs: el mal sueño sube el cortisol"],["🥦","Priorizar proteína y verduras en cada comida"],["❌","Sin azúcar, harinas blancas ni alcohol"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:980,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Té verde sin azúcar"],kcal:280},merienda:{name:"Fruta + mate",items:["1 manzana pequeña","Mate sin azúcar"],kcal:60},almuerzo:{name:"Pollo + ensalada completa",items:["120g pechuga a la plancha","Lechuga, tomate, pepino, zanahoria","1 cdita aceite de oliva"],kcal:360},cena:{name:"Merluza + brócoli",items:["120g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:280}}},
+      {day:"Martes",short:"MAR",total:960,meals:{desayuno:{name:"Avena con fruta",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:260},merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela o stevia"],kcal:80},almuerzo:{name:"Lentejas + vegetales",items:["¾ taza lentejas cocidas","Zapallito y pimiento salteados","Ensalada verde"],kcal:380},cena:{name:"Omelette de claras",items:["3 claras + 1 huevo","Espinaca y tomate cherry salteados"],kcal:240}}},
+      {day:"Miércoles",short:"MIÉ",total:1000,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:300},merienda:{name:"Zanahoria cruda",items:["1 zanahoria en bastones","Té verde"],kcal:40},almuerzo:{name:"Salmón + puré de zapallo",items:["120g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:400},cena:{name:"Atún + ensalada",items:["1 lata chica atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:260}}},
+      {day:"Jueves",short:"JUE",total:1030,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té de jengibre"],kcal:270},merienda:{name:"Naranja + mate",items:["1 naranja o mandarina","Mate sin azúcar"],kcal:60},almuerzo:{name:"Carne magra + vegetales",items:["120g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:400},cena:{name:"Pollo al limón + coliflor",items:["120g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:300}}},
+      {day:"Viernes",short:"VIE",total:940,meals:{desayuno:{name:"Yogur + granola light",items:["150g yogur descremado","1 cda granola sin azúcar","Fruta del bosque"],kcal:250},merienda:{name:"Pepino + limón",items:["½ pepino en rodajas","Sal y limón","Té verde"],kcal:30},almuerzo:{name:"Arroz integral + pollo",items:["⅓ taza arroz integral","120g pollo desmenuzado","Cebolla y pimiento salteados"],kcal:420},cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:240}}},
+      {day:"Sábado",short:"SÁB",total:1110,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla morada","Café sin azúcar"],kcal:300},merienda:{name:"Manzana + almendras",items:["1 manzana chica","6 almendras"],kcal:110},almuerzo:{name:"Milanesa al horno",items:["120g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:420},cena:{name:"Pescado + espárragos",items:["150g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:280}}},
+      {day:"Domingo",short:"DOM",total:1030,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:320},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:50},almuerzo:{name:"Pollo al horno + ensalada",items:["150g pollo al horno con hierbas","Ensalada grande con rúcula","Vinagreta de limón"],kcal:420},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","1 tostada integral","Tomate y rúcula"],kcal:240}}}
+    ]
+  }
+};
+
+const mealIcons={desayuno:"🌅",merienda:"🍎",almuerzo:"☀️",cena:"🌙"};
+const mealLabels={desayuno:"DESAYUNO",merienda:"MERIENDA",almuerzo:"ALMUERZO",cena:"CENA"};
+let currentSex=null, currentDay=0, doneMeals={};
+
+function selectSex(sex) {
+  currentSex=sex; currentDay=0; doneMeals={};
+  document.body.className=sex;
+  document.getElementById('selector').style.display='none';
+  const pc=document.getElementById('plan-content');
+  pc.style.display='block';
+  const d=planData[sex];
+  document.getElementById('header-title').textContent=d.title;
+  document.getElementById('header-right').textContent=d.kcalRange;
+  renderDays(); renderDay(); renderTips();
+}
+
+function goBack() {
+  document.body.className='';
+  document.getElementById('selector').style.display='flex';
+  document.getElementById('plan-content').style.display='none';
+}
+
+function renderDays() {
+  const d=planData[currentSex], row=document.getElementById('days-row');
+  row.innerHTML='';
+  d.days.forEach((day,i)=>{
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(i===currentDay?' active':'');
+    btn.textContent=day.short;
+    btn.onclick=()=>{currentDay=i;renderDays();renderDay();};
+    row.appendChild(btn);
+  });
+}
+
+function updateDoneCounter() {
+  const keys=['desayuno','merienda','almuerzo','cena'];
+  const count=keys.filter(k=>doneMeals[currentDay+'-'+k]).length;
+  const el=document.getElementById('done-counter');
+  if(count===4){el.textContent='✓ ¡Todas las comidas completadas!';el.style.background='rgba(52,211,153,0.15)';el.style.borderColor='rgba(52,211,153,0.3)';el.style.color='#34d399';}
+  else{el.textContent=count+' de 4 comidas completadas';el.style.background='rgba(255,255,255,0.05)';el.style.borderColor='rgba(255,255,255,0.1)';el.style.color='#64748b';}
+}
+
+function renderDay() {
+  const d=planData[currentSex], day=d.days[currentDay];
+  document.getElementById('day-title').textContent=day.day;
+  document.getElementById('kcal-badge').textContent=day.total+' kcal';
+  const pct=Math.min(Math.round((day.total/d.kcalTarget)*100),100);
+  const fill=document.getElementById('progress-fill');
+  fill.style.width=pct+'%';
+  fill.className='progress-fill'+(day.total>d.kcalTarget?' over':'');
+  document.getElementById('progress-note').textContent=day.total<=d.kcalTarget?'✓ Dentro del objetivo':'⚠ Ligeramente sobre el objetivo';
+  updateDoneCounter();
+  const mealsEl=document.getElementById('meals');
+  mealsEl.innerHTML='';
+  ['desayuno','merienda','almuerzo','cena'].forEach(key=>{
+    const meal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
+    const card=document.createElement('div');
+    card.className='meal-card'+(isDone?' done':'');
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:12px">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>`;
+    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];renderDay();});
+    card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
+    mealsEl.appendChild(card);
+  });
+}
+
+function renderTips() {
+  const tips=planData[currentSex].tips;
+  document.getElementById('tips-list').innerHTML=tips.map(([icon,tip])=>`<div class="tip-row"><span style="font-size:14px">${icon}</span><span>${tip}</span></div>`).join('');
+}
+
+// ===== PESO DATA =====
+let pesoEntries=JSON.parse(localStorage.getItem('peso-entries')||'[]');
+let pesoGoal=parseFloat(localStorage.getItem('peso-goal')||'0');
+let chartInstance=null, currentFilter='all';
+
+document.getElementById('date-input').value=new Date().toISOString().split('T')[0];
+if(pesoGoal) document.getElementById('goal-input').value=pesoGoal;
+
+function saveEntry() {
+  const w=parseFloat(document.getElementById('weight-input').value);
+  const d=document.getElementById('date-input').value;
+  const note=document.getElementById('note-input').value.trim();
+  if(!w||w<30||w>300){showToast('⚠️ Ingresá un peso válido');return;}
+  if(!d){showToast('⚠️ Seleccioná una fecha');return;}
+  const existing=pesoEntries.findIndex(e=>e.date===d);
+  if(existing>=0){pesoEntries[existing]={date:d,weight:w,note};showToast('✓ Registro actualizado');}
+  else{pesoEntries.push({date:d,weight:w,note});showToast('✓ Peso guardado');}
+  pesoEntries.sort((a,b)=>a.date.localeCompare(b.date));
+  localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  document.getElementById('weight-input').value='';
+  document.getElementById('note-input').value='';
+  renderPeso();
+}
+
+function saveGoal() {
+  const g=parseFloat(document.getElementById('goal-input').value);
+  if(!g||g<30||g>300){showToast('⚠️ Ingresá un peso meta válido');return;}
+  pesoGoal=g;
+  localStorage.setItem('peso-goal',g);
+  showToast('🎯 Meta fijada: '+g+' kg');
+  renderPeso();
+}
+
+function deleteEntry(date) {
+  pesoEntries=pesoEntries.filter(e=>e.date!==date);
+  localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  renderPeso(); showToast('Registro eliminado');
+}
+
+function clearAll() {
+  if(!confirm('¿Borrar todos los registros?'))return;
+  pesoEntries=[]; localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  renderPeso(); showToast('Historial borrado');
+}
+
+function setFilter(f,btn) {
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderChart();
+}
+
+function getFiltered() {
+  if(currentFilter==='all')return pesoEntries;
+  const days=parseInt(currentFilter), cutoff=new Date();
+  cutoff.setDate(cutoff.getDate()-days);
+  const cutoffStr=cutoff.toISOString().split('T')[0];
+  return pesoEntries.filter(e=>e.date>=cutoffStr);
+}
+
+function fmtDate(s){const[y,m,d]=s.split('-');return d+'/'+m+'/'+y.slice(2);}
+
+function renderPeso(){renderStats();renderChart();renderHistory();}
+
+function renderStats() {
+  if(pesoEntries.length===0){document.getElementById('stat-current').textContent='—';document.getElementById('stat-goal').textContent=pesoGoal||'—';document.getElementById('stat-lost').textContent='—';return;}
+  const current=pesoEntries[pesoEntries.length-1].weight, first=pesoEntries[0].weight, lost=(first-current).toFixed(1);
+  document.getElementById('stat-current').textContent=current;
+  document.getElementById('stat-goal').textContent=pesoGoal||'—';
+  const lostEl=document.getElementById('stat-lost');
+  if(lost>0){lostEl.textContent=lost;lostEl.style.color='var(--green)';}
+  else if(lost<0){lostEl.textContent=Math.abs(lost);lostEl.style.color='var(--red)';}
+  else{lostEl.textContent='0';lostEl.style.color='var(--muted)';}
+}
+
+function renderChart() {
+  const filtered=getFiltered(), canvas=document.getElementById('weightChart'), empty=document.getElementById('chart-empty');
+  if(filtered.length<2){canvas.style.display='none';empty.style.display='block';if(chartInstance){chartInstance.destroy();chartInstance=null;}return;}
+  canvas.style.display='block';empty.style.display='none';
+  const labels=filtered.map(e=>fmtDate(e.date)), weights=filtered.map(e=>e.weight);
+  const minW=Math.min(...weights)-2, maxW=Math.max(...weights)+2;
+  const datasets=[{label:'Peso',data:weights,borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,0.08)',borderWidth:2,pointBackgroundColor:'#38bdf8',pointRadius:4,pointHoverRadius:6,tension:0.3,fill:true}];
+  if(pesoGoal) datasets.push({label:'Meta',data:Array(labels.length).fill(pesoGoal),borderColor:'rgba(129,140,248,0.5)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false});
+  if(chartInstance) chartInstance.destroy();
+  chartInstance=new Chart(canvas,{type:'line',data:{labels,datasets},options:{responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e293b',titleColor:'#94a3b8',bodyColor:'#e2e8f0',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:ctx=>' '+ctx.parsed.y+' kg'}}},scales:{x:{ticks:{color:'#475569',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:minW,max:maxW,ticks:{color:'#475569',font:{family:'DM Mono',size:10},callback:v=>v+' kg'},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+
+function renderHistory() {
+  const list=document.getElementById('history-list');
+  if(pesoEntries.length===0){list.innerHTML='<div class="empty-state"><span class="emoji">⚖️</span>Aún no hay registros.<br>Ingresá tu peso para empezar.</div>';return;}
+  const reversed=[...pesoEntries].reverse();
+  list.innerHTML=reversed.map((e,i)=>{
+    const prev=reversed[i+1];
+    let diffHtml='';
+    if(prev){const diff=(e.weight-prev.weight).toFixed(1);if(diff<0)diffHtml=`<span class="history-diff diff-down">▼ ${Math.abs(diff)} kg</span>`;else if(diff>0)diffHtml=`<span class="history-diff diff-up">▲ ${diff} kg</span>`;else diffHtml=`<span class="history-diff diff-same">= igual</span>`;}
+    return `<div class="history-item"><div><div class="history-date">${fmtDate(e.date)}</div>${e.note?`<div class="history-note">${e.note}</div>`:''}</div><div style="display:flex;align-items:center;gap:8px"><div><div class="history-weight" style="color:var(--accent)">${e.weight} <span style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace">kg</span></div>${diffHtml}</div><button class="delete-entry" onclick="deleteEntry('${e.date}')" title="Eliminar">✕</button></div></div>`;
+  }).join('');
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+renderPeso();
+
+// ===== SERVICE WORKER (funciona offline) =====
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'nutricion-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+</script>
+</body>
+</html>
