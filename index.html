@@ -172,6 +172,34 @@
   .meal-check-btn:hover { opacity: 0.8; }
   .meal-card.done .meal-name { text-decoration: line-through; opacity: 0.5; }
   .meal-card.done .meal-top { opacity: 0.7; }
+
+  /* REPLACE BUTTON */
+  .meal-replace-row {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 8px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .meal-replace-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 11px;
+    color: var(--muted);
+    font-size: 0.6875rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .meal-replace-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .meal-alt-indicator {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.625rem;
+    color: var(--muted);
+  }
   .done-counter { font-family: 'DM Mono', monospace; font-size: 0.6875rem; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #64748b; margin: 0 16px 8px; display: inline-block; }
   .tips-box { margin: 0 16px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); padding: 14px; }
   .tips-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.625rem; letter-spacing: 3px; margin-bottom: 10px; }
@@ -574,9 +602,68 @@ const planData = {
   }
 };
 
-const mealIcons={desayuno:"🌅",merienda:"🍎",almuerzo:"☀️",cena:"🌙"};
+// ===== ALTERNATIVAS DE REEMPLAZO (2 opciones por tipo de comida y perfil) =====
+const mealAlternatives = {
+  hombre: {
+    desayuno: [
+      {name:"Yogur con granola", items:["200g yogur natural sin azúcar","2 cdas granola sin azúcar","1 fruta a elección"], kcal:340},
+      {name:"Licuado de banana y avena", items:["1 banana","½ taza avena","Leche descremada o agua","Canela al gusto"], kcal:330},
+    ],
+    merienda: [
+      {name:"Tostada con queso untable light", items:["1 tostada integral","1 cda queso untable light","Tomate en rodajas"], kcal:90},
+      {name:"Gelatina light + nueces", items:["1 pote gelatina light","5 nueces"], kcal:80},
+    ],
+    almuerzo: [
+      {name:"Wok de vegetales con tofu o pollo", items:["120g tofu o pollo en cubos","Vegetales salteados variados","Salsa de soja baja en sodio","½ taza arroz integral"], kcal:460},
+      {name:"Tarta de verduras (sin tapa)", items:["Huevo, espinaca, cebolla y zanahoria horneados","Ensalada verde","1 fruta de postre"], kcal:440},
+    ],
+    cena: [
+      {name:"Pollo al horno + ensalada", items:["150g pollo al horno con hierbas","Ensalada de hojas verdes","Aceite de oliva y limón"], kcal:360},
+      {name:"Tortilla de vegetales", items:["2 huevos + zapallito y cebolla","Ensalada de tomate","1 tostada integral"], kcal:330},
+    ],
+  },
+  mujer: {
+    desayuno: [
+      {name:"Yogur con frutos rojos", items:["150g yogur descremado","Frutillas o arándanos","1 cdita semillas de chía"], kcal:260},
+      {name:"Tostada con queso y tomate", items:["1 tostada integral","Queso descremado","Tomate y orégano"], kcal:270},
+    ],
+    merienda: [
+      {name:"Gelatina light + almendras", items:["1 pote gelatina light","5 almendras"], kcal:70},
+      {name:"Infusión + 2 galletas de arroz", items:["2 galletas de arroz","Mate o té sin azúcar"], kcal:60},
+    ],
+    almuerzo: [
+      {name:"Ensalada de quinoa", items:["½ taza quinoa cocida","Tomate, pepino y cebolla","100g pollo o atún","Limón y aceite de oliva"], kcal:400},
+      {name:"Wok de tofu y vegetales", items:["100g tofu en cubos","Vegetales salteados variados","Salsa de soja baja en sodio"], kcal:380},
+    ],
+    cena: [
+      {name:"Tortilla de vegetales", items:["2 huevos + espinaca y cebolla","Ensalada de tomate","1 tostada integral"], kcal:280},
+      {name:"Caldo con pollo desmenuzado", items:["Caldo casero de verduras","100g pollo desmenuzado","Fideos de arroz o zanahoria"], kcal:260},
+    ],
+  },
+  anemia: {
+    desayuno: [
+      {name:"Licuado verde con semillas", items:["Espinaca, banana y manzana licuadas","1 cda semillas de chía o lino","Jugo de limón"], kcal:340},
+      {name:"Tostadas con paté de garbanzos", items:["2 tostadas integrales","Hummus de garbanzos casero","Tomate y pimentón"], kcal:360},
+    ],
+    merienda: [
+      {name:"Batido de hierro", items:["Jugo de naranja natural","1 cda semillas de calabaza","1 cdita miel"], kcal:150},
+      {name:"Frutos secos mixtos", items:["8 nueces y almendras mixtas","2 orejones de durazno (hierro)"], kcal:170},
+    ],
+    almuerzo: [
+      {name:"Guiso de lentejas con carne", items:["1 taza lentejas con trozos de carne magra","Zanahoria, cebolla y pimiento","Perejil y limón al servir"], kcal:520},
+      {name:"Tarta de espinaca y garbanzos", items:["Espinaca, garbanzos y huevo horneados","Ensalada de tomate y rúcula","1 naranja de postre"], kcal:490},
+    ],
+    cena: [
+      {name:"Milanesa de hígado rebozada", items:["150g hígado rebozado al horno","Ensalada de remolacha y rúcula","Limón"], kcal:430},
+      {name:"Wok de carne con vegetales", items:["120g carne magra en tiras","Brócoli, pimiento y cebolla salteados","Jugo de limón al servir"], kcal:440},
+    ],
+  },
+};
+
+
 const mealLabels={desayuno:"DESAYUNO",merienda:"MERIENDA",almuerzo:"ALMUERZO",cena:"CENA"};
 let currentSex=null, currentDay=0, doneMeals={};
+let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
 function selectSex(sex) {
   currentSex=sex; currentDay=0; doneMeals={};
@@ -630,12 +717,26 @@ function renderDay() {
   const mealsEl=document.getElementById('meals');
   mealsEl.innerHTML='';
   ['desayuno','merienda','almuerzo','cena'].forEach(key=>{
-    const meal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
+    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
+    const altKey=currentSex+'-'+currentDay+'-'+key;
+    const altIndex=mealReplacements[altKey] || 0;
+    const alternatives=(mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
+    const totalOptions=1+alternatives.length;
+    const meal=altIndex===0?originalMeal:alternatives[altIndex-1];
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:12px">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>`;
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
+    const replaceBtn=card.querySelector('.meal-replace-btn');
+    if(replaceBtn){
+      replaceBtn.addEventListener('click',e=>{
+        e.stopPropagation();
+        mealReplacements[altKey]=(altIndex+1)%totalOptions;
+        localStorage.setItem('meal-replacements',JSON.stringify(mealReplacements));
+        renderDay();
+      });
+    }
     mealsEl.appendChild(card);
   });
 }
