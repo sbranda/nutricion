@@ -661,6 +661,7 @@ const mealAlternatives = {
 };
 
 
+const mealIcons={desayuno:"🌅",merienda:"🍎",almuerzo:"☀️",cena:"🌙"};
 const mealLabels={desayuno:"DESAYUNO",merienda:"MERIENDA",almuerzo:"ALMUERZO",cena:"CENA"};
 let currentSex=null, currentDay=0, doneMeals={};
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
@@ -853,20 +854,37 @@ function showToast(msg) {
 
 renderPeso();
 
-// ===== SERVICE WORKER (funciona offline) =====
+// ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutricion-v1';
+    const CACHE = 'nutricion-v2';
     self.addEventListener('install', e => {
+      self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
     });
+    self.addEventListener('activate', e => {
+      e.waitUntil(
+        caches.keys().then(keys => Promise.all(
+          keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        ))
+      );
+      self.clients.claim();
+    });
     self.addEventListener('fetch', e => {
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+      e.respondWith(
+        fetch(e.request).then(res => {
+          const resClone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, resClone));
+          return res;
+        }).catch(() => caches.match(e.request))
+      );
     });
   `;
   const blob = new Blob([swCode], { type: 'application/javascript' });
   const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl).catch(() => {});
+  navigator.serviceWorker.register(swUrl).then(reg => {
+    reg.update();
+  }).catch(() => {});
 }
 
 // ===== AJUSTES: fuente y tema =====
