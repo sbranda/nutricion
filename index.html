@@ -494,6 +494,7 @@
   <div class="peso-header">
     <div class="peso-eyebrow">SEGUIMIENTO PERSONAL</div>
     <h1 class="peso-title">Mi Progreso de Peso</h1>
+    <div id="peso-perfil-badge" style="font-family:'DM Mono',monospace;font-size:0.625rem;color:var(--muted);margin-top:4px">Sin perfil seleccionado</div>
   </div>
   <div class="stats-row">
     <div class="stat-card">
@@ -661,7 +662,7 @@ function showTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + tab).classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'peso') renderPeso();
+  if (tab === 'peso') { loadPesoForProfile(); renderPeso(); }
 }
 
 // ===== PLAN DATA =====
@@ -1110,6 +1111,7 @@ function selectSex(sex) {
   const d=planData[sex];
   document.getElementById('header-title').textContent=d.title;
   document.getElementById('header-right').textContent=d.kcalRange;
+  loadPesoForProfile();
   renderDays(); renderDay(); renderTips();
 }
 
@@ -1200,13 +1202,33 @@ function renderTips() {
   document.getElementById('tips-list').innerHTML=tips.map(([icon,tip])=>`<div class="tip-row"><span style="font-size:14px">${icon}</span><span>${tip}</span></div>`).join('');
 }
 
-// ===== PESO DATA =====
-let pesoEntries=JSON.parse(localStorage.getItem('peso-entries')||'[]');
-let pesoGoal=parseFloat(localStorage.getItem('peso-goal')||'0');
+// ===== PESO DATA (vinculado al perfil activo) =====
+let pesoEntries=[];
+let pesoGoal=0;
 let chartInstance=null, currentFilter='all';
 
+function pesoKey() { return 'peso-entries-'+(currentSex||'global'); }
+function goalKey() { return 'peso-goal-'+(currentSex||'global'); }
+
+function loadPesoForProfile() {
+  pesoEntries=JSON.parse(localStorage.getItem(pesoKey())||'[]');
+  pesoGoal=parseFloat(localStorage.getItem(goalKey())||'0');
+  const goalInput=document.getElementById('goal-input');
+  if(goalInput) goalInput.value=pesoGoal||'';
+  const badge=document.getElementById('peso-perfil-badge');
+  if(badge){
+    if(currentSex && planData[currentSex]){
+      badge.textContent='Perfil: '+planData[currentSex].title;
+      badge.style.color='var(--accent)';
+    } else {
+      badge.textContent='Seleccioná un perfil en la pestaña Plan';
+      badge.style.color='var(--muted)';
+    }
+  }
+}
+
 document.getElementById('date-input').value=new Date().toISOString().split('T')[0];
-if(pesoGoal) document.getElementById('goal-input').value=pesoGoal;
+loadPesoForProfile();
 
 function saveEntry() {
   const w=parseFloat(document.getElementById('weight-input').value);
@@ -1218,7 +1240,7 @@ function saveEntry() {
   if(existing>=0){pesoEntries[existing]={date:d,weight:w,note};showToast('✓ Registro actualizado');}
   else{pesoEntries.push({date:d,weight:w,note});showToast('✓ Peso guardado');}
   pesoEntries.sort((a,b)=>a.date.localeCompare(b.date));
-  localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
   document.getElementById('weight-input').value='';
   document.getElementById('note-input').value='';
   renderPeso();
@@ -1228,20 +1250,20 @@ function saveGoal() {
   const g=parseFloat(document.getElementById('goal-input').value);
   if(!g||g<30||g>300){showToast('⚠️ Ingresá un peso meta válido');return;}
   pesoGoal=g;
-  localStorage.setItem('peso-goal',g);
+  localStorage.setItem(goalKey(),g);
   showToast('🎯 Meta fijada: '+g+' kg');
   renderPeso();
 }
 
 function deleteEntry(date) {
   pesoEntries=pesoEntries.filter(e=>e.date!==date);
-  localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
   renderPeso(); showToast('Registro eliminado');
 }
 
 function clearAll() {
-  if(!confirm('¿Borrar todos los registros?'))return;
-  pesoEntries=[]; localStorage.setItem('peso-entries',JSON.stringify(pesoEntries));
+  if(!confirm('¿Borrar todos los registros de este perfil?'))return;
+  pesoEntries=[]; localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
   renderPeso(); showToast('Historial borrado');
 }
 
@@ -1310,7 +1332,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v4';
+    const CACHE = 'nutriplan-v5';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
