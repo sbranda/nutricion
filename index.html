@@ -231,26 +231,41 @@
   body.mujer .tips-eyebrow { color: #7c3aed; }
   body.mujer .tip-row { color: #a78bfa; }
   /* ANEMIA THEME */
-  body.anemia .plan-header { background: linear-gradient(90deg,#3b0a0a,#1a0a0f); }
-  body.anemia #screen-plan { background: linear-gradient(160deg,#1a0505 0%,#2d0f0f 40%,#0f0a1a 100%); }
-  body.anemia .header-eyebrow { color: #7f1d1d; }
-  body.anemia .header-title { background: linear-gradient(90deg,#f87171,#fbbf24); }
-  body.anemia .header-right { color: #7f1d1d; }
-  body.anemia .day-btn.active { border-color: #f87171; background: linear-gradient(135deg,#7f1d1d,#451a03); color: #f87171; }
-  body.anemia .day-title { color: #fef2f2; }
-  body.anemia .kcal-badge { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); color: #f87171; }
-  body.anemia .progress-fill { background: linear-gradient(90deg,#f87171,#fbbf24); }
-  body.anemia .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
-  body.anemia .progress-note { color: #7f1d1d; }
-  body.anemia .tips-eyebrow { color: #7f1d1d; }
-  body.anemia .tip-row { color: #fca5a5; }
-  /* Selector 3 botones */
+  body.anemia_hombre .plan-header { background: linear-gradient(90deg,#3b0a0a,#1a0a0f); }
+  body.anemia_hombre #screen-plan { background: linear-gradient(160deg,#1a0505 0%,#2d0f0f 40%,#0f0a1a 100%); }
+  body.anemia_hombre .header-eyebrow { color: #7f1d1d; }
+  body.anemia_hombre .header-title { background: linear-gradient(90deg,#f87171,#fbbf24); }
+  body.anemia_hombre .header-right { color: #7f1d1d; }
+  body.anemia_hombre .day-btn.active { border-color: #f87171; background: linear-gradient(135deg,#7f1d1d,#451a03); color: #f87171; }
+  body.anemia_hombre .day-title { color: #fef2f2; }
+  body.anemia_hombre .kcal-badge { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.25); color: #f87171; }
+  body.anemia_hombre .progress-fill { background: linear-gradient(90deg,#f87171,#fbbf24); }
+  body.anemia_hombre .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.anemia_hombre .progress-note { color: #7f1d1d; }
+  body.anemia_hombre .tips-eyebrow { color: #7f1d1d; }
+  body.anemia_hombre .tip-row { color: #fca5a5; }
+  body.anemia_mujer .plan-header { background: linear-gradient(90deg,#3b0a1f,#1a0a18); }
+  body.anemia_mujer #screen-plan { background: linear-gradient(160deg,#1a0512 0%,#2d0f23 40%,#150a1a 100%); }
+  body.anemia_mujer .header-eyebrow { color: #831843; }
+  body.anemia_mujer .header-title { background: linear-gradient(90deg,#fb7185,#f472b6); }
+  body.anemia_mujer .header-right { color: #831843; }
+  body.anemia_mujer .day-btn.active { border-color: #fb7185; background: linear-gradient(135deg,#831843,#581c1c); color: #fb7185; }
+  body.anemia_mujer .day-title { color: #fdf2f8; }
+  body.anemia_mujer .kcal-badge { background: rgba(251,113,133,0.1); border-color: rgba(251,113,133,0.25); color: #fb7185; }
+  body.anemia_mujer .progress-fill { background: linear-gradient(90deg,#fb7185,#f472b6); }
+  body.anemia_mujer .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.anemia_mujer .progress-note { color: #831843; }
+  body.anemia_mujer .tips-eyebrow { color: #831843; }
+  body.anemia_mujer .tip-row { color: #fda4af; }
+  /* Selector 4 botones */
   .selector-btns-3 { display: flex; flex-wrap: wrap; gap: 12px; width: 100%; max-width: 340px; justify-content: center; }
   .selector-btns-3 .selector-btn { flex: 0 0 calc(50% - 6px); }
-  .selector-btns-3 .selector-btn:last-child { flex: 0 0 100%; }
-  #btn-anemia { border-color: rgba(248,113,113,0.3); }
-  #btn-anemia .sex-label { color: #f87171; }
-  #btn-anemia:hover { border-color: #f87171; background: rgba(248,113,113,0.07); }
+  #btn-anemia-hombre { border-color: rgba(248,113,113,0.3); }
+  #btn-anemia-hombre .sex-label { color: #f87171; }
+  #btn-anemia-hombre:hover { border-color: #f87171; background: rgba(248,113,113,0.07); }
+  #btn-anemia-mujer { border-color: rgba(251,113,133,0.3); }
+  #btn-anemia-mujer .sex-label { color: #fb7185; }
+  #btn-anemia-mujer:hover { border-color: #fb7185; background: rgba(251,113,133,0.07); }
 
   /* ===== PESO STYLES ===== */
   .peso-header { background: linear-gradient(90deg, #0c1829, #0a1020); border-bottom: 1px solid var(--border); padding: 20px 18px 14px; text-align: center; }
@@ -327,10 +342,15 @@
         <span class="sex-label">Mujer</span>
         <span class="kcal-label">1.000–1.200 kcal/día</span>
       </button>
-      <button class="selector-btn" id="btn-anemia" onclick="selectSex('anemia')">
-        <span class="emoji">🩸</span>
-        <span class="sex-label">Anemia</span>
-        <span class="kcal-label">Rico en hierro · Ambos sexos</span>
+      <button class="selector-btn" id="btn-anemia-hombre" onclick="selectSex('anemia_hombre')">
+        <span class="emoji">🩸👨</span>
+        <span class="sex-label">Anemia · H</span>
+        <span class="kcal-label">1.400–1.600 kcal · 8mg hierro/día</span>
+      </button>
+      <button class="selector-btn" id="btn-anemia-mujer" onclick="selectSex('anemia_mujer')">
+        <span class="emoji">🩸👩</span>
+        <span class="sex-label">Anemia · M</span>
+        <span class="kcal-label">1.300–1.500 kcal · 18mg hierro/día</span>
       </button>
     </div>
   </div>
@@ -530,16 +550,17 @@ const planData = {
       {day:"Domingo",short:"DOM",total:1230,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:380},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:60},almuerzo:{name:"Asado light",items:["150g vacío o tira magra","Chimichurri casero","Ensalada grande mixta"],kcal:500},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","2 tostadas integrales","Tomate y rúcula"],kcal:290}}}
     ]
   },
-  anemia: {
-    title:"🩸 Plan Anti-Anemia", kcalRange:"1.400–1.600 kcal", kcalTarget:1600,
+  anemia_hombre: {
+    title:"🩸👨 Anemia · Hombre", kcalRange:"1.400–1.600 kcal", kcalTarget:1600,
     mealAccents:{desayuno:"#f87171",merienda:"#fbbf24",almuerzo:"#fb923c",cena:"#a78bfa"},
     tips:[
-      ["🥩","Comé carne roja 3 veces por semana — mejor fuente de hierro hemo"],
+      ["🥩","Carne roja 3 veces por semana — mejor fuente de hierro hemo"],
       ["🍋","Combiná hierro con vitamina C (limón, naranja) para mejorar absorción"],
       ["☕","Evitá café y té 1 hora antes y después de comer — bloquean el hierro"],
-      ["🥦","Espinaca, lentejas y garbanzos son claves como hierro vegetal"],
+      ["🥦","Espinaca, lentejas y garbanzos como hierro vegetal"],
       ["🥚","Los huevos aportan hierro y proteína — incluílos todos los días"],
-      ["❌","No mezclar lácteos con las comidas principales — reducen absorción de hierro"],
+      ["❌","No mezclar lácteos con las comidas principales"],
+      ["📊","Objetivo: ~8mg de hierro/día (requerimiento adulto masculino)"],
     ],
     days:[
       {day:"Lunes",short:"LUN",total:1480,meals:{
@@ -586,6 +607,64 @@ const planData = {
       }},
     ]
   },
+  anemia_mujer: {
+    title:"🩸👩 Anemia · Mujer", kcalRange:"1.300–1.500 kcal", kcalTarget:1500,
+    mealAccents:{desayuno:"#fb7185",merienda:"#fbbf24",almuerzo:"#f472b6",cena:"#a78bfa"},
+    tips:[
+      ["🥩","Carne roja 3-4 veces por semana — clave por la pérdida menstrual de hierro"],
+      ["🍋","Sumá vitamina C en CADA comida (limón, naranja, kiwi) para potenciar absorción"],
+      ["☕","Evitá café, té y mate 1 hora antes y después de comer"],
+      ["🥦","Hierro vegetal en cada comida: espinaca, lentejas, garbanzos, remolacha"],
+      ["🥚","Huevo todos los días — hierro + proteína"],
+      ["❌","No mezclar lácteos con las comidas principales"],
+      ["📊","Objetivo: ~18mg de hierro/día (mujer en edad fértil) — hierro en TODAS las comidas"],
+      ["🩺","Si la anemia persiste, consultar para evaluar suplementación con hierro"],
+    ],
+    days:[
+      {day:"Lunes",short:"LUN",total:1380,meals:{
+        desayuno:{name:"Huevos + espinaca + naranja",items:["2 huevos revueltos con espinaca","1 rebanada pan integral","1 naranja entera (vitamina C)","Té de rosa mosqueta sin azúcar"],kcal:360},
+        merienda:{name:"Frutos secos + cítrico",items:["8 almendras o nueces","Jugo de naranja o mandarina natural","1 ciruela seca (hierro)"],kcal:170},
+        almuerzo:{name:"Hígado a la plancha + ensalada",items:["120g hígado de pollo o vacuno a la plancha","Ensalada de rúcula, tomate y limón","½ taza arroz integral"],kcal:460},
+        cena:{name:"Lentejas guisadas con limón",items:["1 taza lentejas cocidas con cebolla y pimiento","Perejil fresco y jugo de limón","1 tostada integral"],kcal:390},
+      }},
+      {day:"Martes",short:"MAR",total:1360,meals:{
+        desayuno:{name:"Avena con semillas y kiwi",items:["½ taza avena con agua","1 cda semillas de calabaza (hierro)","1 kiwi (vitamina C)","Té de jengibre con limón"],kcal:320},
+        merienda:{name:"Yogur + fruta cítrica + semillas",items:["120g yogur natural","1 mandarina","1 cdita semillas de girasol"],kcal:150},
+        almuerzo:{name:"Carne magra + brócoli + limón",items:["120g carne magra a la plancha","Brócoli al vapor con limón","½ taza puré de papa sin manteca"],kcal:450},
+        cena:{name:"Garbanzos con vegetales y perejil",items:["1 taza garbanzos cocidos","Cebolla, pimiento y tomate salteados","Perejil, comino y jugo de limón"],kcal:440},
+      }},
+      {day:"Miércoles",short:"MIÉ",total:1390,meals:{
+        desayuno:{name:"Tostadas + huevo + naranja",items:["2 tostadas pan integral","1 huevo pochado","Jugo de naranja natural","Perejil picado"],kcal:340},
+        merienda:{name:"Nueces + ciruelas + limón",items:["6 nueces","2 ciruelas secas (hierro)","Agua con limón"],kcal:150},
+        almuerzo:{name:"Pollo + espinaca + cítrico",items:["120g pollo a la plancha","Espinaca salteada con ajo y jugo de limón","½ taza arroz integral"],kcal:430},
+        cena:{name:"Sopa de lentejas rojas + limón",items:["1 taza lentejas rojas cocidas","Zanahoria, apio y cúrcuma","Pan integral x1","Limón al servir"],kcal:470},
+      }},
+      {day:"Jueves",short:"JUE",total:1370,meals:{
+        desayuno:{name:"Huevos + espinaca + naranja",items:["Omelette de 2 huevos con espinaca","1 tostada integral","1 naranja entera"],kcal:350},
+        merienda:{name:"Semillas + jugo cítrico",items:["1 cda semillas de girasol y calabaza","Jugo de naranja o pomelo natural"],kcal:140},
+        almuerzo:{name:"Carne vacuna + ensalada de remolacha",items:["120g bife o cuadril a la plancha","Rúcula, tomate, remolacha rallada","Aceite de oliva y limón"],kcal:470},
+        cena:{name:"Fideos integrales con mejillones",items:["80g fideos integrales cocidos","100g mejillones o almejas (muy ricos en hierro)","Ajo, perejil y aceite de oliva"],kcal:410},
+      }},
+      {day:"Viernes",short:"VIE",total:1350,meals:{
+        desayuno:{name:"Cereales integrales + kiwi",items:["½ taza avena o muesli sin azúcar","Leche descremada o bebida vegetal","1 kiwi o naranja"],kcal:330},
+        merienda:{name:"Dátiles + almendras + cítrico",items:["3 dátiles (hierro)","6 almendras","Jugo de naranja chico"],kcal:160},
+        almuerzo:{name:"Salmón + espárragos + limón",items:["120g salmón al horno","Espárragos al vapor con limón","Ensalada de rúcula y tomate cherry"],kcal:440},
+        cena:{name:"Hamburguesa casera de lentejas",items:["Hamburguesa de lentejas y avena al horno","Lechuga, tomate y cebolla morada","Pan integral x1"],kcal:420},
+      }},
+      {day:"Sábado",short:"SÁB",total:1430,meals:{
+        desayuno:{name:"Tostadas con paté de hígado + naranja",items:["2 tostadas integrales","Paté casero de hígado de pollo","Tomate en rodajas","Jugo de naranja"],kcal:390},
+        merienda:{name:"Frutas rojas + nueces + semillas",items:["½ taza frutillas o frambuesas","8 nueces","Yogur natural"],kcal:180},
+        almuerzo:{name:"Asado magro + ensalada remolacha",items:["120g vacío o costilla magra","Ensalada de remolacha y rúcula","Vinagreta de limón y mostaza"],kcal:470},
+        cena:{name:"Revuelto de huevos con espinaca",items:["3 huevos revueltos con espinaca y tomate","1 tostada integral","Perejil y limón"],kcal:390},
+      }},
+      {day:"Domingo",short:"DOM",total:1400,meals:{
+        desayuno:{name:"Panqueques de avena + frutillas",items:["½ taza avena + 1 huevo + leche descremada","Frutillas o arándanos frescos","Miel mínima"],kcal:360},
+        merienda:{name:"Ciruelas + almendras + cítrico",items:["3 ciruelas secas (hierro)","6 almendras","Jugo de mandarina natural"],kcal:150},
+        almuerzo:{name:"Estofado de carne con vegetales",items:["120g carne vacuna en cubos","Zanahoria, papa y cebolla","Caldo casero con cúrcuma y pimentón","Limón al servir"],kcal:470},
+        cena:{name:"Ensalada de espinaca, garbanzos y naranja",items:["Espinaca fresca + garbanzos cocidos","Tomate cherry, pepino y gajos de naranja","Aderezo de limón y aceite de oliva"],kcal:420},
+      }},
+    ]
+  },
   mujer: {
     title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200,
     mealAccents:{desayuno:"#f472b6",merienda:"#a78bfa",almuerzo:"#34d399",cena:"#60a5fa"},
@@ -608,54 +687,120 @@ const mealAlternatives = {
     desayuno: [
       {name:"Yogur con granola", items:["200g yogur natural sin azúcar","2 cdas granola sin azúcar","1 fruta a elección"], kcal:340},
       {name:"Licuado de banana y avena", items:["1 banana","½ taza avena","Leche descremada o agua","Canela al gusto"], kcal:330},
+      {name:"Tostadas con queso y tomate", items:["2 tostadas integrales","Queso de máquina light","Tomate en rodajas","Café sin azúcar"], kcal:350},
+      {name:"Revuelto de huevo con jamón", items:["2 huevos revueltos","1 fetas jamón cocido magro","1 tostada integral"], kcal:330},
+      {name:"Pancakes proteicos", items:["2 huevos + ½ banana pisada + avena","Canela","Fruta de estación"], kcal:340},
     ],
     merienda: [
       {name:"Tostada con queso untable light", items:["1 tostada integral","1 cda queso untable light","Tomate en rodajas"], kcal:90},
       {name:"Gelatina light + nueces", items:["1 pote gelatina light","5 nueces"], kcal:80},
+      {name:"Yogur con semillas", items:["1 yogur descremado","1 cdita semillas mixtas"], kcal:100},
+      {name:"Fruta + bastones de zanahoria", items:["1 manzana o pera","Bastones de zanahoria"], kcal:90},
+      {name:"Licuado liviano", items:["½ banana licuada con agua","Canela"], kcal:85},
     ],
     almuerzo: [
       {name:"Wok de vegetales con tofu o pollo", items:["120g tofu o pollo en cubos","Vegetales salteados variados","Salsa de soja baja en sodio","½ taza arroz integral"], kcal:460},
       {name:"Tarta de verduras (sin tapa)", items:["Huevo, espinaca, cebolla y zanahoria horneados","Ensalada verde","1 fruta de postre"], kcal:440},
+      {name:"Pasta integral con atún", items:["80g fideos integrales","1 lata atún al natural","Tomate, ajo y orégano"], kcal:480},
+      {name:"Pollo al curry con vegetales", items:["150g pollo en cubos con curry","Zapallito y zanahoria salteados","½ taza arroz integral"], kcal:470},
+      {name:"Cazuela de garbanzos y carne", items:["1 taza garbanzos cocidos","100g carne magra en cubos","Cebolla, tomate y pimentón"], kcal:500},
     ],
     cena: [
       {name:"Pollo al horno + ensalada", items:["150g pollo al horno con hierbas","Ensalada de hojas verdes","Aceite de oliva y limón"], kcal:360},
       {name:"Tortilla de vegetales", items:["2 huevos + zapallito y cebolla","Ensalada de tomate","1 tostada integral"], kcal:330},
+      {name:"Salmón grillado + ensalada", items:["150g salmón grillado","Ensalada de rúcula y tomate","Limón y aceite de oliva"], kcal:370},
+      {name:"Wok de camarones y vegetales", items:["150g camarones salteados","Brócoli, zanahoria y pimiento","Salsa de soja baja en sodio"], kcal:340},
+      {name:"Hamburguesa de pollo casera", items:["Hamburguesa de pollo a la plancha","Ensalada de lechuga y tomate","1 tostada integral"], kcal:360},
     ],
   },
   mujer: {
     desayuno: [
       {name:"Yogur con frutos rojos", items:["150g yogur descremado","Frutillas o arándanos","1 cdita semillas de chía"], kcal:260},
       {name:"Tostada con queso y tomate", items:["1 tostada integral","Queso descremado","Tomate y orégano"], kcal:270},
+      {name:"Licuado de avena y manzana", items:["½ taza avena con agua","½ manzana licuada","Canela"], kcal:250},
+      {name:"Revuelto de claras con espinaca", items:["3 claras revueltas con espinaca","1 tostada integral"], kcal:240},
+      {name:"Yogur con avena y frutas", items:["120g yogur descremado","2 cdas avena","Trozos de pera o manzana"], kcal:270},
     ],
     merienda: [
       {name:"Gelatina light + almendras", items:["1 pote gelatina light","5 almendras"], kcal:70},
       {name:"Infusión + 2 galletas de arroz", items:["2 galletas de arroz","Mate o té sin azúcar"], kcal:60},
+      {name:"Yogur descremado con canela", items:["100g yogur descremado","Canela al gusto"], kcal:65},
+      {name:"Fruta cítrica", items:["1 naranja o mandarina","Mate o té sin azúcar"], kcal:60},
+      {name:"Bastones de apio con queso untable", items:["Bastones de apio","1 cdita queso untable light"], kcal:55},
     ],
     almuerzo: [
       {name:"Ensalada de quinoa", items:["½ taza quinoa cocida","Tomate, pepino y cebolla","100g pollo o atún","Limón y aceite de oliva"], kcal:400},
       {name:"Wok de tofu y vegetales", items:["100g tofu en cubos","Vegetales salteados variados","Salsa de soja baja en sodio"], kcal:380},
+      {name:"Pollo grillado con ensalada tibia", items:["120g pollo grillado","Zapallito y berenjena asados","Ensalada de hojas verdes"], kcal:390},
+      {name:"Merluza con vegetales al vapor", items:["120g merluza al horno","Brócoli y zanahoria al vapor","½ taza arroz integral"], kcal:380},
+      {name:"Ensalada de lentejas y vegetales", items:["¾ taza lentejas cocidas","Tomate, pepino y cebolla morada","Limón y aceite de oliva"], kcal:400},
     ],
     cena: [
       {name:"Tortilla de vegetales", items:["2 huevos + espinaca y cebolla","Ensalada de tomate","1 tostada integral"], kcal:280},
       {name:"Caldo con pollo desmenuzado", items:["Caldo casero de verduras","100g pollo desmenuzado","Fideos de arroz o zanahoria"], kcal:260},
+      {name:"Atún con ensalada de hojas verdes", items:["1 lata atún al natural","Lechuga, rúcula y tomate","Aceite de oliva y limón"], kcal:250},
+      {name:"Revuelto de claras con vegetales", items:["3 claras + 1 huevo con zapallito","1 tostada integral"], kcal:270},
+      {name:"Sopa de vegetales con huevo", items:["Caldo de verduras con zanahoria y apio","1 huevo duro"], kcal:230},
     ],
   },
-  anemia: {
+  anemia_hombre: {
     desayuno: [
       {name:"Licuado verde con semillas", items:["Espinaca, banana y manzana licuadas","1 cda semillas de chía o lino","Jugo de limón"], kcal:340},
       {name:"Tostadas con paté de garbanzos", items:["2 tostadas integrales","Hummus de garbanzos casero","Tomate y pimentón"], kcal:360},
+      {name:"Huevos revueltos con morcilla", items:["2 huevos revueltos","30g morcilla (alto en hierro)","1 tostada integral","Jugo de naranja"], kcal:380},
+      {name:"Avena con dátiles y naranja", items:["½ taza avena con agua","3 dátiles picados","1 naranja"], kcal:350},
+      {name:"Tostadas con palta y huevo", items:["2 tostadas integrales","¼ palta","1 huevo pochado","Jugo de naranja"], kcal:370},
     ],
     merienda: [
       {name:"Batido de hierro", items:["Jugo de naranja natural","1 cda semillas de calabaza","1 cdita miel"], kcal:150},
       {name:"Frutos secos mixtos", items:["8 nueces y almendras mixtas","2 orejones de durazno (hierro)"], kcal:170},
+      {name:"Yogur con semillas y ciruelas", items:["150g yogur natural","1 cda semillas mixtas","2 ciruelas secas"], kcal:160},
+      {name:"Tostada con paté de hígado", items:["1 tostada integral","Paté casero de hígado","Jugo de naranja chico"], kcal:180},
+      {name:"Mix de frutas y semillas", items:["1 naranja","8 almendras","1 cdita semillas de girasol"], kcal:160},
     ],
     almuerzo: [
       {name:"Guiso de lentejas con carne", items:["1 taza lentejas con trozos de carne magra","Zanahoria, cebolla y pimiento","Perejil y limón al servir"], kcal:520},
       {name:"Tarta de espinaca y garbanzos", items:["Espinaca, garbanzos y huevo horneados","Ensalada de tomate y rúcula","1 naranja de postre"], kcal:490},
+      {name:"Bife de hígado con puré", items:["150g hígado a la plancha","Puré de papa o zapallo","Ensalada de tomate con limón"], kcal:510},
+      {name:"Wok de carne y espinaca", items:["150g carne magra en tiras","Espinaca y pimiento salteados","½ taza arroz integral","Limón al servir"], kcal:500},
+      {name:"Albóndigas en salsa con lentejas", items:["Albóndigas de carne magra","Salsa de tomate casera","½ taza lentejas cocidas"], kcal:530},
     ],
     cena: [
       {name:"Milanesa de hígado rebozada", items:["150g hígado rebozado al horno","Ensalada de remolacha y rúcula","Limón"], kcal:430},
       {name:"Wok de carne con vegetales", items:["120g carne magra en tiras","Brócoli, pimiento y cebolla salteados","Jugo de limón al servir"], kcal:440},
+      {name:"Tortilla de espinaca y garbanzos", items:["2 huevos + espinaca + garbanzos","Ensalada de tomate","Limón"], kcal:400},
+      {name:"Mejillones con fideos integrales", items:["100g mejillones o almejas","80g fideos integrales","Ajo, perejil y limón"], kcal:420},
+      {name:"Hamburguesa de lentejas y carne", items:["Hamburguesa casera de lentejas y carne magra","Ensalada de rúcula y remolacha","Limón"], kcal:430},
+    ],
+  },
+  anemia_mujer: {
+    desayuno: [
+      {name:"Licuado verde con semillas y kiwi", items:["Espinaca, banana y kiwi licuados","1 cda semillas de chía o lino","Jugo de limón"], kcal:320},
+      {name:"Tostadas con paté de garbanzos y naranja", items:["2 tostadas integrales","Hummus de garbanzos casero","1 naranja"], kcal:340},
+      {name:"Huevos revueltos con morcilla y naranja", items:["2 huevos revueltos","20g morcilla (alto en hierro)","1 naranja"], kcal:350},
+      {name:"Avena con dátiles y mandarina", items:["½ taza avena con agua","2 dátiles picados","1 mandarina"], kcal:330},
+      {name:"Tostadas con palta, huevo y limón", items:["1 tostada integral","¼ palta","1 huevo pochado","Jugo de limón"], kcal:340},
+    ],
+    merienda: [
+      {name:"Batido de hierro y vitamina C", items:["Jugo de naranja natural","1 cda semillas de calabaza","1 cdita miel"], kcal:140},
+      {name:"Frutos secos + cítrico", items:["6 nueces y almendras mixtas","2 orejones de durazno (hierro)","Gajos de mandarina"], kcal:160},
+      {name:"Yogur con semillas y ciruelas", items:["120g yogur natural","1 cdita semillas mixtas","2 ciruelas secas"], kcal:150},
+      {name:"Tostada con paté de hígado y naranja", items:["1 tostada integral","Paté casero de hígado","Jugo de naranja chico"], kcal:170},
+      {name:"Mix de frutas cítricas y semillas", items:["1 mandarina","6 almendras","1 cdita semillas de girasol"], kcal:150},
+    ],
+    almuerzo: [
+      {name:"Guiso de lentejas con carne y limón", items:["1 taza lentejas con trozos de carne magra","Zanahoria, cebolla y pimiento","Perejil y jugo de limón al servir"], kcal:460},
+      {name:"Tarta de espinaca y garbanzos con naranja", items:["Espinaca, garbanzos y huevo horneados","Ensalada de tomate y rúcula","1 naranja de postre"], kcal:440},
+      {name:"Bife de hígado con puré y limón", items:["120g hígado a la plancha","Puré de zapallo","Ensalada de tomate con limón"], kcal:430},
+      {name:"Wok de carne y espinaca con limón", items:["120g carne magra en tiras","Espinaca y pimiento salteados","½ taza arroz integral","Limón al servir"], kcal:440},
+      {name:"Albóndigas en salsa con lentejas y naranja", items:["Albóndigas de carne magra","Salsa de tomate casera","½ taza lentejas cocidas","1 naranja de postre"], kcal:460},
+    ],
+    cena: [
+      {name:"Milanesa de hígado rebozada + remolacha", items:["120g hígado rebozado al horno","Ensalada de remolacha y rúcula","Limón"], kcal:380},
+      {name:"Wok de carne con vegetales y limón", items:["100g carne magra en tiras","Brócoli, pimiento y cebolla salteados","Jugo de limón al servir"], kcal:400},
+      {name:"Tortilla de espinaca y garbanzos con limón", items:["2 huevos + espinaca + garbanzos","Ensalada de tomate","Limón"], kcal:380},
+      {name:"Mejillones con fideos integrales y limón", items:["80g mejillones o almejas","60g fideos integrales","Ajo, perejil y limón"], kcal:380},
+      {name:"Hamburguesa de lentejas y carne con naranja", items:["Hamburguesa casera de lentejas y carne magra","Ensalada de rúcula y remolacha","Gajos de naranja"], kcal:400},
     ],
   },
 };
@@ -668,7 +813,7 @@ let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}')
 
 function selectSex(sex) {
   currentSex=sex; currentDay=0; doneMeals={};
-  document.body.classList.remove('hombre','mujer','anemia');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer');
   document.body.classList.add(sex);
   document.getElementById('selector').style.display='none';
   const pc=document.getElementById('plan-content');
@@ -680,7 +825,7 @@ function selectSex(sex) {
 }
 
 function goBack() {
-  document.body.classList.remove('hombre','mujer','anemia');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer');
   document.getElementById('selector').style.display='flex';
   document.getElementById('plan-content').style.display='none';
 }
@@ -857,7 +1002,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutricion-v2';
+    const CACHE = 'nutricion-v4';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
