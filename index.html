@@ -410,18 +410,18 @@
 <div id="screen-plan" class="screen active">
   <div id="selector">
     <div class="eyebrow">Plan Nutricional</div>
-    <h1 class="selector-title">NutriPlan · 30+</h1>
+    <h1 class="selector-title">NutriPlan</h1>
     <p class="selector-sub">4 comidas · Déficit fuerte · Semana completa</p>
     <p class="selector-label">¿Para quién es el plan?</p>
     <div class="selector-btns-3">
       <button class="selector-btn" id="btn-hombre" onclick="selectSex('hombre')">
         <span class="emoji">👨</span>
-        <span class="sex-label">Hombre 30+</span>
+        <span class="sex-label">Hombre</span>
         <span class="kcal-label">1.200–1.400 kcal/día</span>
       </button>
       <button class="selector-btn" id="btn-mujer" onclick="selectSex('mujer')">
         <span class="emoji">👩</span>
-        <span class="sex-label">Mujer 30+</span>
+        <span class="sex-label">Mujer</span>
         <span class="kcal-label">1.000–1.200 kcal/día</span>
       </button>
       <button class="selector-btn" id="btn-hombre-joven" onclick="selectSex('hombre_joven')">
@@ -671,7 +671,7 @@ const planData = {
     ]
   },
   hombre: {
-    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110, ironTarget:8,
+    title:"👨 Hombre", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110, ironTarget:8,
     mealAccents:{desayuno:"#f97316",merienda:"#a855f7",almuerzo:"#22c55e",cena:"#3b82f6"},
     tips:[["💧","2 litros de agua por día"],["🚶","30 min de caminata mínimo"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 7-8 horas"],["❌","Sin azúcar, frituras ni harinas blancas de noche"]],
     days:[
@@ -800,7 +800,7 @@ const planData = {
     ]
   },
   mujer: {
-    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200, proteinTarget:90, ironTarget:9,
+    title:"👩 Mujer", kcalRange:"1.000–1.200 kcal", kcalTarget:1200, proteinTarget:90, ironTarget:9,
     mealAccents:{desayuno:"#f472b6",merienda:"#a78bfa",almuerzo:"#34d399",cena:"#60a5fa"},
     tips:[["💧","2 litros de agua, idealmente antes de cada comida"],["🚶","30-40 min de caminata o actividad diaria"],["🌙","Cenar liviano y al menos 2hs antes de dormir"],["😴","Dormir 7-8hs: el mal sueño sube el cortisol"],["🥦","Priorizar proteína y verduras en cada comida"],["❌","Sin azúcar, harinas blancas ni alcohol"]],
     days:[
@@ -1286,7 +1286,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v2';
+    const CACHE = 'nutriplan-v3';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
