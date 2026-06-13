@@ -233,6 +233,23 @@
   .progress-fill.protein-fill.over {
     background: linear-gradient(90deg, #fbbf24, #f97316);
   }
+  .iron-progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 2px;
+    color: #f87171;
+  }
+  .iron-progress-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+  .progress-fill.iron-fill {
+    background: linear-gradient(90deg, #f87171, #fb923c);
+  }
+  .progress-fill.iron-fill.over {
+    background: linear-gradient(90deg, #34d399, #22c55e);
+  }
   .done-counter { font-family: 'DM Mono', monospace; font-size: 0.6875rem; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #64748b; margin: 0 16px 8px; display: inline-block; }
   .tips-box { margin: 0 16px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); padding: 14px; }
   .tips-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.625rem; letter-spacing: 3px; margin-bottom: 10px; }
@@ -361,7 +378,7 @@
 <div id="screen-plan" class="screen active">
   <div id="selector">
     <div class="eyebrow">Plan Nutricional</div>
-    <h1 class="selector-title">Bajar de Peso · 30+</h1>
+    <h1 class="selector-title">Mi Plan de Comidas · 30+</h1>
     <p class="selector-sub">4 comidas · Déficit fuerte · Semana completa</p>
     <p class="selector-label">¿Para quién es el plan?</p>
     <div class="selector-btns-3">
@@ -411,6 +428,13 @@
         <span class="protein-progress-value" id="protein-progress-value">0 / 0g</span>
       </div>
       <div class="progress-bar"><div class="progress-fill protein-fill" id="protein-fill"></div></div>
+    </div>
+    <div class="progress-wrap" style="margin-top:6px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span class="iron-progress-label">HIERRO</span>
+        <span class="iron-progress-value" id="iron-progress-value">0 / 0mg</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill iron-fill" id="iron-fill"></div></div>
     </div>
     <div style="padding:6px 16px 0">
       <span class="done-counter" id="done-counter">0 de 4 comidas completadas</span>
@@ -577,21 +601,21 @@ function showTab(tab) {
 // ===== PLAN DATA =====
 const planData = {
   hombre: {
-    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110,
+    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110, ironTarget:8,
     mealAccents:{desayuno:"#f97316",merienda:"#a855f7",almuerzo:"#22c55e",cena:"#3b82f6"},
     tips:[["💧","2 litros de agua por día"],["🚶","30 min de caminata mínimo"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 7-8 horas"],["❌","Sin azúcar, frituras ni harinas blancas de noche"]],
     days:[
-      {day:"Lunes",short:"LUN",total:1170,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Café sin azúcar"],kcal:320},merienda:{name:"Fruta + mate",items:["1 manzana","Mate sin azúcar"],kcal:80},almuerzo:{name:"Pollo + ensalada",items:["150g pechuga a la plancha","Lechuga, tomate, pepino","1 cda aceite de oliva"],kcal:420},cena:{name:"Merluza + brócoli",items:["150g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:350}}},
+      {day:"Lunes",short:"LUN",total:1170,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Café sin azúcar"],kcal:320},merienda:{name:"Fruta + mate",items:["1 manzana","Mate sin azúcar"],kcal:80},almuerzo:{name:"Pollo + ensalada",items:["150g pechuga a la plancha","Lechuga, tomate, pepino y espinaca","1 cda aceite de oliva"],kcal:420},cena:{name:"Merluza + brócoli",items:["150g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:350}}},
       {day:"Martes",short:"MAR",total:1110,meals:{desayuno:{name:"Avena con banana",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:300},merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela"],kcal:90},almuerzo:{name:"Lentejas + vegetales",items:["1 taza lentejas cocidas","Cebolla y pimiento salteados","Ensalada verde"],kcal:430},cena:{name:"Omelette + espinaca",items:["3 claras + 1 huevo","Espinaca y tomate salteados"],kcal:290}}},
-      {day:"Miércoles",short:"MIÉ",total:1170,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:360},merienda:{name:"Zanahoria + mate",items:["1 zanahoria cruda","Mate sin azúcar"],kcal:60},almuerzo:{name:"Salmón + puré de zapallo",items:["150g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:450},cena:{name:"Atún + ensalada",items:["1 lata atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:300}}},
-      {day:"Jueves",short:"JUE",total:1220,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té verde"],kcal:310},merienda:{name:"Naranja + mate",items:["1 naranja","Mate sin azúcar"],kcal:70},almuerzo:{name:"Carne magra + vegetales",items:["150g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:480},cena:{name:"Pollo al limón + coliflor",items:["150g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:360}}},
-      {day:"Viernes",short:"VIE",total:1140,meals:{desayuno:{name:"Yogur + granola light",items:["200g yogur descremado","2 cdas granola sin azúcar"],kcal:330},merienda:{name:"Pepino + mate",items:["½ pepino en rodajas","Mate sin azúcar"],kcal:40},almuerzo:{name:"Arroz integral + pollo",items:["½ taza arroz integral","150g pollo desmenuzado","Pimiento y cebolla salteados"],kcal:490},cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:280}}},
-      {day:"Sábado",short:"SÁB",total:1330,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla","Café sin azúcar"],kcal:370},merienda:{name:"Manzana + almendras",items:["1 manzana","8 almendras"],kcal:130},almuerzo:{name:"Milanesa al horno",items:["150g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:490},cena:{name:"Pescado + espárragos",items:["200g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:340}}},
-      {day:"Domingo",short:"DOM",total:1230,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:380},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:60},almuerzo:{name:"Asado light",items:["150g vacío o tira magra","Chimichurri casero","Ensalada grande mixta"],kcal:500},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","2 tostadas integrales","Tomate y rúcula"],kcal:290}}}
+      {day:"Miércoles",short:"MIÉ",total:1170,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:360},merienda:{name:"Zanahoria + mate",items:["1 zanahoria cruda","Mate sin azúcar"],kcal:60},almuerzo:{name:"Salmón + puré de zapallo",items:["150g salmón al horno","Puré de zapallo sin manteca","Rúcula y espinaca con limón"],kcal:450},cena:{name:"Atún + ensalada",items:["1 lata atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:300}}},
+      {day:"Jueves",short:"JUE",total:1220,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té verde"],kcal:310},merienda:{name:"Naranja + mate",items:["1 naranja","Mate sin azúcar"],kcal:70},almuerzo:{name:"Carne magra + vegetales",items:["150g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta con semillas de girasol"],kcal:480},cena:{name:"Pollo al limón + coliflor",items:["150g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:360}}},
+      {day:"Viernes",short:"VIE",total:1140,meals:{desayuno:{name:"Yogur + granola light",items:["200g yogur descremado","2 cdas granola sin azúcar"],kcal:330},merienda:{name:"Pepino + mate",items:["½ pepino en rodajas","Mate sin azúcar"],kcal:40},almuerzo:{name:"Arroz integral + pollo",items:["½ taza arroz integral","150g pollo desmenuzado","Pimiento y cebolla salteados"],kcal:490},cena:{name:"Sopa de verduras",items:["Caldo con zapallo, apio y espinaca","1 huevo duro","1 tostada integral"],kcal:280}}},
+      {day:"Sábado",short:"SÁB",total:1330,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla","Café sin azúcar"],kcal:370},merienda:{name:"Manzana + almendras",items:["1 manzana","8 almendras y semillas de calabaza"],kcal:130},almuerzo:{name:"Milanesa al horno",items:["150g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:490},cena:{name:"Pescado + espárragos",items:["200g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:340}}},
+      {day:"Domingo",short:"DOM",total:1230,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:380},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:60},almuerzo:{name:"Asado light",items:["150g vacío o tira magra","Chimichurri casero","Ensalada grande mixta con espinaca"],kcal:500},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","2 tostadas integrales","Tomate y rúcula"],kcal:290}}}
     ]
   },
   anemia_hombre: {
-    title:"🩸👨 Anemia · Hombre", kcalRange:"1.400–1.600 kcal", kcalTarget:1600, proteinTarget:120,
+    title:"🩸👨 Anemia · Hombre", kcalRange:"1.400–1.600 kcal", kcalTarget:1600, proteinTarget:120, ironTarget:12,
     mealAccents:{desayuno:"#f87171",merienda:"#fbbf24",almuerzo:"#fb923c",cena:"#a78bfa"},
     tips:[
       ["🥩","Carne roja 3 veces por semana — mejor fuente de hierro hemo"],
@@ -648,7 +672,7 @@ const planData = {
     ]
   },
   anemia_mujer: {
-    title:"🩸👩 Anemia · Mujer", kcalRange:"1.300–1.500 kcal", kcalTarget:1500, proteinTarget:95,
+    title:"🩸👩 Anemia · Mujer", kcalRange:"1.300–1.500 kcal", kcalTarget:1500, proteinTarget:95, ironTarget:14,
     mealAccents:{desayuno:"#fb7185",merienda:"#fbbf24",almuerzo:"#f472b6",cena:"#a78bfa"},
     tips:[
       ["🥩","Carne roja 3-4 veces por semana — clave por la pérdida menstrual de hierro"],
@@ -706,17 +730,17 @@ const planData = {
     ]
   },
   mujer: {
-    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200, proteinTarget:90,
+    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200, proteinTarget:90, ironTarget:9,
     mealAccents:{desayuno:"#f472b6",merienda:"#a78bfa",almuerzo:"#34d399",cena:"#60a5fa"},
     tips:[["💧","2 litros de agua, idealmente antes de cada comida"],["🚶","30-40 min de caminata o actividad diaria"],["🌙","Cenar liviano y al menos 2hs antes de dormir"],["😴","Dormir 7-8hs: el mal sueño sube el cortisol"],["🥦","Priorizar proteína y verduras en cada comida"],["❌","Sin azúcar, harinas blancas ni alcohol"]],
     days:[
-      {day:"Lunes",short:"LUN",total:980,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Té verde sin azúcar"],kcal:280},merienda:{name:"Fruta + mate",items:["1 manzana pequeña","Mate sin azúcar"],kcal:60},almuerzo:{name:"Pollo + ensalada completa",items:["120g pechuga a la plancha","Lechuga, tomate, pepino, zanahoria","1 cdita aceite de oliva"],kcal:360},cena:{name:"Merluza + brócoli",items:["120g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:280}}},
+      {day:"Lunes",short:"LUN",total:980,meals:{desayuno:{name:"Huevos + tostada integral",items:["2 huevos revueltos","1 tostada pan integral","Té verde sin azúcar"],kcal:280},merienda:{name:"Fruta + mate",items:["1 manzana pequeña","Mate sin azúcar"],kcal:60},almuerzo:{name:"Pollo + ensalada completa",items:["120g pechuga a la plancha","Lechuga, tomate, pepino, zanahoria y espinaca","1 cdita aceite de oliva"],kcal:360},cena:{name:"Merluza + brócoli",items:["120g merluza al horno","Brócoli al vapor","Ajo y limón"],kcal:280}}},
       {day:"Martes",short:"MAR",total:960,meals:{desayuno:{name:"Avena con fruta",items:["½ taza avena con agua","½ banana","Té sin azúcar"],kcal:260},merienda:{name:"Yogur natural",items:["150g yogur descremado","Canela o stevia"],kcal:80},almuerzo:{name:"Lentejas + vegetales",items:["¾ taza lentejas cocidas","Zapallito y pimiento salteados","Ensalada verde"],kcal:380},cena:{name:"Omelette de claras",items:["3 claras + 1 huevo","Espinaca y tomate cherry salteados"],kcal:240}}},
-      {day:"Miércoles",short:"MIÉ",total:1000,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:300},merienda:{name:"Zanahoria cruda",items:["1 zanahoria en bastones","Té verde"],kcal:40},almuerzo:{name:"Salmón + puré de zapallo",items:["120g salmón al horno","Puré de zapallo sin manteca","Rúcula con limón"],kcal:400},cena:{name:"Atún + ensalada",items:["1 lata chica atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:260}}},
-      {day:"Jueves",short:"JUE",total:1030,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té de jengibre"],kcal:270},merienda:{name:"Naranja + mate",items:["1 naranja o mandarina","Mate sin azúcar"],kcal:60},almuerzo:{name:"Carne magra + vegetales",items:["120g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta"],kcal:400},cena:{name:"Pollo al limón + coliflor",items:["120g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:300}}},
-      {day:"Viernes",short:"VIE",total:940,meals:{desayuno:{name:"Yogur + granola light",items:["150g yogur descremado","1 cda granola sin azúcar","Fruta del bosque"],kcal:250},merienda:{name:"Pepino + limón",items:["½ pepino en rodajas","Sal y limón","Té verde"],kcal:30},almuerzo:{name:"Arroz integral + pollo",items:["⅓ taza arroz integral","120g pollo desmenuzado","Cebolla y pimiento salteados"],kcal:420},cena:{name:"Sopa de verduras",items:["Caldo con zapallo y apio","1 huevo duro","1 tostada integral"],kcal:240}}},
-      {day:"Sábado",short:"SÁB",total:1110,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla morada","Café sin azúcar"],kcal:300},merienda:{name:"Manzana + almendras",items:["1 manzana chica","6 almendras"],kcal:110},almuerzo:{name:"Milanesa al horno",items:["120g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:420},cena:{name:"Pescado + espárragos",items:["150g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:280}}},
-      {day:"Domingo",short:"DOM",total:1030,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:320},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:50},almuerzo:{name:"Pollo al horno + ensalada",items:["150g pollo al horno con hierbas","Ensalada grande con rúcula","Vinagreta de limón"],kcal:420},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","1 tostada integral","Tomate y rúcula"],kcal:240}}}
+      {day:"Miércoles",short:"MIÉ",total:1000,meals:{desayuno:{name:"Tostadas con palta",items:["2 tostadas pan integral","¼ palta","Café sin azúcar"],kcal:300},merienda:{name:"Zanahoria cruda",items:["1 zanahoria en bastones","Té verde"],kcal:40},almuerzo:{name:"Salmón + puré de zapallo",items:["120g salmón al horno","Puré de zapallo sin manteca","Rúcula y espinaca con limón"],kcal:400},cena:{name:"Atún + ensalada",items:["1 lata chica atún al natural","Lechuga, tomate, pepino","Aceite de oliva"],kcal:260}}},
+      {day:"Jueves",short:"JUE",total:1030,meals:{desayuno:{name:"Huevos pochados",items:["2 huevos pochados","1 rebanada pan integral","Té de jengibre"],kcal:270},merienda:{name:"Naranja + mate",items:["1 naranja o mandarina","Mate sin azúcar"],kcal:60},almuerzo:{name:"Carne magra + vegetales",items:["120g carne magra a la plancha","Zapallito y pimiento asados","Ensalada mixta con semillas de calabaza"],kcal:400},cena:{name:"Pollo al limón + coliflor",items:["120g pollo a la plancha","Coliflor al vapor","Limón y perejil"],kcal:300}}},
+      {day:"Viernes",short:"VIE",total:940,meals:{desayuno:{name:"Yogur + granola light",items:["150g yogur descremado","1 cda granola sin azúcar","Fruta del bosque"],kcal:250},merienda:{name:"Pepino + limón",items:["½ pepino en rodajas","Sal y limón","Té verde"],kcal:30},almuerzo:{name:"Arroz integral + pollo",items:["⅓ taza arroz integral","120g pollo desmenuzado","Cebolla y pimiento salteados"],kcal:420},cena:{name:"Sopa de verduras",items:["Caldo con zapallo, apio y espinaca","1 huevo duro","1 tostada integral"],kcal:240}}},
+      {day:"Sábado",short:"SÁB",total:1110,meals:{desayuno:{name:"Omelette especial",items:["2 huevos + queso descremado","Tomate y cebolla morada","Café sin azúcar"],kcal:300},merienda:{name:"Manzana + almendras",items:["1 manzana chica","6 almendras y semillas de girasol"],kcal:110},almuerzo:{name:"Milanesa al horno",items:["120g milanesa pollo al horno","Ensalada rusa light","Aceite de oliva"],kcal:420},cena:{name:"Pescado + espárragos",items:["150g pescado blanco a la plancha","Espárragos al vapor","Ajo y limón"],kcal:280}}},
+      {day:"Domingo",short:"DOM",total:1030,meals:{desayuno:{name:"Panqueques de avena",items:["½ taza avena + 1 huevo + leche descremada","Fruta fresca","Café sin azúcar"],kcal:320},merienda:{name:"Durazno + mate",items:["1 durazno o 2 ciruelas","Mate sin azúcar"],kcal:50},almuerzo:{name:"Pollo al horno + ensalada",items:["150g pollo al horno con hierbas","Ensalada grande con rúcula y espinaca","Vinagreta de limón"],kcal:420},cena:{name:"Revuelto de claras",items:["3 claras + 1 yema","1 tostada integral","Tomate y rúcula"],kcal:240}}}
     ]
   }
 };
@@ -757,6 +781,39 @@ function estimateProtein(meal) {
     }
   });
   return total;
+}
+
+// ===== ESTIMACIÓN DE HIERRO (mg) a partir de los ingredientes =====
+const ironKeywords = [
+  // [regex, mg de hierro por porción mencionada] - ordenado de más a menos específico
+  [/hígado/i, 9],
+  [/morcilla/i, 4],
+  [/mejillon|almeja/i, 5],
+  [/lentejas/i, 3.3],
+  [/garbanzos|porotos/i, 2.5],
+  [/espinaca/i, 2.7],
+  [/carne|vacío|bife|cuadril|costilla|tira|asado|albóndiga|milanesa|hamburguesa/i, 2.5],
+  [/semillas de calabaza|semillas de girasol|semillas/i, 1.5],
+  [/almendras|nueces|frutos secos/i, 1],
+  [/ciruelas?( secas?)?|orejones?|dátiles?/i, 0.8],
+  [/quinoa/i, 1.5],
+  [/garbanzos/i, 2.5],
+  [/huevo(s)?|clara|yema/i, 0.9],
+  [/avena/i, 1.5],
+  [/remolacha/i, 0.8],
+  [/pollo|pechuga/i, 1],
+  [/pescado|merluza|salmón|atún/i, 0.5],
+  [/pan|tostada/i, 0.7],
+];
+
+function estimateIron(meal) {
+  let total = 0;
+  meal.items.forEach(item => {
+    for (const [regex, mg] of ironKeywords) {
+      if (regex.test(item)) { total += mg; break; }
+    }
+  });
+  return Math.round(total * 10) / 10;
 }
 
 
@@ -940,7 +997,7 @@ function renderDay() {
   updateDoneCounter();
   const mealsEl=document.getElementById('meals');
   mealsEl.innerHTML='';
-  let totalProtein=0;
+  let totalProtein=0, totalIron=0;
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
     const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
     const altKey=currentSex+'-'+currentDay+'-'+key;
@@ -950,9 +1007,11 @@ function renderDay() {
     const meal=altIndex===0?originalMeal:alternatives[altIndex-1];
     const proteinG=estimateProtein(meal);
     totalProtein+=proteinG;
+    const ironMg=estimateIron(meal);
+    totalIron+=ironMg;
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein">🥩 ~${proteinG}g proteína</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
@@ -972,6 +1031,14 @@ function renderDay() {
   const proteinFill=document.getElementById('protein-fill');
   proteinFill.style.width=proteinPct+'%';
   proteinFill.className='progress-fill protein-fill'+(totalProtein>proteinTarget?' over':'');
+
+  const ironTarget=d.ironTarget||8;
+  totalIron=Math.round(totalIron*10)/10;
+  const ironPct=Math.min(Math.round((totalIron/ironTarget)*100),100);
+  document.getElementById('iron-progress-value').textContent=`${totalIron} / ${ironTarget}mg`;
+  const ironFill=document.getElementById('iron-fill');
+  ironFill.style.width=ironPct+'%';
+  ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
 }
 
 function renderTips() {
@@ -1089,7 +1156,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutricion-v8';
+    const CACHE = 'nutricion-v11';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
