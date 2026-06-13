@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>App Nutrición</title>
+<title>NutriPlan</title>
 
 <!-- PWA Meta Tags -->
-<meta name="application-name" content="Nutrición">
+<meta name="application-name" content="NutriPlan">
 <meta name="description" content="Plan de comidas y seguimiento de peso personalizado">
 <meta name="theme-color" content="#080e1a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nutrición">
+<meta name="apple-mobile-web-app-title" content="NutriPlan">
 
 <!-- PWA Manifest y íconos como archivos reales (necesario para que Chrome ofrezca "Instalar app") -->
 <link rel="manifest" href="manifest.json">
@@ -316,6 +316,38 @@
   #btn-anemia-mujer { border-color: rgba(251,113,133,0.3); }
   #btn-anemia-mujer .sex-label { color: #fb7185; }
   #btn-anemia-mujer:hover { border-color: #fb7185; background: rgba(251,113,133,0.07); }
+  #btn-hombre-joven { border-color: rgba(56,189,248,0.3); }
+  #btn-hombre-joven .sex-label { color: #38bdf8; }
+  #btn-hombre-joven:hover { border-color: #38bdf8; background: rgba(56,189,248,0.07); }
+  #btn-mujer-joven { border-color: rgba(251,191,36,0.3); }
+  #btn-mujer-joven .sex-label { color: #fbbf24; }
+  #btn-mujer-joven:hover { border-color: #fbbf24; background: rgba(251,191,36,0.07); }
+  body.hombre_joven .plan-header { background: linear-gradient(90deg,#0c1f35,#071828); }
+  body.hombre_joven #screen-plan { background: linear-gradient(160deg,#071828 0%,#0c2a3f 50%,#071828 100%); }
+  body.hombre_joven .header-eyebrow { color: #0369a1; }
+  body.hombre_joven .header-title { background: linear-gradient(90deg,#38bdf8,#0ea5e9); }
+  body.hombre_joven .header-right { color: #0369a1; }
+  body.hombre_joven .day-btn.active { border-color: #38bdf8; background: linear-gradient(135deg,#0369a1,#075985); color: #38bdf8; }
+  body.hombre_joven .day-title { color: #e0f2fe; }
+  body.hombre_joven .kcal-badge { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.25); color: #38bdf8; }
+  body.hombre_joven .progress-fill { background: linear-gradient(90deg,#38bdf8,#0ea5e9); }
+  body.hombre_joven .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.hombre_joven .progress-note { color: #0369a1; }
+  body.hombre_joven .tips-eyebrow { color: #0369a1; }
+  body.hombre_joven .tip-row { color: #7dd3fc; }
+  body.mujer_joven .plan-header { background: linear-gradient(90deg,#2d1f00,#1a1200); }
+  body.mujer_joven #screen-plan { background: linear-gradient(160deg,#1a1200 0%,#2d2000 40%,#1a1500 100%); }
+  body.mujer_joven .header-eyebrow { color: #92400e; }
+  body.mujer_joven .header-title { background: linear-gradient(90deg,#fbbf24,#f59e0b); }
+  body.mujer_joven .header-right { color: #92400e; }
+  body.mujer_joven .day-btn.active { border-color: #fbbf24; background: linear-gradient(135deg,#92400e,#78350f); color: #fbbf24; }
+  body.mujer_joven .day-title { color: #fef9c3; }
+  body.mujer_joven .kcal-badge { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.25); color: #fbbf24; }
+  body.mujer_joven .progress-fill { background: linear-gradient(90deg,#fbbf24,#f59e0b); }
+  body.mujer_joven .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.mujer_joven .progress-note { color: #92400e; }
+  body.mujer_joven .tips-eyebrow { color: #92400e; }
+  body.mujer_joven .tip-row { color: #fde68a; }
 
   /* ===== PESO STYLES ===== */
   .peso-header { background: linear-gradient(90deg, #0c1829, #0a1020); border-bottom: 1px solid var(--border); padding: 20px 18px 14px; text-align: center; }
@@ -378,19 +410,29 @@
 <div id="screen-plan" class="screen active">
   <div id="selector">
     <div class="eyebrow">Plan Nutricional</div>
-    <h1 class="selector-title">Mi Plan de Comidas · 30+</h1>
+    <h1 class="selector-title">NutriPlan · 30+</h1>
     <p class="selector-sub">4 comidas · Déficit fuerte · Semana completa</p>
     <p class="selector-label">¿Para quién es el plan?</p>
     <div class="selector-btns-3">
       <button class="selector-btn" id="btn-hombre" onclick="selectSex('hombre')">
         <span class="emoji">👨</span>
-        <span class="sex-label">Hombre</span>
+        <span class="sex-label">Hombre 30+</span>
         <span class="kcal-label">1.200–1.400 kcal/día</span>
       </button>
       <button class="selector-btn" id="btn-mujer" onclick="selectSex('mujer')">
         <span class="emoji">👩</span>
-        <span class="sex-label">Mujer</span>
+        <span class="sex-label">Mujer 30+</span>
         <span class="kcal-label">1.000–1.200 kcal/día</span>
+      </button>
+      <button class="selector-btn" id="btn-hombre-joven" onclick="selectSex('hombre_joven')">
+        <span class="emoji">🧑</span>
+        <span class="sex-label">Hombre 18-29</span>
+        <span class="kcal-label">1.400–1.600 kcal/día</span>
+      </button>
+      <button class="selector-btn" id="btn-mujer-joven" onclick="selectSex('mujer_joven')">
+        <span class="emoji">👧</span>
+        <span class="sex-label">Mujer 18-29</span>
+        <span class="kcal-label">1.200–1.400 kcal/día</span>
       </button>
       <button class="selector-btn" id="btn-anemia-hombre" onclick="selectSex('anemia_hombre')">
         <span class="emoji">🩸👨</span>
@@ -600,6 +642,34 @@ function showTab(tab) {
 
 // ===== PLAN DATA =====
 const planData = {
+  hombre_joven: {
+    title:"🧑 Hombre · 18-29", kcalRange:"1.400–1.600 kcal", kcalTarget:1600, proteinTarget:130, ironTarget:8,
+    mealAccents:{desayuno:"#38bdf8",merienda:"#818cf8",almuerzo:"#22c55e",cena:"#0ea5e9"},
+    tips:[["💧","2.5 litros de agua por día — mayor demanda a esta edad"],["🚶","45 min de actividad física diaria (caminata, gym, deporte)"],["🥩","Priorizar proteína en cada comida — clave para mantener músculo"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 8 horas — fundamental para el metabolismo joven"],["❌","Sin alcohol, azúcar ni ultra procesados"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:1490,meals:{desayuno:{name:"Huevos + tostadas + fruta",items:["3 huevos revueltos","2 tostadas pan integral","1 naranja","Café sin azúcar"],kcal:430},almuerzo:{name:"Pollo + arroz integral + ensalada",items:["180g pechuga a la plancha","½ taza arroz integral","Ensalada de lechuga, tomate y espinaca"],kcal:560},merienda:{name:"Yogur + granola + fruta",items:["200g yogur natural","2 cdas granola sin azúcar","½ banana"],kcal:200},cena:{name:"Merluza + vegetales",items:["180g merluza al horno","Brócoli y zanahoria al vapor","Aceite de oliva y limón"],kcal:400}}},
+      {day:"Martes",short:"MAR",total:1470,meals:{desayuno:{name:"Avena proteica",items:["¾ taza avena con leche descremada","1 banana","1 cda mantequilla de maní","Canela"],kcal:420},almuerzo:{name:"Carne magra + puré de papa",items:["180g carne magra a la plancha","Puré de papa sin manteca","Ensalada de tomate y rúcula"],kcal:550},merienda:{name:"Licuado proteico",items:["1 banana","Leche descremada","1 cda avena","Canela"],kcal:220},cena:{name:"Omelette + espinaca + tostadas",items:["3 huevos + espinaca y tomate","2 tostadas integrales","Perejil y limón"],kcal:390}}},
+      {day:"Miércoles",short:"MIÉ",total:1500,meals:{desayuno:{name:"Tostadas con palta y huevo",items:["2 tostadas integrales","½ palta","2 huevos pochados","Café sin azúcar"],kcal:450},almuerzo:{name:"Salmón + quinoa + ensalada",items:["180g salmón al horno","½ taza quinoa cocida","Ensalada de rúcula y espinaca"],kcal:560},merienda:{name:"Fruta + nueces",items:["1 manzana","10 nueces","Mate sin azúcar"],kcal:180},cena:{name:"Pollo al limón + vegetales",items:["180g pollo a la plancha","Zapallito y pimiento asados","Limón y perejil"],kcal:420}}},
+      {day:"Jueves",short:"JUE",total:1480,meals:{desayuno:{name:"Pancakes de avena",items:["¾ taza avena + 2 huevos + leche","Frutillas o banana","Miel mínima"],kcal:440},almuerzo:{name:"Milanesa al horno + ensalada",items:["180g milanesa pollo al horno","Ensalada grande mixta con espinaca","Aceite de oliva"],kcal:570},merienda:{name:"Yogur con semillas",items:["200g yogur natural","1 cda semillas mixtas","1 fruta"],kcal:190},cena:{name:"Atún + lentejas",items:["1 lata atún al natural","½ taza lentejas cocidas","Tomate y pepino"],kcal:380}}},
+      {day:"Viernes",short:"VIE",total:1460,meals:{desayuno:{name:"Huevos revueltos + frutas",items:["3 huevos revueltos","1 tostada integral","1 naranja o kiwi","Café sin azúcar"],kcal:420},almuerzo:{name:"Pollo + fideos integrales",items:["180g pollo desmenuzado","80g fideos integrales","Salsa de tomate natural"],kcal:570},merienda:{name:"Manzana + almendras",items:["1 manzana","12 almendras"],kcal:170},cena:{name:"Pescado + brócoli + arroz",items:["180g merluza o salmón al horno","Brócoli al vapor","¼ taza arroz integral"],kcal:430}}},
+      {day:"Sábado",short:"SÁB",total:1530,meals:{desayuno:{name:"Desayuno especial",items:["Omelette de 3 huevos con queso y tomate","1 tostada integral","Jugo de naranja natural"],kcal:480},almuerzo:{name:"Asado light + ensalada",items:["200g vacío o tira magra","Ensalada grande con espinaca y remolacha","Chimichurri casero"],kcal:600},merienda:{name:"Licuado de banana",items:["1 banana","Leche descremada","1 cda avena","Canela"],kcal:220},cena:{name:"Revuelto de claras + tostadas",items:["4 claras + 1 huevo","2 tostadas integrales","Tomate y rúcula"],kcal:360}}},
+      {day:"Domingo",short:"DOM",total:1500,meals:{desayuno:{name:"Bowl de avena y frutas",items:["¾ taza avena","Frutas frescas variadas","Yogur natural","Semillas mixtas"],kcal:450},almuerzo:{name:"Pollo al horno + papa",items:["200g pollo al horno con hierbas","1 papa mediana al horno","Ensalada de rúcula y tomate"],kcal:580},merienda:{name:"Frutos secos + fruta",items:["10 nueces o almendras","1 pera o manzana"],kcal:170},cena:{name:"Sopa de garbanzos",items:["1 taza garbanzos cocidos","Caldo casero con vegetales","1 tostada integral","Limón"],kcal:400}}},
+    ]
+  },
+  mujer_joven: {
+    title:"👧 Mujer · 18-29", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:100, ironTarget:9,
+    mealAccents:{desayuno:"#fbbf24",merienda:"#fb923c",almuerzo:"#34d399",cena:"#f59e0b"},
+    tips:[["💧","2 litros de agua por día"],["🚶","40 min de actividad física diaria"],["🥩","Proteína en cada comida principal (pollo, pescado, huevo, legumbres)"],["🩸","Incluir fuentes de hierro — fundamental en edad fértil"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 8 horas"],["❌","Sin alcohol, azúcar ni ultra procesados"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:1330,meals:{desayuno:{name:"Huevos + tostadas + naranja",items:["2 huevos revueltos con espinaca","1 tostada integral","1 naranja (vitamina C + hierro)"],kcal:370},almuerzo:{name:"Pollo + arroz integral + ensalada",items:["150g pechuga a la plancha","½ taza arroz integral","Ensalada de rúcula y espinaca"],kcal:500},merienda:{name:"Yogur con frutas",items:["150g yogur natural","Frutillas o arándanos","1 cdita semillas de chía"],kcal:160},cena:{name:"Merluza + vegetales",items:["150g merluza al horno","Brócoli y zanahoria al vapor","Aceite de oliva y limón"],kcal:360}}},
+      {day:"Martes",short:"MAR",total:1310,meals:{desayuno:{name:"Avena con banana y semillas",items:["½ taza avena con leche descremada","½ banana","1 cdita semillas de girasol"],kcal:340},almuerzo:{name:"Lentejas con vegetales",items:["1 taza lentejas cocidas","Cebolla, zanahoria y pimiento salteados","Perejil y limón"],kcal:480},merienda:{name:"Fruta + almendras",items:["1 manzana","8 almendras","Mate sin azúcar"],kcal:150},cena:{name:"Omelette + tostadas",items:["2 huevos + espinaca y tomate","1 tostada integral","Limón"],kcal:330}}},
+      {day:"Miércoles",short:"MIÉ",total:1350,meals:{desayuno:{name:"Tostadas con palta y huevo",items:["2 tostadas integrales","¼ palta","1 huevo pochado","Café sin azúcar"],kcal:380},almuerzo:{name:"Salmón + quinoa + ensalada",items:["150g salmón al horno","½ taza quinoa cocida","Ensalada de rúcula y espinaca con limón"],kcal:510},merienda:{name:"Yogur con semillas",items:["120g yogur natural","1 cdita semillas de calabaza","1 fruta"],kcal:150},cena:{name:"Pollo al limón + vegetales",items:["150g pollo a la plancha","Coliflor y zapallito asados","Limón y perejil"],kcal:360}}},
+      {day:"Jueves",short:"JUE",total:1300,meals:{desayuno:{name:"Licuado verde + tostada",items:["Espinaca, banana y leche licuados","1 tostada integral","Café sin azúcar"],kcal:350},almuerzo:{name:"Carne magra + ensalada",items:["150g carne magra a la plancha","Ensalada de remolacha, rúcula y espinaca","Aceite de oliva y limón"],kcal:480},merienda:{name:"Fruta cítrica + nueces",items:["1 naranja o kiwi","6 nueces"],kcal:140},cena:{name:"Tortilla de garbanzos",items:["2 huevos + garbanzos cocidos","Espinaca salteada","1 tostada integral"],kcal:380}}},
+      {day:"Viernes",short:"VIE",total:1280,meals:{desayuno:{name:"Yogur con granola y kiwi",items:["150g yogur natural","1 cda granola sin azúcar","1 kiwi"],kcal:310},almuerzo:{name:"Pollo + fideos integrales",items:["150g pollo desmenuzado","60g fideos integrales","Salsa de tomate natural"],kcal:500},merienda:{name:"Gelatina light + almendras",items:["1 pote gelatina light","6 almendras"],kcal:90},cena:{name:"Ensalada de atún y espinaca",items:["1 lata atún al natural","Espinaca fresca, tomate y pepino","Aceite de oliva y limón"],kcal:300}}},
+      {day:"Sábado",short:"SÁB",total:1380,meals:{desayuno:{name:"Panqueques con frutas",items:["½ taza avena + 1 huevo + leche descremada","Frutillas o banana","Miel mínima"],kcal:370},almuerzo:{name:"Milanesa al horno + ensalada",items:["150g milanesa pollo al horno","Ensalada grande con espinaca y remolacha","Aceite de oliva"],kcal:510},merienda:{name:"Batido de frutas",items:["½ banana + frutillas licuadas","Leche descremada o yogur"],kcal:160},cena:{name:"Revuelto de claras + tostadas",items:["3 claras + 1 huevo","1 tostada integral","Tomate y rúcula"],kcal:290}}},
+      {day:"Domingo",short:"DOM",total:1340,meals:{desayuno:{name:"Bowl de avena y frutas",items:["½ taza avena","Frutas frescas variadas","Yogur natural","1 cdita semillas chía"],kcal:360},almuerzo:{name:"Pollo al horno + vegetales",items:["150g pollo al horno con hierbas","Ensalada de rúcula, tomate y espinaca","Vinagreta de limón"],kcal:490},merienda:{name:"Manzana + semillas",items:["1 manzana","1 cdita semillas mixtas","Mate sin azúcar"],kcal:110},cena:{name:"Sopa de lentejas",items:["¾ taza lentejas cocidas","Caldo casero con vegetales","Perejil y limón"],kcal:380}}},
+    ]
+  },
   hombre: {
     title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110, ironTarget:8,
     mealAccents:{desayuno:"#f97316",merienda:"#a855f7",almuerzo:"#22c55e",cena:"#3b82f6"},
@@ -818,6 +888,66 @@ function estimateIron(meal) {
 
 
 const mealAlternatives = {
+  hombre_joven: {
+    desayuno:[
+      {name:"Licuado proteico con avena",items:["1 banana","1 taza leche descremada","½ taza avena","1 cda mantequilla de maní"],kcal:430},
+      {name:"Tostadas con huevo y jamón",items:["2 tostadas integrales","2 huevos fritos con poco aceite","1 feta jamón magro","Café sin azúcar"],kcal:420},
+      {name:"Bowl de yogur proteico",items:["200g yogur natural","¾ taza granola sin azúcar","Banana y frutillas"],kcal:440},
+      {name:"Revuelto con queso y vegetales",items:["3 huevos revueltos con queso descremado","Pimiento y cebolla salteados","1 tostada integral"],kcal:430},
+      {name:"Avena con frutas y nueces",items:["¾ taza avena cocida","1 banana en rodajas","10 nueces","Miel mínima"],kcal:450},
+    ],
+    merienda:[
+      {name:"Sándwich proteico",items:["1 tostada integral","Queso descremado y jamón magro","Tomate y lechuga"],kcal:200},
+      {name:"Frutos secos + yogur",items:["150g yogur natural","12 almendras","1 fruta"],kcal:210},
+      {name:"Banana + mantequilla de maní",items:["1 banana","1 cda mantequilla de maní natural"],kcal:190},
+      {name:"Licuado de avena",items:["½ taza avena","1 banana","Leche descremada","Canela"],kcal:220},
+      {name:"Tostada con palta",items:["1 tostada integral","¼ palta","Tomate cherry"],kcal:180},
+    ],
+    almuerzo:[
+      {name:"Pasta integral con pollo",items:["80g pasta integral","150g pollo desmenuzado","Salsa de tomate casera","Queso rallado light"],kcal:570},
+      {name:"Bowl de quinoa y atún",items:["½ taza quinoa cocida","1 lata atún al natural","Vegetales mixtos","Aceite de oliva y limón"],kcal:540},
+      {name:"Wraps de pollo y verduras",items:["2 tortillas integrales","150g pollo a la plancha","Lechuga, tomate y palta"],kcal:560},
+      {name:"Arroz con carne y vegetales",items:["½ taza arroz integral","150g carne magra","Pimiento y cebolla salteados"],kcal:550},
+      {name:"Cazuela de pollo y lentejas",items:["150g pollo en cubos","½ taza lentejas","Zanahoria y cebolla"],kcal:560},
+    ],
+    cena:[
+      {name:"Salmón con vegetales",items:["180g salmón grillado","Espárragos y tomate cherry al horno","Limón y eneldo"],kcal:420},
+      {name:"Pollo con brócoli y arroz",items:["180g pollo a la plancha","Brócoli al vapor","¼ taza arroz integral"],kcal:430},
+      {name:"Wok de carne y vegetales",items:["150g carne magra en tiras","Brócoli, zanahoria y pimiento","Salsa de soja baja en sodio"],kcal:400},
+      {name:"Fideos integrales con atún",items:["80g fideos integrales","1 lata atún al natural","Tomate y orégano"],kcal:420},
+      {name:"Tortilla de papa y espinaca",items:["2 huevos + 1 papa mediana + espinaca","Ensalada de tomate","1 tostada integral"],kcal:410},
+    ],
+  },
+  mujer_joven: {
+    desayuno:[
+      {name:"Licuado verde con chía",items:["Espinaca, banana y kiwi licuados","1 cdita semillas de chía","Leche descremada"],kcal:330},
+      {name:"Tostadas con queso y tomate",items:["2 tostadas integrales","Queso descremado","Tomate y orégano","Café sin azúcar"],kcal:350},
+      {name:"Bowl de yogur y frutas",items:["150g yogur natural","Frutillas y arándanos","1 cda granola sin azúcar"],kcal:280},
+      {name:"Huevos revueltos con vegetales",items:["2 huevos revueltos con pimiento y cebolla","1 tostada integral"],kcal:320},
+      {name:"Avena con manzana y canela",items:["½ taza avena cocida","½ manzana rallada","Canela y miel mínima"],kcal:300},
+    ],
+    merienda:[
+      {name:"Yogur con frutas del bosque",items:["120g yogur descremado","Frutillas o arándanos"],kcal:130},
+      {name:"Gelatina light + almendras",items:["1 pote gelatina light","6 almendras"],kcal:90},
+      {name:"Fruta cítrica + semillas",items:["1 naranja o mandarina","1 cdita semillas de girasol"],kcal:100},
+      {name:"Tostada con queso untable",items:["1 tostada integral","1 cdita queso untable light","Tomate"],kcal:110},
+      {name:"Mate con galletas de arroz",items:["2 galletas de arroz","Mate sin azúcar"],kcal:80},
+    ],
+    almuerzo:[
+      {name:"Ensalada de quinoa y pollo",items:["½ taza quinoa","120g pollo grillado","Espinaca, tomate y pepino","Limón y aceite de oliva"],kcal:470},
+      {name:"Wok de tofu y espinaca",items:["100g tofu firme","Espinaca, zanahoria y pimiento","Salsa de soja baja en sodio"],kcal:380},
+      {name:"Tarta de verduras sin tapa",items:["2 huevos + espinaca + cebolla","Queso descremado rallado","Ensalada de tomate"],kcal:420},
+      {name:"Bowl de arroz con salmón",items:["¼ taza arroz integral","120g salmón al horno","Espinaca y pepino","Limón"],kcal:460},
+      {name:"Wraps de pollo y vegetales",items:["1 tortilla integral","120g pollo a la plancha","Lechuga, tomate y palta"],kcal:430},
+    ],
+    cena:[
+      {name:"Tortilla de espinaca",items:["2 huevos + espinaca y cebolla","Ensalada de tomate cherry","1 tostada integral"],kcal:300},
+      {name:"Sopa de lentejas con limón",items:["½ taza lentejas rojas","Caldo de verduras","Zanahoria y cúrcuma","Limón al servir"],kcal:310},
+      {name:"Atún con ensalada de espinaca",items:["1 lata atún al natural","Espinaca, tomate y pepino","Aceite de oliva y limón"],kcal:270},
+      {name:"Pollo con vegetales al vapor",items:["120g pollo a la plancha","Brócoli y coliflor al vapor","Limón y ajo"],kcal:310},
+      {name:"Revuelto de claras + tostada",items:["3 claras + 1 huevo","1 tostada integral","Tomate y rúcula"],kcal:280},
+    ],
+  },
   hombre: {
     desayuno: [
       {name:"Yogur con granola", items:["200g yogur natural sin azúcar","2 cdas granola sin azúcar","1 fruta a elección"], kcal:340},
@@ -948,7 +1078,7 @@ let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}')
 
 function selectSex(sex) {
   currentSex=sex; currentDay=0; doneMeals={};
-  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven');
   document.body.classList.add(sex);
   document.getElementById('selector').style.display='none';
   const pc=document.getElementById('plan-content');
@@ -960,7 +1090,7 @@ function selectSex(sex) {
 }
 
 function goBack() {
-  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven');
   document.getElementById('selector').style.display='flex';
   document.getElementById('plan-content').style.display='none';
 }
@@ -1156,7 +1286,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutricion-v11';
+    const CACHE = 'nutriplan-v2';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
