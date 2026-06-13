@@ -200,6 +200,39 @@
     font-size: 0.625rem;
     color: var(--muted);
   }
+  .meal-protein {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.625rem;
+    color: #ffffff;
+    margin-top: 1px;
+  }
+  .protein-total-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6875rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.25);
+    color: #a78bfa;
+    margin-left: 6px;
+  }
+  .protein-progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 2px;
+    color: #a78bfa;
+  }
+  .protein-progress-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+  .progress-fill.protein-fill {
+    background: linear-gradient(90deg, #a78bfa, #818cf8);
+  }
+  .progress-fill.protein-fill.over {
+    background: linear-gradient(90deg, #fbbf24, #f97316);
+  }
   .done-counter { font-family: 'DM Mono', monospace; font-size: 0.6875rem; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #64748b; margin: 0 16px 8px; display: inline-block; }
   .tips-box { margin: 0 16px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); padding: 14px; }
   .tips-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.625rem; letter-spacing: 3px; margin-bottom: 10px; }
@@ -372,6 +405,13 @@
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="progress-note" id="progress-note"></div>
     </div>
+    <div class="progress-wrap" style="margin-top:6px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span class="protein-progress-label">PROTEÍNA</span>
+        <span class="protein-progress-value" id="protein-progress-value">0 / 0g</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill protein-fill" id="protein-fill"></div></div>
+    </div>
     <div style="padding:6px 16px 0">
       <span class="done-counter" id="done-counter">0 de 4 comidas completadas</span>
     </div>
@@ -537,7 +577,7 @@ function showTab(tab) {
 // ===== PLAN DATA =====
 const planData = {
   hombre: {
-    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400,
+    title:"👨 Hombre · 30+", kcalRange:"1.200–1.400 kcal", kcalTarget:1400, proteinTarget:110,
     mealAccents:{desayuno:"#f97316",merienda:"#a855f7",almuerzo:"#22c55e",cena:"#3b82f6"},
     tips:[["💧","2 litros de agua por día"],["🚶","30 min de caminata mínimo"],["⏰","Cenar 2hs antes de dormir"],["😴","Dormir 7-8 horas"],["❌","Sin azúcar, frituras ni harinas blancas de noche"]],
     days:[
@@ -551,7 +591,7 @@ const planData = {
     ]
   },
   anemia_hombre: {
-    title:"🩸👨 Anemia · Hombre", kcalRange:"1.400–1.600 kcal", kcalTarget:1600,
+    title:"🩸👨 Anemia · Hombre", kcalRange:"1.400–1.600 kcal", kcalTarget:1600, proteinTarget:120,
     mealAccents:{desayuno:"#f87171",merienda:"#fbbf24",almuerzo:"#fb923c",cena:"#a78bfa"},
     tips:[
       ["🥩","Carne roja 3 veces por semana — mejor fuente de hierro hemo"],
@@ -608,7 +648,7 @@ const planData = {
     ]
   },
   anemia_mujer: {
-    title:"🩸👩 Anemia · Mujer", kcalRange:"1.300–1.500 kcal", kcalTarget:1500,
+    title:"🩸👩 Anemia · Mujer", kcalRange:"1.300–1.500 kcal", kcalTarget:1500, proteinTarget:95,
     mealAccents:{desayuno:"#fb7185",merienda:"#fbbf24",almuerzo:"#f472b6",cena:"#a78bfa"},
     tips:[
       ["🥩","Carne roja 3-4 veces por semana — clave por la pérdida menstrual de hierro"],
@@ -666,7 +706,7 @@ const planData = {
     ]
   },
   mujer: {
-    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200,
+    title:"👩 Mujer · 30+", kcalRange:"1.000–1.200 kcal", kcalTarget:1200, proteinTarget:90,
     mealAccents:{desayuno:"#f472b6",merienda:"#a78bfa",almuerzo:"#34d399",cena:"#60a5fa"},
     tips:[["💧","2 litros de agua, idealmente antes de cada comida"],["🚶","30-40 min de caminata o actividad diaria"],["🌙","Cenar liviano y al menos 2hs antes de dormir"],["😴","Dormir 7-8hs: el mal sueño sube el cortisol"],["🥦","Priorizar proteína y verduras en cada comida"],["❌","Sin azúcar, harinas blancas ni alcohol"]],
     days:[
@@ -682,6 +722,44 @@ const planData = {
 };
 
 // ===== ALTERNATIVAS DE REEMPLAZO (2 opciones por tipo de comida y perfil) =====
+// ===== ESTIMACIÓN DE PROTEÍNA (gramos) a partir de los ingredientes =====
+// Tabla de gramos de proteína aproximados por porción habitual mencionada en los items
+const proteinKeywords = [
+  // [regex, gramos de proteína por match] - ordenado de más a menos específico
+  [/hígado/i, 26],
+  [/morcilla/i, 8],
+  [/milanesa/i, 28],
+  [/pollo|pechuga/i, 27],
+  [/vacío|bife|cuadril|costilla|tira|asado|albóndiga|^carne|\bcarne\b/i, 26],
+  [/hamburguesa/i, 20],
+  [/pescado|merluza|salmón|atún/i, 24],
+  [/mejillon|almeja|camar/i, 18],
+  [/huevo(s)? (revuelto|pochado|duro|entero)?/i, 6],
+  [/clara(s)?/i, 4],
+  [/yema/i, 3],
+  [/yogur/i, 6],
+  [/queso/i, 5],
+  [/lentejas|garbanzos|porotos/i, 9],
+  [/quinoa/i, 4],
+  [/tofu/i, 10],
+  [/avena/i, 5],
+  [/almendras|nueces|frutos secos|semillas/i, 3],
+  [/arroz|fideos|pan/i, 3],
+  [/jamón/i, 5],
+];
+
+function estimateProtein(meal) {
+  let total = 0;
+  meal.items.forEach(item => {
+    let matched = false;
+    for (const [regex, grams] of proteinKeywords) {
+      if (regex.test(item)) { total += grams; matched = true; break; }
+    }
+  });
+  return total;
+}
+
+
 const mealAlternatives = {
   hombre: {
     desayuno: [
@@ -862,6 +940,7 @@ function renderDay() {
   updateDoneCounter();
   const mealsEl=document.getElementById('meals');
   mealsEl.innerHTML='';
+  let totalProtein=0;
   ['desayuno','merienda','almuerzo','cena'].forEach(key=>{
     const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
     const altKey=currentSex+'-'+currentDay+'-'+key;
@@ -869,9 +948,11 @@ function renderDay() {
     const alternatives=(mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
     const totalOptions=1+alternatives.length;
     const meal=altIndex===0?originalMeal:alternatives[altIndex-1];
+    const proteinG=estimateProtein(meal);
+    totalProtein+=proteinG;
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein">🥩 ~${proteinG}g proteína</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
@@ -885,6 +966,12 @@ function renderDay() {
     }
     mealsEl.appendChild(card);
   });
+  const proteinTarget=d.proteinTarget||100;
+  const proteinPct=Math.min(Math.round((totalProtein/proteinTarget)*100),100);
+  document.getElementById('protein-progress-value').textContent=`${totalProtein} / ${proteinTarget}g`;
+  const proteinFill=document.getElementById('protein-fill');
+  proteinFill.style.width=proteinPct+'%';
+  proteinFill.className='progress-fill protein-fill'+(totalProtein>proteinTarget?' over':'');
 }
 
 function renderTips() {
@@ -1002,7 +1089,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutricion-v4';
+    const CACHE = 'nutricion-v7';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
