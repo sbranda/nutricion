@@ -27,7 +27,7 @@
     --card: rgba(255,255,255,0.04);
     --border: rgba(255,255,255,0.08);
     --text: #e2e8f0;
-    --muted: #475569;
+    --muted: #94a3b8;
     --accent: #38bdf8;
     --accent2: #818cf8;
     --green: #34d399;
@@ -46,6 +46,56 @@
   body.theme-rosa { --accent: #f472b6; --accent2: #fb7185; }
   body.theme-violeta { --accent: #a78bfa; --accent2: #818cf8; }
   body.theme-naranja { --accent: #fb923c; --accent2: #fbbf24; }
+
+  /* TEMA CLARO */
+  body.theme-claro {
+    --bg: #f0f4f8;
+    --card: rgba(0,0,0,0.04);
+    --border: rgba(0,0,0,0.12);
+    --text: #0f172a;
+    --muted: #475569;
+    --accent: #0ea5e9;
+    --accent2: #6366f1;
+    --green: #16a34a;
+    --red: #dc2626;
+    background: #f0f4f8;
+    color: #0f172a;
+  }
+  body.theme-claro .plan-header,
+  body.theme-claro .peso-header,
+  body.theme-claro .settings-header,
+  body.theme-claro .tab-bar { background: #fff; border-color: rgba(0,0,0,0.1); }
+  body.theme-claro .meal-card { background: #fff; border-color: rgba(0,0,0,0.1); }
+  body.theme-claro .meal-card.open { background: #f8fafc; }
+  body.theme-claro .meal-name { color: #0f172a; }
+  body.theme-claro .settings-card { background: #fff; }
+  body.theme-claro .stat-card { background: #fff; }
+  body.theme-claro .input-card { background: #fff; }
+  body.theme-claro .chart-card { background: #fff; }
+  body.theme-claro .history-item { background: #fff; }
+  body.theme-claro .tips-box { background: #fff; }
+  body.theme-claro .weight-input,
+  body.theme-claro .date-input,
+  body.theme-claro .meta-input { background: #f1f5f9; color: #0f172a; }
+  body.theme-claro .selector-btn { background: #fff; }
+  body.theme-claro #selector { background: #f0f4f8; }
+  body.theme-claro .day-btn { background: #fff; color: #475569; }
+  body.theme-claro .progress-bar { background: rgba(0,0,0,0.08); }
+  body.theme-claro .tab-btn { color: #475569; }
+  body.theme-claro .font-size-btn { background: #f1f5f9; color: #475569; }
+
+  /* ACCESIBILIDAD: botones más grandes */
+  body.a11y-large .day-btn { padding: 10px 16px; font-size: 0.75rem; }
+  body.a11y-large .meal-top { padding: 16px; }
+  body.a11y-large .meal-check-btn { width: 36px; height: 36px; font-size: 1.125rem; }
+  body.a11y-large .save-btn { padding: 16px 22px; font-size: 1rem; }
+  body.a11y-large .tab-btn { padding: 12px 0 14px; }
+  body.a11y-large .tab-icon { font-size: 1.5rem; }
+  body.a11y-large .tab-label { font-size: 0.6875rem; }
+  body.a11y-large .selector-btn { padding: 28px 20px; }
+  body.a11y-large .selector-btn .emoji { font-size: 2.5rem; }
+  body.a11y-large .filter-btn { padding: 8px 14px; font-size: 0.75rem; }
+  .swatch-claro { background: linear-gradient(135deg, #e0f2fe, #f0f4f8); border: 2px solid #94a3b8; }
 
   /* ===== AJUSTES SCREEN ===== */
   .settings-header { background: linear-gradient(90deg, #0c1829, #0a1020); border-bottom: 1px solid var(--border); padding: 20px 18px 14px; text-align: center; }
@@ -250,7 +300,7 @@
   .progress-fill.iron-fill.over {
     background: linear-gradient(90deg, #34d399, #22c55e);
   }
-  .done-counter { font-family: 'DM Mono', monospace; font-size: 0.6875rem; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #64748b; margin: 0 16px 8px; display: inline-block; }
+  .done-counter { font-family: 'DM Mono', monospace; font-size: 0.6875rem; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; margin: 0 16px 8px; display: inline-block; }
   .tips-box { margin: 0 16px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--border); padding: 14px; }
   .tips-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.625rem; letter-spacing: 3px; margin-bottom: 10px; }
   .tip-row { display: flex; align-items: center; gap: 9px; padding: 5px 0; font-size: 0.8125rem; }
@@ -595,14 +645,32 @@
     <div class="settings-card">
       <div class="settings-card-title">COLOR DE LA APP</div>
       <div class="theme-row">
-        <div class="theme-swatch swatch-azul" data-theme="theme-azul" onclick="setTheme('theme-azul', this)" title="Azul"></div>
-        <div class="theme-swatch swatch-verde" data-theme="theme-verde" onclick="setTheme('theme-verde', this)" title="Verde"></div>
-        <div class="theme-swatch swatch-rosa" data-theme="theme-rosa" onclick="setTheme('theme-rosa', this)" title="Rosa"></div>
-        <div class="theme-swatch swatch-violeta" data-theme="theme-violeta" onclick="setTheme('theme-violeta', this)" title="Violeta"></div>
+        <div class="theme-swatch swatch-azul" data-theme="theme-azul" onclick="setTheme('theme-azul', this)" title="Azul" aria-label="Tema azul"></div>
+        <div class="theme-swatch swatch-verde" data-theme="theme-verde" onclick="setTheme('theme-verde', this)" title="Verde" aria-label="Tema verde"></div>
+        <div class="theme-swatch swatch-rosa" data-theme="theme-rosa" onclick="setTheme('theme-rosa', this)" title="Rosa" aria-label="Tema rosa"></div>
+        <div class="theme-swatch swatch-violeta" data-theme="theme-violeta" onclick="setTheme('theme-violeta', this)" title="Violeta" aria-label="Tema violeta"></div>
+        <div class="theme-swatch swatch-naranja" data-theme="theme-naranja" onclick="setTheme('theme-naranja', this)" title="Naranja" aria-label="Tema naranja"></div>
+        <div class="theme-swatch swatch-claro" data-theme="theme-claro" onclick="setTheme('theme-claro', this)" title="Claro ☀️" aria-label="Tema claro"></div>
         <div class="theme-swatch swatch-naranja" data-theme="theme-naranja" onclick="setTheme('theme-naranja', this)" title="Naranja"></div>
       </div>
       <div class="settings-note">
         El color afecta los gráficos, botones y acentos generales de la app (no cambia los colores del plan Hombre/Mujer/Anemia).
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-title">♿ ACCESIBILIDAD</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:0.875rem;color:var(--text);margin-bottom:2px">Botones grandes</div>
+          <div style="font-size:0.75rem;color:var(--muted)">Aumenta el área táctil de todos los botones</div>
+        </div>
+        <button id="a11y-toggle" onclick="toggleA11y()" role="switch" aria-checked="false" style="width:48px;height:26px;border-radius:13px;border:none;background:var(--border);cursor:pointer;position:relative;transition:background 0.2s">
+          <span id="a11y-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left 0.2s;display:block"></span>
+        </button>
+      </div>
+      <div style="font-size:0.75rem;color:var(--muted)">
+        El tema claro ☀️ también mejora la legibilidad para personas con baja visión.
       </div>
     </div>
 
@@ -638,17 +706,17 @@
 </div>
 
 <!-- TAB BAR -->
-<nav class="tab-bar">
-  <button class="tab-btn active" id="tab-plan" onclick="showTab('plan')">
-    <span class="tab-icon">🥗</span>
+<nav class="tab-bar" role="navigation" aria-label="Navegación principal">
+  <button class="tab-btn active" id="tab-plan" onclick="showTab('plan')" role="tab" aria-selected="true" aria-label="Plan de comidas">
+    <span class="tab-icon" aria-hidden="true">🥗</span>
     <span class="tab-label">PLAN</span>
   </button>
-  <button class="tab-btn" id="tab-peso" onclick="showTab('peso')">
-    <span class="tab-icon">⚖️</span>
+  <button class="tab-btn" id="tab-peso" onclick="showTab('peso')" role="tab" aria-selected="false" aria-label="Seguimiento de peso">
+    <span class="tab-icon" aria-hidden="true">⚖️</span>
     <span class="tab-label">PESO</span>
   </button>
-  <button class="tab-btn" id="tab-ajustes" onclick="showTab('ajustes')">
-    <span class="tab-icon">⚙️</span>
+  <button class="tab-btn" id="tab-ajustes" onclick="showTab('ajustes')" role="tab" aria-selected="false" aria-label="Ajustes de la app">
+    <span class="tab-icon" aria-hidden="true">⚙️</span>
     <span class="tab-label">AJUSTES</span>
   </button>
 </nav>
@@ -660,10 +728,30 @@
 // ===== TAB NAVIGATION =====
 function showTab(tab) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
   document.getElementById('screen-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
+  const tabBtn = document.getElementById('tab-' + tab);
+  tabBtn.classList.add('active');
+  tabBtn.setAttribute('aria-selected','true');
   if (tab === 'peso') { loadPesoForProfile(); renderPeso(); }
+}
+
+// ===== ACCESIBILIDAD =====
+let a11yLarge = localStorage.getItem('a11y-large') === 'true';
+
+function applyA11y(large) {
+  a11yLarge = large;
+  document.body.classList.toggle('a11y-large', large);
+  const toggle = document.getElementById('a11y-toggle');
+  const knob = document.getElementById('a11y-knob');
+  if(toggle) { toggle.setAttribute('aria-checked', large ? 'true' : 'false'); toggle.style.background = large ? 'var(--accent)' : 'var(--border)'; }
+  if(knob) knob.style.left = large ? '25px' : '3px';
+}
+
+function toggleA11y() {
+  a11yLarge = !a11yLarge;
+  localStorage.setItem('a11y-large', a11yLarge);
+  applyA11y(a11yLarge);
 }
 
 // ===== PLAN DATA =====
@@ -1232,7 +1320,7 @@ function renderDay() {
     totalIron+=ironMg;
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${meal.kcal} calorías">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${meal.items.map(item=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
@@ -1397,7 +1485,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v9';
+    const CACHE = 'nutriplan-v10';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
@@ -1457,8 +1545,10 @@ function setTheme(theme, el) {
 function resetSettings() {
   applyFontScale(1);
   applyTheme('theme-azul');
+  applyA11y(false);
   localStorage.removeItem('app-font-scale');
   localStorage.removeItem('app-theme');
+  localStorage.removeItem('a11y-large');
   showToast('✓ Ajustes restaurados');
 }
 
@@ -1467,6 +1557,7 @@ function resetSettings() {
   const savedTheme = localStorage.getItem('app-theme') || 'theme-azul';
   applyFontScale(savedScale);
   applyTheme(savedTheme);
+  applyA11y(localStorage.getItem('a11y-large') === 'true');
 
   // Cargar último perfil guardado
   const ultimoPerfil = localStorage.getItem('ultimo-perfil');
