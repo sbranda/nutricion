@@ -478,8 +478,9 @@
       </div>
       <div class="progress-bar"><div class="progress-fill iron-fill" id="iron-fill"></div></div>
     </div>
-    <div style="padding:6px 16px 0">
+    <div style="padding:6px 16px 0;display:flex;align-items:center;justify-content:space-between">
       <span class="done-counter" id="done-counter">0 de 4 comidas completadas</span>
+      <button onclick="clearDayMeals()" style="font-family:'DM Mono',monospace;font-size:0.625rem;padding:3px 10px;border-radius:8px;border:1px solid rgba(239,68,68,0.25);background:transparent;color:#ef4444;cursor:pointer">✕ Limpiar día</button>
     </div>
     <div class="meals" id="meals"></div>
     <div class="tips-box">
@@ -1102,12 +1103,33 @@ let currentSex=null, currentDay=0, doneMeals={};
 
 function doneMealsKey() { return 'done-meals-'+(currentSex||'global'); }
 
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+
 function loadDoneMeals() {
   doneMeals = JSON.parse(localStorage.getItem(doneMealsKey())||'{}');
+  // Limpiar tildados de más de 7 días
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  let changed = false;
+  Object.keys(doneMeals).forEach(k => {
+    const dateStr = k.slice(0, 10);
+    if(dateStr < cutoffStr) { delete doneMeals[k]; changed = true; }
+  });
+  if(changed) saveDoneMeals();
 }
 
 function saveDoneMeals() {
   localStorage.setItem(doneMealsKey(), JSON.stringify(doneMeals));
+}
+
+function clearDayMeals() {
+  const today = getTodayStr();
+  const prefix = today+'-'+currentDay+'-';
+  Object.keys(doneMeals).forEach(k => { if(k.startsWith(prefix)) delete doneMeals[k]; });
+  saveDoneMeals();
+  renderDay();
+  showToast('✓ Día limpiado');
 }
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
@@ -1168,7 +1190,7 @@ function renderDay() {
   mealsEl.innerHTML='';
   let totalProtein=0, totalIron=0;
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
-    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=currentDay+'-'+key, isDone=!!doneMeals[doneKey];
+    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=getTodayStr()+'-'+currentDay+'-'+key, isDone=!!doneMeals[doneKey];
     const altKey=currentSex+'-'+currentDay+'-'+key;
     const altIndex=mealReplacements[altKey] || 0;
     const alternatives=(mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
@@ -1345,7 +1367,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v7';
+    const CACHE = 'nutriplan-v8';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
