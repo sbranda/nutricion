@@ -1124,8 +1124,8 @@ function saveDoneMeals() {
 }
 
 function clearDayMeals() {
-  const today = getTodayStr();
-  const prefix = today+'-'+currentDay+'-';
+  const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
+  const prefix = dayDate+'-'+currentDay+'-';
   Object.keys(doneMeals).forEach(k => { if(k.startsWith(prefix)) delete doneMeals[k]; });
   saveDoneMeals();
   renderDay();
@@ -1134,7 +1134,7 @@ function clearDayMeals() {
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
 function selectSex(sex) {
-  currentSex=sex; currentDay=0; doneMeals={};
+  currentSex=sex; currentDay=getTodayPlanDay(); doneMeals={};
   localStorage.setItem('ultimo-perfil', sex);
   loadDoneMeals();
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven');
@@ -1156,13 +1156,39 @@ function goBack() {
   document.getElementById('plan-content').style.display='none';
 }
 
+// Mapeo: índice del plan (0=Lunes) → día de la semana JS (1=Lunes...0=Domingo)
+const planDayToJS = [1,2,3,4,5,6,0]; // Lun=1,Mar=2,...,Dom=0
+
+function getDateForPlanDay(dayIndex) {
+  const today = new Date();
+  const todayJS = today.getDay(); // 0=Dom,1=Lun,...,6=Sáb
+  const targetJS = planDayToJS[dayIndex];
+  let diff = targetJS - todayJS;
+  // Mostrar la fecha de esta semana (pasada o futura dentro de los 7 días)
+  if (diff < -3) diff += 7;
+  if (diff > 3) diff -= 7;
+  const d = new Date(today);
+  d.setDate(today.getDate() + diff);
+  return d;
+}
+
+function formatShortDate(date) {
+  return date.getDate().toString().padStart(2,'0') + '/' + (date.getMonth()+1).toString().padStart(2,'0');
+}
+
+function getTodayPlanDay() {
+  const todayJS = new Date().getDay();
+  return planDayToJS.indexOf(todayJS); // devuelve índice 0-6
+}
+
 function renderDays() {
   const d=planData[currentSex], row=document.getElementById('days-row');
   row.innerHTML='';
   d.days.forEach((day,i)=>{
     const btn=document.createElement('button');
     btn.className='day-btn'+(i===currentDay?' active':'');
-    btn.textContent=day.short;
+    const fecha = formatShortDate(getDateForPlanDay(i));
+    btn.innerHTML=`<span style="display:block">${day.short}</span><span style="font-size:0.55rem;opacity:0.7">${fecha}</span>`;
     btn.onclick=()=>{currentDay=i;renderDays();renderDay();};
     row.appendChild(btn);
   });
@@ -1170,7 +1196,10 @@ function renderDays() {
 
 function updateDoneCounter() {
   const keys=['desayuno','almuerzo','merienda','cena'];
-  const count=keys.filter(k=>doneMeals[currentDay+'-'+k]).length;
+  const dateStr = formatShortDate(getDateForPlanDay(currentDay)).split('/').reverse().join('-');
+  // Usar getTodayStr() para el día actual, fecha calculada para otros
+  const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
+  const count=keys.filter(k=>doneMeals[dayDate+'-'+currentDay+'-'+k]).length;
   const el=document.getElementById('done-counter');
   if(count===4){el.textContent='✓ ¡Todas las comidas completadas!';el.style.background='rgba(52,211,153,0.15)';el.style.borderColor='rgba(52,211,153,0.3)';el.style.color='#34d399';}
   else{el.textContent=count+' de 4 comidas completadas';el.style.background='rgba(255,255,255,0.05)';el.style.borderColor='rgba(255,255,255,0.1)';el.style.color='#64748b';}
@@ -1178,7 +1207,8 @@ function updateDoneCounter() {
 
 function renderDay() {
   const d=planData[currentSex], day=d.days[currentDay];
-  document.getElementById('day-title').textContent=day.day;
+  const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
+  document.getElementById('day-title').textContent=day.day+' '+formatShortDate(getDateForPlanDay(currentDay));
   document.getElementById('kcal-badge').textContent=day.total+' kcal';
   const pct=Math.min(Math.round((day.total/d.kcalTarget)*100),100);
   const fill=document.getElementById('progress-fill');
@@ -1190,7 +1220,7 @@ function renderDay() {
   mealsEl.innerHTML='';
   let totalProtein=0, totalIron=0;
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
-    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=getTodayStr()+'-'+currentDay+'-'+key, isDone=!!doneMeals[doneKey];
+    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=dayDate+'-'+currentDay+'-'+key, isDone=!!doneMeals[doneKey];
     const altKey=currentSex+'-'+currentDay+'-'+key;
     const altIndex=mealReplacements[altKey] || 0;
     const alternatives=(mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
@@ -1367,7 +1397,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v8';
+    const CACHE = 'nutriplan-v9';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
