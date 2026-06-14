@@ -1099,11 +1099,22 @@ const mealAlternatives = {
 const mealIcons={desayuno:"🌅",merienda:"🍎",almuerzo:"☀️",cena:"🌙"};
 const mealLabels={desayuno:"DESAYUNO",merienda:"MERIENDA",almuerzo:"ALMUERZO",cena:"CENA"};
 let currentSex=null, currentDay=0, doneMeals={};
+
+function doneMealsKey() { return 'done-meals-'+(currentSex||'global'); }
+
+function loadDoneMeals() {
+  doneMeals = JSON.parse(localStorage.getItem(doneMealsKey())||'{}');
+}
+
+function saveDoneMeals() {
+  localStorage.setItem(doneMealsKey(), JSON.stringify(doneMeals));
+}
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
 function selectSex(sex) {
   currentSex=sex; currentDay=0; doneMeals={};
   localStorage.setItem('ultimo-perfil', sex);
+  loadDoneMeals();
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven');
   document.body.classList.add(sex);
   document.getElementById('selector').style.display='none';
@@ -1170,7 +1181,7 @@ function renderDay() {
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
     card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${meal.name}</div><div class="meal-protein">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem">${meal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}">${isDone?'✓':''}</button><span class="meal-arrow">▾</span></div></div><div class="meal-items">${meal.items.map(item=>`<div class="meal-item"><div class="meal-dot" style="background:${accent}"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn">🔄 REEMPLAZAR</button></div>`:''}`;
-    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];renderDay();});
+    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
     if(replaceBtn){
@@ -1334,7 +1345,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v6';
+    const CACHE = 'nutriplan-v7';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
