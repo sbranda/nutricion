@@ -547,7 +547,7 @@
     <h1 class="peso-title">Mi Progreso de Peso</h1>
     <div id="peso-perfil-badge" style="font-family:'DM Mono',monospace;font-size:0.625rem;color:var(--muted);margin-top:4px">Sin perfil seleccionado</div>
   </div>
-  <div class="stats-row">
+  <div class="stats-row" style="grid-template-columns:1fr 1fr 1fr 1fr">
     <div class="stat-card">
       <div class="stat-label">ACTUAL</div>
       <div class="stat-value" id="stat-current" style="color:var(--accent)">—</div>
@@ -562,6 +562,11 @@
       <div class="stat-label">PERDIDO</div>
       <div class="stat-value" id="stat-lost" style="color:var(--green)">—</div>
       <div class="stat-unit">kg</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">IMC</div>
+      <div class="stat-value" id="stat-imc" style="color:var(--accent)">—</div>
+      <div class="stat-unit" id="stat-imc-label">—</div>
     </div>
   </div>
   <div class="input-section">
@@ -579,9 +584,28 @@
         </div>
       </div>
       <div class="goal-row">
+        <span class="goal-label">Altura:</span>
+        <input class="meta-input" id="altura-input" type="number" step="1" min="100" max="250" placeholder="ej: 170 cm" style="max-width:130px" aria-label="Tu altura en centímetros">
+        <span class="goal-label">cm</span>
+        <button onclick="saveAltura()" style="background:rgba(129,140,248,0.15);border:1px solid rgba(129,140,248,0.3);border-radius:8px;padding:7px 12px;color:var(--accent2);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;" aria-label="Guardar altura">Guardar</button>
+      </div>
+      <div id="imc-card" style="display:none;margin-top:12px;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-family:'DM Mono',monospace;font-size:0.625rem;letter-spacing:2px;color:var(--muted)">IMC ACTUAL</span>
+          <span id="imc-valor" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--accent)">—</span>
+        </div>
+        <div id="imc-categoria" style="font-size:0.8125rem;margin-bottom:8px"></div>
+        <div id="imc-rango" style="font-size:0.75rem;color:var(--muted);line-height:1.6"></div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="goal-label">Meta sugerida:</span>
+          <input class="meta-input" id="goal-input" type="number" step="0.1" min="30" max="300" placeholder="kg" style="max-width:90px" aria-label="Peso objetivo">
+          <button onclick="saveGoal()" style="background:rgba(129,140,248,0.15);border:1px solid rgba(129,140,248,0.3);border-radius:8px;padding:7px 12px;color:var(--accent2);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;" aria-label="Fijar meta de peso">Fijar meta</button>
+        </div>
+      </div>
+      <div id="goal-row-simple" class="goal-row">
         <span class="goal-label">Meta:</span>
-        <input class="meta-input" id="goal-input" type="number" step="0.1" min="30" max="300" placeholder="Peso objetivo (kg)" style="max-width:180px">
-        <button onclick="saveGoal()" style="background:rgba(129,140,248,0.15);border:1px solid rgba(129,140,248,0.3);border-radius:8px;padding:7px 12px;color:var(--accent2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Fijar meta</button>
+        <input class="meta-input" id="goal-input-simple" type="number" step="0.1" min="30" max="300" placeholder="Peso objetivo (kg)" style="max-width:180px" aria-label="Peso objetivo">
+        <button onclick="saveGoalSimple()" style="background:rgba(129,140,248,0.15);border:1px solid rgba(129,140,248,0.3);border-radius:8px;padding:7px 12px;color:var(--accent2);font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;">Fijar meta</button>
       </div>
     </div>
   </div>
@@ -1363,11 +1387,89 @@ let chartInstance=null, currentFilter='all';
 function pesoKey() { return 'peso-entries-'+(currentSex||'global'); }
 function goalKey() { return 'peso-goal-'+(currentSex||'global'); }
 
+function alturaKey() { return 'altura-'+(currentSex||'global'); }
+
+function getIMCCategoria(imc) {
+  if(imc < 18.5) return { label:'Bajo peso', color:'#60a5fa' };
+  if(imc < 25)   return { label:'Normal ✓', color:'#34d399' };
+  if(imc < 30)   return { label:'Sobrepeso', color:'#fbbf24' };
+  return               { label:'Obesidad', color:'#f87171' };
+}
+
+function calcularIMC(pesoKg, alturaCm) {
+  const altM = alturaCm / 100;
+  return Math.round((pesoKg / (altM * altM)) * 10) / 10;
+}
+
+function saveAltura() {
+  const h = parseFloat(document.getElementById('altura-input').value);
+  if(!h || h < 100 || h > 250) { showToast('⚠️ Ingresá una altura válida (100-250 cm)'); return; }
+  localStorage.setItem(alturaKey(), h);
+  showToast('✓ Altura guardada: '+h+' cm');
+  renderIMC();
+}
+
+function saveGoalSimple() {
+  const g = parseFloat(document.getElementById('goal-input-simple').value);
+  if(!g||g<30||g>300){ showToast('⚠️ Ingresá un peso meta válido'); return; }
+  pesoGoal=g;
+  localStorage.setItem(goalKey(),g);
+  showToast('🎯 Meta fijada: '+g+' kg');
+  renderPeso();
+}
+
+function renderIMC() {
+  const altura = parseFloat(localStorage.getItem(alturaKey())||'0');
+  const alturaInput = document.getElementById('altura-input');
+  if(alturaInput && altura) alturaInput.value = altura;
+
+  const currentWeight = pesoEntries.length ? pesoEntries[pesoEntries.length-1].weight : 0;
+  const imcCard = document.getElementById('imc-card');
+  const goalRowSimple = document.getElementById('goal-row-simple');
+
+  if(!altura || !currentWeight) {
+    if(imcCard) imcCard.style.display='none';
+    if(goalRowSimple) goalRowSimple.style.display='flex';
+    return;
+  }
+
+  if(imcCard) imcCard.style.display='block';
+  if(goalRowSimple) goalRowSimple.style.display='none';
+
+  const imc = calcularIMC(currentWeight, altura);
+  const cat = getIMCCategoria(imc);
+  const altM = altura / 100;
+
+  // Rango de peso saludable (IMC 18.5-24.9)
+  const pesoMinSano = Math.round(18.5 * altM * altM * 10) / 10;
+  const pesoMaxSano = Math.round(24.9 * altM * altM * 10) / 10;
+  const pesoIdeal   = Math.round(22   * altM * altM * 10) / 10;
+
+  document.getElementById('imc-valor').textContent = imc;
+  document.getElementById('imc-valor').style.color = cat.color;
+  document.getElementById('imc-categoria').innerHTML = `<span style="color:${cat.color};font-weight:600">${cat.label}</span>`;
+  document.getElementById('imc-rango').innerHTML =
+    `Peso saludable para ${altura}cm: <strong style="color:var(--text)">${pesoMinSano}–${pesoMaxSano} kg</strong><br>Peso ideal (IMC 22): <strong style="color:${cat.color}">${pesoIdeal} kg</strong>`;
+
+  // Sugerir peso ideal como meta
+  const goalInput = document.getElementById('goal-input');
+  if(goalInput && !goalInput.value) goalInput.value = pesoIdeal;
+
+  // Actualizar stat IMC
+  const statImc = document.getElementById('stat-imc');
+  const statImcLabel = document.getElementById('stat-imc-label');
+  if(statImc) { statImc.textContent = imc; statImc.style.color = cat.color; }
+  if(statImcLabel) statImcLabel.textContent = cat.label;
+}
+
+
 function loadPesoForProfile() {
   pesoEntries=JSON.parse(localStorage.getItem(pesoKey())||'[]');
   pesoGoal=parseFloat(localStorage.getItem(goalKey())||'0');
   const goalInput=document.getElementById('goal-input');
   if(goalInput) goalInput.value=pesoGoal||'';
+  const goalInputSimple=document.getElementById('goal-input-simple');
+  if(goalInputSimple) goalInputSimple.value=pesoGoal||'';
   const badge=document.getElementById('peso-perfil-badge');
   if(badge){
     if(currentSex && planData[currentSex]){
@@ -1378,6 +1480,7 @@ function loadPesoForProfile() {
       badge.style.color='var(--muted)';
     }
   }
+  renderIMC();
 }
 
 document.getElementById('date-input').value=new Date().toISOString().split('T')[0];
@@ -1396,6 +1499,7 @@ function saveEntry() {
   localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
   document.getElementById('weight-input').value='';
   document.getElementById('note-input').value='';
+  renderIMC();
   renderPeso();
 }
 
@@ -1485,7 +1589,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v10';
+    const CACHE = 'nutriplan-v11';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
