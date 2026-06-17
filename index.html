@@ -2160,7 +2160,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v15';
+    const CACHE = 'nutriplan-v16';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
@@ -2204,7 +2204,7 @@ function setFontScale(scale, btn) {
 }
 
 function applyTheme(theme) {
-  document.body.classList.remove('theme-azul','theme-verde','theme-rosa','theme-violeta','theme-naranja');
+  document.body.classList.remove('theme-azul','theme-verde','theme-rosa','theme-violeta','theme-naranja','theme-claro');
   document.body.classList.add(theme);
   document.querySelectorAll('.theme-swatch').forEach(s => {
     s.classList.toggle('active', s.dataset.theme === theme);
