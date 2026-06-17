@@ -77,7 +77,23 @@
   body.theme-claro .weight-input,
   body.theme-claro .date-input,
   body.theme-claro .meta-input { background: #f1f5f9; color: #0f172a; }
-  body.theme-claro .selector-btn { background: #fff; }
+  body.theme-claro .selector-btn { color: #0f172a; }
+  body.theme-claro .selector-btn .sex-label { color: #0f172a; }
+  body.theme-claro .selector-btn .kcal-label { color: #475569; }
+  body.theme-claro .cat-btn { color: #0f172a; }
+  body.theme-claro .cat-btn-title { color: #0f172a; }
+  body.theme-claro .cat-btn-sub { color: #475569; }
+  body.theme-claro .cat-arrow { color: #64748b; }
+  body.theme-claro .selector-label { color: #1e293b; }
+  body.theme-claro .selector-sub { color: #64748b; }
+  body.theme-claro .eyebrow { color: #64748b; }
+  body.theme-claro .selector-title { background: linear-gradient(90deg, #0ea5e9, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  body.theme-claro #selector { background: #f0f4f8; }
+  body.theme-claro #profile-step button[onclick="showCatStep()"] { color: #64748b; }
+  body.theme-claro .meal-name { color: #0f172a; }
+  body.theme-claro .history-date { color: #475569; }
+  body.theme-claro .tip-row { color: #334155; }
+  body.theme-claro .done-counter { color: #334155; background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
   body.theme-claro #selector { background: #f0f4f8; }
   body.theme-claro .day-btn { background: #fff; color: #475569; }
   body.theme-claro .progress-bar { background: rgba(0,0,0,0.08); }
@@ -735,7 +751,6 @@
         <div class="theme-swatch swatch-violeta" data-theme="theme-violeta" onclick="setTheme('theme-violeta', this)" title="Violeta" aria-label="Tema violeta"></div>
         <div class="theme-swatch swatch-naranja" data-theme="theme-naranja" onclick="setTheme('theme-naranja', this)" title="Naranja" aria-label="Tema naranja"></div>
         <div class="theme-swatch swatch-claro" data-theme="theme-claro" onclick="setTheme('theme-claro', this)" title="Claro ☀️" aria-label="Tema claro"></div>
-        <div class="theme-swatch swatch-naranja" data-theme="theme-naranja" onclick="setTheme('theme-naranja', this)" title="Naranja"></div>
       </div>
       <div class="settings-note">
         El color afecta los gráficos, botones y acentos generales de la app (no cambia los colores del plan Hombre/Mujer/Anemia).
@@ -2145,7 +2160,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v14';
+    const CACHE = 'nutriplan-v15';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
