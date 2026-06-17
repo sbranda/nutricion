@@ -168,14 +168,14 @@
   /* ===== PLAN STYLES ===== */
   .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.625rem; letter-spacing: 5px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
   .selector-title { font-family: 'DM Serif Display', serif; font-size: 2rem; text-align: center; background: linear-gradient(90deg, #34d399, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.2; }
-  .selector-sub { color: var(--muted); font-size: 0.8125rem; text-align: center; margin-bottom: 48px; }
-  .selector-label { color: #94a3b8; font-size: 0.9375rem; margin-bottom: 20px; }
+  .selector-sub { color: #94a3b8; font-size: 0.8125rem; text-align: center; margin-bottom: 48px; }
+  .selector-label { color: #e2e8f0; font-size: 0.9375rem; margin-bottom: 20px; }
   .selector-btns { display: flex; gap: 16px; width: 100%; max-width: 320px; }
-  .selector-btn { flex: 1; padding: 24px 16px; border-radius: 18px; border: 2px solid; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .selector-btn { flex: 1; padding: 24px 16px; border-radius: 18px; border: 2px solid; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; color: #e2e8f0; }
   .selector-btn:hover { transform: translateY(-2px); }
   .selector-btn .emoji { font-size: 2.375rem; }
-  .selector-btn .sex-label { font-family: 'DM Mono', monospace; font-size: 0.875rem; font-weight: 500; }
-  .selector-btn .kcal-label { font-size: 0.6875rem; color: var(--muted); text-align: center; }
+  .selector-btn .sex-label { font-family: 'DM Mono', monospace; font-size: 0.875rem; font-weight: 500; color: #e2e8f0; }
+  .selector-btn .kcal-label { font-size: 0.6875rem; color: #cbd5e1; text-align: center; }
   #btn-hombre { border-color: rgba(52,211,153,0.3); }
   #btn-hombre .sex-label { color: #34d399; }
   #btn-hombre:hover { border-color: #34d399; background: rgba(52,211,153,0.07); }
@@ -369,9 +369,9 @@
     font-family: 'DM Sans', sans-serif; color: var(--text);
   }
   .cat-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.06); }
-  .cat-btn-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 2px; }
-  .cat-btn-sub { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
-  .cat-arrow { margin-left: auto; font-size: 1.25rem; color: var(--muted); }
+  .cat-btn-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+  .cat-btn-sub { font-size: 0.75rem; color: #cbd5e1; font-family: 'DM Mono', monospace; }
+  .cat-arrow { margin-left: auto; font-size: 1.25rem; color: #94a3b8; }
   #btn-anemia-hombre { border-color: rgba(248,113,113,0.3); }
   #btn-anemia-hombre .sex-label { color: #f87171; }
   #btn-anemia-hombre:hover { border-color: #f87171; background: rgba(248,113,113,0.07); }
@@ -2145,7 +2145,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v13';
+    const CACHE = 'nutriplan-v14';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
