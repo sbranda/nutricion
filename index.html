@@ -2154,9 +2154,18 @@ function deleteEntry(date) {
 }
 
 function clearAll() {
-  if(!confirm('¿Borrar todos los registros de este perfil?'))return;
-  pesoEntries=[]; localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
-  renderPeso(); showToast('Historial borrado');
+  if(!confirm('¿Borrar todos los registros y la meta de este perfil?'))return;
+  pesoEntries=[];
+  pesoGoal=0;
+  localStorage.setItem(pesoKey(),JSON.stringify(pesoEntries));
+  localStorage.removeItem(goalKey());
+  const goalInput=document.getElementById('goal-input');
+  if(goalInput) goalInput.value='';
+  const goalInputSimple=document.getElementById('goal-input-simple');
+  if(goalInputSimple) goalInputSimple.value='';
+  renderIMC();
+  renderPeso();
+  showToast('Historial y meta borrados');
 }
 
 function setFilter(f,btn) {
@@ -2224,7 +2233,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v17';
+    const CACHE = 'nutriplan-v18';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
