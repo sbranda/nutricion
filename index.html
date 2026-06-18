@@ -187,7 +187,40 @@
   .selector-sub { color: #94a3b8; font-size: 0.8125rem; text-align: center; margin-bottom: 48px; }
   .selector-label { color: #e2e8f0; font-size: 0.9375rem; margin-bottom: 20px; }
   .selector-btns { display: flex; gap: 16px; width: 100%; max-width: 320px; }
-  .selector-btn { flex: 1; padding: 24px 16px; border-radius: 18px; border: 2px solid; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'DM Sans', sans-serif; color: #e2e8f0; }
+  .selector-btn {
+    flex: 1; padding: 24px 16px; border-radius: 18px;
+    border: none; background: transparent; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif; color: #e2e8f0;
+    position: relative; z-index: 0;
+  }
+  .selector-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 18px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--grad-a, #38bdf8), var(--grad-b, #818cf8));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .selector-btn:hover::before { opacity: 1; }
+  .selector-btn:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+  /* Colores degradado por perfil */
+  #btn-hombre        { --grad-a: #34d399; --grad-b: #60a5fa; }
+  #btn-mujer         { --grad-a: #f472b6; --grad-b: #a78bfa; }
+  #btn-hombre-joven  { --grad-a: #38bdf8; --grad-b: #0ea5e9; }
+  #btn-mujer-joven   { --grad-a: #fbbf24; --grad-b: #fb923c; }
+  #btn-hombre-maduro { --grad-a: #fb923c; --grad-b: #fbbf24; }
+  #btn-mujer-madura  { --grad-a: #a78bfa; --grad-b: #818cf8; }
+  #btn-hombre-mayor  { --grad-a: #fbbf24; --grad-b: #f59e0b; }
+  #btn-mujer-mayor   { --grad-a: #34d399; --grad-b: #10b981; }
+  #btn-anemia-hombre { --grad-a: #f87171; --grad-b: #fbbf24; }
+  #btn-anemia-mujer  { --grad-a: #fb7185; --grad-b: #f472b6; }
+  /* Botones dinámicos del selector — degradado por clase */
+  .selector-btns-3 .selector-btn { --grad-a: var(--accent); --grad-b: var(--accent2); }
   .selector-btn:hover { transform: translateY(-2px); }
   .selector-btn .emoji { font-size: 2.375rem; }
   .selector-btn .sex-label { font-family: 'DM Mono', monospace; font-size: 0.875rem; font-weight: 500; color: #e2e8f0; }
@@ -379,12 +412,24 @@
   .cat-btn {
     display: flex; align-items: center; gap: 14px;
     width: 100%; padding: 16px;
-    background: var(--card); border: 1px solid var(--border);
+    background: var(--card);
+    border: none;
     border-radius: 14px; cursor: pointer;
     text-align: left; transition: all 0.2s;
     font-family: 'DM Sans', sans-serif; color: var(--text);
+    position: relative; z-index: 0;
   }
-  .cat-btn:hover { border-color: var(--accent); background: rgba(255,255,255,0.06); }
+  .cat-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 14px; padding: 2px;
+    background: var(--cat-grad, linear-gradient(135deg, #38bdf8, #818cf8));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .cat-btn:hover { background: rgba(255,255,255,0.06); transform: translateX(3px); }
   .cat-btn-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
   .cat-btn-sub { font-size: 0.75rem; color: #cbd5e1; font-family: 'DM Mono', monospace; }
   .cat-arrow { margin-left: auto; font-size: 1.25rem; color: #94a3b8; }
@@ -547,17 +592,17 @@
     <div id="cat-step" style="width:100%;max-width:340px">
       <p class="selector-label">¿Qué tipo de plan necesitás?</p>
       <div style="display:flex;flex-direction:column;gap:10px;width:100%">
-        <button class="cat-btn" onclick="showCategory('general')">
+        <button class="cat-btn" onclick="showCategory('general')" style="--cat-grad:linear-gradient(135deg,#34d399,#60a5fa)">
           <span style="font-size:1.5rem">🥗</span>
           <div><div class="cat-btn-title">Plan General</div><div class="cat-btn-sub">18-29 · 30-49 · 50-64 años</div></div>
           <span class="cat-arrow">›</span>
         </button>
-        <button class="cat-btn" onclick="showCategory('anemia')">
+        <button class="cat-btn" onclick="showCategory('anemia')" style="--cat-grad:linear-gradient(135deg,#f87171,#fbbf24)">
           <span style="font-size:1.5rem">🩸</span>
           <div><div class="cat-btn-title">Plan Anemia</div><div class="cat-btn-sub">Todas las edades · Rico en hierro</div></div>
           <span class="cat-arrow">›</span>
         </button>
-        <button class="cat-btn" onclick="showCategory('mayor')">
+        <button class="cat-btn" onclick="showCategory('mayor')" style="--cat-grad:linear-gradient(135deg,#fbbf24,#34d399)">
           <span style="font-size:1.5rem">🧓</span>
           <div><div class="cat-btn-title">Plan Mayor 65+</div><div class="cat-btn-sub">Hombre y Mujer · Adaptado a la edad</div></div>
           <span class="cat-arrow">›</span>
@@ -867,14 +912,33 @@ function showCatStep() {
 function showCategory(cat) {
   const c = categories[cat];
   document.getElementById('profile-step-title').textContent = c.title;
+  const gradients = {
+    hombre_joven:        ['#38bdf8','#0ea5e9'],
+    mujer_joven:         ['#fbbf24','#fb923c'],
+    hombre:              ['#34d399','#60a5fa'],
+    mujer:               ['#f472b6','#a78bfa'],
+    hombre_maduro:       ['#fb923c','#fbbf24'],
+    mujer_madura:        ['#a78bfa','#818cf8'],
+    hombre_mayor:        ['#fbbf24','#f59e0b'],
+    mujer_mayor:         ['#34d399','#10b981'],
+    anemia_hombre:       ['#f87171','#fbbf24'],
+    anemia_mujer:        ['#fb7185','#f472b6'],
+    anemia_hombre_joven: ['#f87171','#fb923c'],
+    anemia_mujer_joven:  ['#fb7185','#fbbf24'],
+    anemia_hombre_maduro:['#fb923c','#f87171'],
+    anemia_mujer_madura: ['#f472b6','#a78bfa'],
+    anemia_hombre_mayor: ['#fbbf24','#f87171'],
+    anemia_mujer_mayor:  ['#34d399','#f472b6'],
+  };
   const btns = document.getElementById('profile-btns');
-  btns.innerHTML = c.profiles.map(p => `
-    <button class="selector-btn" onclick="selectSex('${p.sex}')" style="text-align:center">
+  btns.innerHTML = c.profiles.map(p => {
+    const [a,b] = gradients[p.sex] || ['#38bdf8','#818cf8'];
+    return `<button class="selector-btn" onclick="selectSex('${p.sex}')" style="text-align:center;--grad-a:${a};--grad-b:${b}">
       <span class="emoji">${p.emoji}</span>
       <span class="sex-label">${p.label}</span>
       <span class="kcal-label">${p.sub}</span>
-    </button>
-  `).join('');
+    </button>`;
+  }).join('');
   document.getElementById('cat-step').style.display = 'none';
   document.getElementById('profile-step').style.display = 'block';
 }
@@ -2160,7 +2224,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v16';
+    const CACHE = 'nutriplan-v17';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
