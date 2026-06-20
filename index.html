@@ -2300,22 +2300,22 @@ function renderDay() {
     if(safeAltIndex !== altIndex) { mealReplacements[altKey] = 0; saveDoneMeals(); }
     const meal=safeAltIndex===0?originalMeal:alternatives[safeAltIndex-1];
     // Protección extra: si meal es undefined usar la original
-    const safeMeal = (safeMeal && safeMeal.name && safeMeal.items) ? safeMeal : originalMeal;
+    const safeMeal = (meal && meal.name && meal.items) ? meal : originalMeal;
     const proteinG=estimateProtein(safeMeal);
     totalProtein+=proteinG;
     const ironMg=estimateIron(safeMeal);
     totalIron+=ironMg;
     const card=document.createElement('div');
-    card.className='safeMeal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="safeMeal-top"><div class="safeMeal-left"><div class="safeMeal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="safeMeal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="safeMeal-name">${safeMeal.name}</div><div class="safeMeal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="safeMeal-right"><span class="safeMeal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="safeMeal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="safeMeal-arrow" aria-hidden="true">▾</span></div></div><div class="safeMeal-items" role="list">${safeMeal.items.map(item=>`<div class="safeMeal-item" role="listitem"><div class="safeMeal-dot" style="background:${accent}" aria-hidden="true"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="safeMeal-replace-row"><span class="safeMeal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="safeMeal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
-    card.querySelector('.safeMeal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
-    card.querySelector('.safeMeal-top').addEventListener('click',e=>{if(e.target.closest('.safeMeal-check-btn'))return;card.classList.toggle('open');});
-    const replaceBtn=card.querySelector('.safeMeal-replace-btn');
+    card.className='meal-card'+(isDone?' done':'');
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${safeMeal.items.map(item=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
+    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
+    card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
+    const replaceBtn=card.querySelector('.meal-replace-btn');
     if(replaceBtn){
       replaceBtn.addEventListener('click',e=>{
         e.stopPropagation();
         mealReplacements[altKey]=(altIndex+1)%totalOptions;
-        localStorage.setItem('safeMeal-replacements',JSON.stringify(mealReplacements));
+        localStorage.setItem('mealReplacements',JSON.stringify(mealReplacements));
         renderDay();
       });
     }
@@ -2561,7 +2561,7 @@ renderPeso();
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v21';
+    const CACHE = 'nutriplan-v23';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
