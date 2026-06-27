@@ -650,14 +650,49 @@
       </div>
       <div class="progress-bar"><div class="progress-fill iron-fill" id="iron-fill"></div></div>
     </div>
-    <div style="padding:6px 16px 0;display:flex;align-items:center;justify-content:space-between">
+    <div style="padding:6px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:6px">
       <span class="done-counter" id="done-counter">0 de 4 comidas completadas</span>
-      <button onclick="clearDayMeals()" style="font-family:'DM Mono',monospace;font-size:0.625rem;padding:3px 10px;border-radius:8px;border:1px solid rgba(239,68,68,0.25);background:transparent;color:#ef4444;cursor:pointer">✕ Limpiar día</button>
+      <div style="display:flex;gap:5px">
+        <button id="btn-dia-libre" onclick="toggleDiaLibre()" style="font-family:'DM Mono',monospace;font-size:0.575rem;padding:3px 8px;border-radius:8px;border:1px solid rgba(251,191,36,0.3);background:transparent;color:#fbbf24;cursor:pointer">🏖️ DÍA LIBRE</button>
+        <button onclick="clearDayMeals()" style="font-family:'DM Mono',monospace;font-size:0.625rem;padding:3px 10px;border-radius:8px;border:1px solid rgba(239,68,68,0.25);background:transparent;color:#ef4444;cursor:pointer">✕ Limpiar</button>
+      </div>
     </div>
-    <div class="meals" id="meals"></div>
+
+    <!-- AGUA DIARIA -->
+    <div style="margin:10px 16px 0;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.18);border-radius:14px;padding:12px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div>
+          <span style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:2px;color:#38bdf8">💧 AGUA</span>
+          <span id="agua-badge" style="font-family:'DM Mono',monospace;font-size:0.6875rem;color:var(--muted);margin-left:8px">0 / 8 vasos · 0ml / 2000ml</span>
+        </div>
+        <button onclick="resetAgua()" style="font-family:'DM Mono',monospace;font-size:0.5625rem;padding:2px 8px;border-radius:6px;border:1px solid rgba(56,189,248,0.2);background:transparent;color:#38bdf8;cursor:pointer">✕ reset</button>
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:8px" id="agua-vasos"></div>
+      <div style="display:flex;gap:6px">
+        <button onclick="agregarAgua(250)" style="flex:1;padding:7px 4px;border-radius:8px;border:1px solid rgba(56,189,248,0.25);background:rgba(56,189,248,0.08);color:#38bdf8;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer">+250ml</button>
+        <button onclick="agregarAgua(500)" style="flex:1;padding:7px 4px;border-radius:8px;border:1px solid rgba(56,189,248,0.25);background:rgba(56,189,248,0.08);color:#38bdf8;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer">+500ml</button>
+        <button onclick="agregarAgua(-250)" style="flex:1;padding:7px 4px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.75rem;cursor:pointer">−</button>
+      </div>
+    </div>
+
+    <div style="position:relative">
+      <div id="dia-libre-overlay" style="display:none;position:absolute;inset:0;z-index:10;border-radius:14px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);margin:10px 16px;display:none;align-items:center;justify-content:center;flex-direction:column;padding:28px;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:8px">🏖️</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#fbbf24;margin-bottom:6px">Día libre activado</div>
+        <div style="font-size:0.8125rem;color:var(--muted);line-height:1.5;margin-bottom:14px">Hoy no conta para el plan. Descansá y retomás mañana 💛</div>
+        <button onclick="toggleDiaLibre()" style="padding:8px 20px;border-radius:10px;border:1px solid rgba(251,191,36,0.4);background:rgba(251,191,36,0.1);color:#fbbf24;font-family:'DM Sans',sans-serif;font-size:0.8125rem;font-weight:600;cursor:pointer">Cancelar día libre</button>
+      </div>
+      <div class="meals" id="meals"></div>
+    </div>
     <div class="tips-box">
       <div class="tips-eyebrow">REGLAS DIARIAS</div>
       <div id="tips-list"></div>
+    </div>
+
+    <!-- HISTORIAL SEMANAL -->
+    <div style="margin:0 16px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:3px;color:var(--muted);margin-bottom:12px">SEMANA EN CURSO</div>
+      <div id="historial-semana"></div>
     </div>
   </div>
 </div>
@@ -820,6 +855,56 @@
     </div>
 
     <div class="settings-card">
+      <div class="settings-card-title">🔔 RECORDATORIOS DE COMIDAS</div>
+      <div id="notif-blocked" style="display:none;padding:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;font-size:0.75rem;color:#fca5a5;margin-bottom:10px">
+        ⚠️ Las notificaciones están bloqueadas en este navegador. Habilitálas desde la configuración del sitio.
+      </div>
+      <div id="notif-unsupported" style="display:none;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:0.75rem;color:var(--muted);margin-bottom:10px">
+        Este navegador no soporta notificaciones push.
+      </div>
+      <div id="notif-controls">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-size:0.875rem;color:var(--text);margin-bottom:2px">Activar recordatorios</div>
+            <div style="font-size:0.75rem;color:var(--muted)">Te avisa antes de cada comida</div>
+          </div>
+          <button id="notif-toggle" onclick="toggleNotificaciones()" role="switch" aria-checked="false"
+            style="width:48px;height:26px;border-radius:13px;border:none;background:var(--border);cursor:pointer;position:relative;transition:background 0.2s">
+            <span id="notif-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left 0.2s;display:block"></span>
+          </button>
+        </div>
+        <div id="notif-horarios" style="display:none">
+          <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:2px;color:var(--muted);margin-bottom:10px">HORARIOS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">🌅 Desayuno</div>
+              <input type="time" id="hora-desayuno" value="08:00" onchange="guardarHorarios()"
+                style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.875rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">☀️ Almuerzo</div>
+              <input type="time" id="hora-almuerzo" value="13:00" onchange="guardarHorarios()"
+                style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.875rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">🍎 Merienda</div>
+              <input type="time" id="hora-merienda" value="17:00" onchange="guardarHorarios()"
+                style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.875rem;outline:none">
+            </div>
+            <div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-bottom:4px">🌙 Cena</div>
+              <input type="time" id="hora-cena" value="21:00" onchange="guardarHorarios()"
+                style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.875rem;outline:none">
+            </div>
+          </div>
+          <button onclick="probarNotificacion()" style="margin-top:12px;width:100%;padding:9px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer">
+            🔔 Probar notificación ahora
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
       <div class="settings-card-title">RESTABLECER</div>
       <button class="settings-reset-btn" onclick="resetSettings()">Restaurar valores predeterminados</button>
     </div>
@@ -956,6 +1041,48 @@
 </nav>
 
 
+<!-- MODAL: REGISTRAR PESO -->
+<div id="modal-peso" style="
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:24px
+">
+  <div style="
+    background:#0f1929;border:1px solid var(--border);border-radius:20px;
+    padding:24px;width:100%;max-width:340px;
+  ">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:2.5rem;margin-bottom:8px">⚖️</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:1.25rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">Registrá tu peso primero</div>
+      <div style="font-size:0.8125rem;color:var(--muted);line-height:1.5">Para calcular tus necesidades reales de proteína y darte sugerencias personalizadas, necesitamos tu peso actual.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.625rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">PESO ACTUAL</div>
+        <input id="modal-peso-input" type="number" step="0.1" min="30" max="300" placeholder="ej: 72.5 kg"
+          style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:1.125rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none">
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.625rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">ALTURA (opcional, para IMC)</div>
+        <input id="modal-altura-input" type="number" step="1" min="100" max="250" placeholder="ej: 168 cm"
+          style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:1.125rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none">
+      </div>
+    </div>
+
+    <button onclick="guardarPesoModal()" style="
+      width:100%;padding:14px;border-radius:12px;border:none;
+      background:linear-gradient(135deg,#0ea5e9,#6366f1);
+      color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9375rem;font-weight:700;cursor:pointer;margin-bottom:10px
+    ">Guardar y continuar</button>
+
+    <button onclick="cerrarModalPeso()" style="
+      width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);
+      background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer
+    ">Ahora no</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1034,15 +1161,71 @@ function showCategory(cat) {
 }
 
 
-function showTab(tab) {
+function tienePesoRegistrado() {
+  const key = 'peso-entries-' + (currentSex || 'global');
+  const entries = JSON.parse(localStorage.getItem(key) || '[]');
+  return entries.length > 0;
+}
+
+function mostrarModalPeso(destinoTab) {
+  window._modalDestino = destinoTab;
+  document.getElementById('modal-peso').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-peso-input').focus(), 100);
+}
+
+function cerrarModalPeso() {
+  document.getElementById('modal-peso').style.display = 'none';
+  // Ir igual a la pestaña destino
+  if (window._modalDestino) {
+    _irATab(window._modalDestino);
+    window._modalDestino = null;
+  }
+}
+
+function guardarPesoModal() {
+  const w = parseFloat(document.getElementById('modal-peso-input').value);
+  const h = parseFloat(document.getElementById('modal-altura-input').value);
+  if (!w || w < 30 || w > 300) { showToast('⚠️ Ingresá un peso válido'); return; }
+
+  // Guardar peso
+  loadPesoForProfile();
+  const today = new Date().toISOString().split('T')[0];
+  const existing = pesoEntries.findIndex(e => e.date === today);
+  if (existing >= 0) pesoEntries[existing].weight = w;
+  else pesoEntries.push({ date: today, weight: w, note: '' });
+  pesoEntries.sort((a, b) => a.date.localeCompare(b.date));
+  localStorage.setItem(pesoKey(), JSON.stringify(pesoEntries));
+
+  // Guardar altura si se ingresó
+  if (h && h >= 100 && h <= 250) {
+    localStorage.setItem(alturaKey(), h);
+  }
+
+  document.getElementById('modal-peso').style.display = 'none';
+  showToast('✓ Peso registrado: ' + w + ' kg');
+
+  if (window._modalDestino) {
+    _irATab(window._modalDestino);
+    window._modalDestino = null;
+  }
+}
+
+function _irATab(tab) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
   document.getElementById('screen-' + tab).classList.add('active');
   const tabBtn = document.getElementById('tab-' + tab);
-  tabBtn.classList.add('active');
-  tabBtn.setAttribute('aria-selected','true');
+  if (tabBtn) { tabBtn.classList.add('active'); tabBtn.setAttribute('aria-selected','true'); }
   if (tab === 'peso') { loadPesoForProfile(); renderPeso(); }
   if (tab === 'quecomо') { renderQueComoHoy(); }
+}
+
+function showTab(tab) {
+  if ((tab === 'peso' || tab === 'quecomо') && !tienePesoRegistrado()) {
+    mostrarModalPeso(tab);
+    return;
+  }
+  _irATab(tab);
 }
 
 // ===== ACCESIBILIDAD =====
@@ -2291,6 +2474,26 @@ function clearDayMeals() {
   renderDay();
   showToast('✓ Día limpiado');
 }
+
+// ===== DÍA LIBRE =====
+function diaLibreKey() {
+  return 'dia-libre-' + getDateForPlanDay(currentDay).toISOString().split('T')[0];
+}
+
+function esDiaLibre() {
+  return localStorage.getItem(diaLibreKey()) === '1';
+}
+
+function toggleDiaLibre() {
+  if (esDiaLibre()) {
+    localStorage.removeItem(diaLibreKey());
+    showToast('✓ Día libre cancelado');
+  } else {
+    localStorage.setItem(diaLibreKey(), '1');
+    showToast('🏖️ ¡Día libre activado!');
+  }
+  renderDay();
+}
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
 function selectSex(sex) {
@@ -2356,12 +2559,17 @@ function renderDays() {
 }
 
 function updateDoneCounter() {
+  const el=document.getElementById('done-counter');
+  if (esDiaLibre()) {
+    el.textContent='🏖️ Día libre — no conta para el plan';
+    el.style.background='rgba(251,191,36,0.1)';
+    el.style.borderColor='rgba(251,191,36,0.25)';
+    el.style.color='#fbbf24';
+    return;
+  }
   const keys=['desayuno','almuerzo','merienda','cena'];
-  const dateStr = formatShortDate(getDateForPlanDay(currentDay)).split('/').reverse().join('-');
-  // Usar getTodayStr() para el día actual, fecha calculada para otros
   const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
   const count=keys.filter(k=>doneMeals[dayDate+'-'+currentDay+'-'+k]).length;
-  const el=document.getElementById('done-counter');
   if(count===4){el.textContent='✓ ¡Todas las comidas completadas!';el.style.background='rgba(52,211,153,0.15)';el.style.borderColor='rgba(52,211,153,0.3)';el.style.color='#34d399';}
   else{el.textContent=count+' de 4 comidas completadas';el.style.background='rgba(255,255,255,0.05)';el.style.borderColor='rgba(255,255,255,0.1)';el.style.color='#64748b';}
 }
@@ -2370,6 +2578,20 @@ function renderDay() {
   const d=planData[currentSex], day=d.days[currentDay];
   const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
   document.getElementById('day-title').textContent=day.day+' '+formatShortDate(getDateForPlanDay(currentDay));
+
+  // Día libre
+  const libre = esDiaLibre();
+  const overlay = document.getElementById('dia-libre-overlay');
+  const mealsEl = document.getElementById('meals');
+  const btnLibre = document.getElementById('btn-dia-libre');
+  overlay.style.display = libre ? 'flex' : 'none';
+  mealsEl.style.opacity = libre ? '0.15' : '1';
+  mealsEl.style.pointerEvents = libre ? 'none' : '';
+  if (btnLibre) {
+    btnLibre.style.background = libre ? 'rgba(251,191,36,0.15)' : 'transparent';
+    btnLibre.style.borderColor = libre ? 'rgba(251,191,36,0.6)' : 'rgba(251,191,36,0.3)';
+    btnLibre.textContent = libre ? '🏖️ DÍA LIBRE ✓' : '🏖️ DÍA LIBRE';
+  }
 
   // Primer pase: acumular totales de comidas tildadas
   let totalKcalDone=0, totalProtein=0, totalIron=0;
@@ -2417,9 +2639,8 @@ function renderDay() {
   ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
 
   updateDoneCounter();
-
-  // Render tarjetas
-  const mealsEl=document.getElementById('meals');
+  renderAgua();
+  renderHistorialSemana();
   mealsEl.innerHTML='';
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
     const {safeMeal,accent,doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg}=mealData[key];
@@ -2654,8 +2875,64 @@ function showToast(msg) {
 }
 
 renderPeso();
+initNotificaciones();
 
 // ===== ESCÁNER DE PLATO =====
+
+// ===== AGUA DIARIA =====
+const AGUA_META_ML = 2000;
+const AGUA_VASO_ML = 250;
+const AGUA_META_VASOS = AGUA_META_ML / AGUA_VASO_ML; // 8
+
+function aguaKey() {
+  return 'agua-' + new Date().toISOString().split('T')[0];
+}
+
+function getAguaMl() {
+  return parseInt(localStorage.getItem(aguaKey()) || '0', 10);
+}
+
+function agregarAgua(ml) {
+  const actual = getAguaMl();
+  const nuevo = Math.max(0, Math.min(actual + ml, AGUA_META_ML * 2));
+  localStorage.setItem(aguaKey(), nuevo);
+  renderAgua();
+  if (nuevo >= AGUA_META_ML && actual < AGUA_META_ML) {
+    showToast('🎉 ¡Meta de agua alcanzada!');
+  }
+}
+
+function resetAgua() {
+  localStorage.removeItem(aguaKey());
+  renderAgua();
+}
+
+function renderAgua() {
+  const ml = getAguaMl();
+  const vasos = Math.floor(ml / AGUA_VASO_ML);
+  const vasosEl = document.getElementById('agua-vasos');
+  const badgeEl = document.getElementById('agua-badge');
+  if (!vasosEl || !badgeEl) return;
+
+  // Badge texto
+  badgeEl.textContent = `${vasos} / ${AGUA_META_VASOS} vasos · ${ml}ml / ${AGUA_META_ML}ml`;
+
+  // Iconos de vasos
+  let html = '';
+  for (let i = 0; i < AGUA_META_VASOS; i++) {
+    const lleno = i < vasos;
+    html += `<div onclick="agregarAgua(${lleno ? -AGUA_VASO_ML : AGUA_VASO_ML})" style="
+      width: calc((100% - ${(AGUA_META_VASOS-1)*5}px) / ${AGUA_META_VASOS});
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid ${lleno ? 'rgba(56,189,248,0.5)' : 'rgba(255,255,255,0.08)'};
+      background: ${lleno ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.03)'};
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; cursor: pointer; transition: all 0.15s;
+    ">${lleno ? '💧' : '○'}</div>`;
+  }
+  vasosEl.innerHTML = html;
+}
 
 // ===== QUÉ COMO HOY =====
 function renderQueComoHoy() {
@@ -2810,6 +3087,228 @@ function mostrarSugerencias(opciones) {
     <button onclick="renderQueComoHoy()" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer;margin-top:4px">🔄 Nuevas sugerencias</button>
   `;
   sugEl.style.display = 'block';
+}
+
+// ===== HISTORIAL SEMANAL =====
+function renderHistorialSemana() {
+  const el = document.getElementById('historial-semana');
+  if (!el || !currentSex) return;
+  const mealKeys = ['desayuno','almuerzo','merienda','cena'];
+  const mealEmojis = { desayuno:'🌅', almuerzo:'☀️', merienda:'🍎', cena:'🌙' };
+  const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+  let html = '';
+  let totalComidas = 0, totalPosibles = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const date = getDateForPlanDay(i);
+    const dateStr = date.toISOString().split('T')[0];
+    const libreKey = 'dia-libre-' + dateStr;
+    const esLibre = localStorage.getItem(libreKey) === '1';
+    const esFuturo = date > new Date() && i !== getTodayPlanDay();
+    const esHoy = i === getTodayPlanDay();
+
+    const completadas = mealKeys.filter(k => doneMeals[dateStr + '-' + i + '-' + k]);
+    const count = completadas.length;
+
+    if (!esLibre && !esFuturo) {
+      totalComidas += count;
+      totalPosibles += 4;
+    }
+
+    // Color del día
+    let bgColor, borderColor, nameColor;
+    if (esLibre) {
+      bgColor = 'rgba(251,191,36,0.07)'; borderColor = 'rgba(251,191,36,0.2)'; nameColor = '#fbbf24';
+    } else if (esFuturo) {
+      bgColor = 'rgba(255,255,255,0.02)'; borderColor = 'rgba(255,255,255,0.06)'; nameColor = 'var(--muted)';
+    } else if (count === 4) {
+      bgColor = 'rgba(52,211,153,0.08)'; borderColor = 'rgba(52,211,153,0.25)'; nameColor = '#34d399';
+    } else if (count > 0) {
+      bgColor = 'rgba(56,189,248,0.06)'; borderColor = 'rgba(56,189,248,0.15)'; nameColor = '#38bdf8';
+    } else {
+      bgColor = 'rgba(248,113,113,0.05)'; borderColor = 'rgba(248,113,113,0.12)'; nameColor = '#f87171';
+    }
+
+    // Íconos de comidas
+    let iconosHtml = '';
+    if (esLibre) {
+      iconosHtml = '<span style="font-size:1rem">🏖️</span>';
+    } else if (esFuturo) {
+      iconosHtml = mealKeys.map(() => '<span style="opacity:0.2;font-size:0.75rem">○</span>').join('');
+    } else {
+      iconosHtml = mealKeys.map(k => {
+        const done = !!doneMeals[dateStr + '-' + i + '-' + k];
+        return `<span style="font-size:0.75rem;opacity:${done?'1':'0.2'}">${mealEmojis[k]}</span>`;
+      }).join('');
+    }
+
+    html += `<div style="
+      display:flex;align-items:center;gap:10px;padding:7px 10px;
+      border-radius:10px;border:1px solid ${borderColor};
+      background:${bgColor};margin-bottom:6px;cursor:pointer;
+      ${esHoy ? 'box-shadow:0 0 0 1px rgba(255,255,255,0.08)' : ''}
+    " onclick="currentDay=${i};renderDays();renderDay()">
+      <div style="width:28px;text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:0.625rem;font-weight:600;color:${nameColor}">${dayNames[i]}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted)">${formatShortDate(date)}</div>
+      </div>
+      <div style="flex:1;display:flex;gap:5px;align-items:center">${iconosHtml}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.625rem;color:${nameColor};white-space:nowrap">
+        ${esLibre ? 'día libre' : esFuturo ? '—' : count + '/4'}
+      </div>
+      ${esHoy ? '<div style="font-family:\'DM Mono\',monospace;font-size:0.5rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.08);color:var(--muted)">HOY</div>' : ''}
+    </div>`;
+  }
+
+  // Resumen semanal
+  const pct = totalPosibles > 0 ? Math.round((totalComidas / totalPosibles) * 100) : 0;
+  const resumenColor = pct >= 80 ? '#34d399' : pct >= 50 ? '#38bdf8' : '#f87171';
+  html += `<div style="margin-top:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center">
+    <span style="font-family:'DM Mono',monospace;font-size:0.5625rem;color:var(--muted)">ADHERENCIA SEMANAL</span>
+    <span style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:${resumenColor}">${pct}%</span>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ===== NOTIFICACIONES =====
+const NOTIF_KEY = 'notif-activas';
+const HORARIOS_KEY = 'notif-horarios';
+const HORARIOS_DEFAULT = { desayuno:'08:00', almuerzo:'13:00', merienda:'17:00', cena:'21:00' };
+const NOTIF_LABELS = { desayuno:'🌅 Desayuno', almuerzo:'☀️ Almuerzo', merienda:'🍎 Merienda', cena:'🌙 Cena' };
+let notifIntervalId = null;
+
+function getHorarios() {
+  return JSON.parse(localStorage.getItem(HORARIOS_KEY) || JSON.stringify(HORARIOS_DEFAULT));
+}
+
+function guardarHorarios() {
+  const h = {
+    desayuno: document.getElementById('hora-desayuno').value,
+    almuerzo: document.getElementById('hora-almuerzo').value,
+    merienda: document.getElementById('hora-merienda').value,
+    cena:     document.getElementById('hora-cena').value,
+  };
+  localStorage.setItem(HORARIOS_KEY, JSON.stringify(h));
+  if (localStorage.getItem(NOTIF_KEY) === '1') {
+    detenerChequeoNotif();
+    iniciarChequeoNotif();
+  }
+}
+
+function initNotificaciones() {
+  if (!('Notification' in window)) {
+    document.getElementById('notif-unsupported').style.display = 'block';
+    document.getElementById('notif-controls').style.display = 'none';
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    document.getElementById('notif-blocked').style.display = 'block';
+  }
+  const activas = localStorage.getItem(NOTIF_KEY) === '1';
+  const h = getHorarios();
+  document.getElementById('hora-desayuno').value = h.desayuno;
+  document.getElementById('hora-almuerzo').value = h.almuerzo;
+  document.getElementById('hora-merienda').value = h.merienda;
+  document.getElementById('hora-cena').value = h.cena;
+  actualizarToggleNotif(activas);
+  if (activas && Notification.permission === 'granted') iniciarChequeoNotif();
+}
+
+function actualizarToggleNotif(activo) {
+  const toggle = document.getElementById('notif-toggle');
+  const knob = document.getElementById('notif-knob');
+  const horarios = document.getElementById('notif-horarios');
+  toggle.setAttribute('aria-checked', activo ? 'true' : 'false');
+  toggle.style.background = activo ? 'var(--accent)' : 'var(--border)';
+  knob.style.left = activo ? '25px' : '3px';
+  horarios.style.display = activo ? 'block' : 'none';
+}
+
+async function toggleNotificaciones() {
+  if (!('Notification' in window)) return;
+  const yaActivo = localStorage.getItem(NOTIF_KEY) === '1';
+  if (yaActivo) {
+    localStorage.setItem(NOTIF_KEY, '0');
+    detenerChequeoNotif();
+    actualizarToggleNotif(false);
+    showToast('🔕 Recordatorios desactivados');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    document.getElementById('notif-blocked').style.display = 'block';
+    return;
+  }
+  const perm = Notification.permission === 'granted'
+    ? 'granted'
+    : await Notification.requestPermission();
+  if (perm === 'granted') {
+    localStorage.setItem(NOTIF_KEY, '1');
+    actualizarToggleNotif(true);
+    iniciarChequeoNotif();
+    showToast('🔔 Recordatorios activados');
+    document.getElementById('notif-blocked').style.display = 'none';
+  } else {
+    document.getElementById('notif-blocked').style.display = 'block';
+    showToast('⚠️ Permiso denegado');
+  }
+}
+
+function iniciarChequeoNotif() {
+  detenerChequeoNotif();
+  chequearNotifAhora();
+  notifIntervalId = setInterval(chequearNotifAhora, 60 * 1000); // cada 1 min
+}
+
+function detenerChequeoNotif() {
+  if (notifIntervalId) { clearInterval(notifIntervalId); notifIntervalId = null; }
+}
+
+function chequearNotifAhora() {
+  if (Notification.permission !== 'granted') return;
+  if (!currentSex || !planData[currentSex]) return;
+  const now = new Date();
+  const hh = now.getHours().toString().padStart(2,'0');
+  const mm = now.getMinutes().toString().padStart(2,'0');
+  const timeNow = hh + ':' + mm;
+  const todayIdx = getTodayPlanDay();
+  const dayDate = getDateForPlanDay(todayIdx).toISOString().split('T')[0];
+  const libreKey = 'dia-libre-' + dayDate;
+  if (localStorage.getItem(libreKey) === '1') return; // día libre, no notificar
+
+  const h = getHorarios();
+  const day = planData[currentSex].days[todayIdx];
+
+  Object.entries(h).forEach(([comida, hora]) => {
+    if (hora !== timeNow) return;
+    const doneKey = dayDate + '-' + todayIdx + '-' + comida;
+    if (doneMeals[doneKey]) return; // ya completada
+
+    const meal = day.meals[comida];
+    const notifKey = 'notif-sent-' + dayDate + '-' + comida;
+    if (localStorage.getItem(notifKey) === '1') return; // ya enviada hoy
+
+    localStorage.setItem(notifKey, '1');
+    new Notification('🍽️ ' + NOTIF_LABELS[comida], {
+      body: meal ? `Hoy: ${meal.name} · ${meal.kcal} kcal` : 'Es hora de tu comida',
+      icon: '/icon192.png',
+      badge: '/icon192.png',
+      tag: 'nutriplan-' + comida,
+    });
+  });
+}
+
+function probarNotificacion() {
+  if (Notification.permission !== 'granted') { showToast('⚠️ Permiso no otorgado'); return; }
+  const todayIdx = getTodayPlanDay();
+  const day = currentSex && planData[currentSex] ? planData[currentSex].days[todayIdx] : null;
+  const meal = day ? day.meals['almuerzo'] : null;
+  new Notification('🍽️ ¡Funciona! Recordatorio de prueba', {
+    body: meal ? `Ejemplo: ${meal.name} · ${meal.kcal} kcal` : 'Tus recordatorios están listos',
+    icon: '/icon192.png',
+    tag: 'nutriplan-test',
+  });
 }
 
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
