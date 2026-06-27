@@ -827,23 +827,52 @@
     <div class="settings-card">
       <div class="settings-card-title">📚 FUENTES Y REFERENCIAS</div>
       <div class="settings-note" style="color:#94a3b8;line-height:1.8">
-        <p style="margin-bottom:10px">Las mediciones y recomendaciones de esta app están basadas en:</p>
+        <p style="margin-bottom:14px">Las recomendaciones de esta app se basan en guías nacionales e internacionales con aplicación en Argentina:</p>
 
-        <p style="margin-bottom:6px"><strong style="color:#e2e8f0">🔥 Calorías</strong><br>
-        Organización Mundial de la Salud (OMS) · Institute of Medicine (IOM) · Dietary Reference Intakes (DRI)</p>
+        <p style="margin-bottom:12px">
+          <strong style="color:#38bdf8">🇦🇷 Guías Alimentarias para la Población Argentina (GAPA)</strong><br>
+          Ministerio de Salud de la Nación · Actualización 2016<br>
+          <span style="font-size:0.7rem">Base principal para porciones, grupos de alimentos y distribución calórica diaria.</span>
+        </p>
 
-        <p style="margin-bottom:6px"><strong style="color:#e2e8f0">🥩 Proteínas</strong><br>
-        Harvard T.H. Chan School of Public Health · OMS: 0.8–1.2g por kg de peso corporal para adultos</p>
+        <p style="margin-bottom:12px">
+          <strong style="color:#38bdf8">🏥 ANMAT — Administración Nacional de Medicamentos, Alimentos y Tecnología Médica</strong><br>
+          Tablas de composición nutricional de alimentos argentinos<br>
+          <span style="font-size:0.7rem">Valores de hierro, proteína y micronutrientes en alimentos locales (carne vacuna, yerba mate, legumbres, etc.).</span>
+        </p>
 
-        <p style="margin-bottom:6px"><strong style="color:#e2e8f0">🩸 Hierro</strong><br>
-        OMS · USDA FoodData Central · ANMAT Argentina<br>
-        Metas: Hombre 8mg/día · Mujer 18mg/día (según RDA)</p>
+        <p style="margin-bottom:12px">
+          <strong style="color:#34d399">🔥 Calorías y macronutrientes</strong><br>
+          GAPA 2016 · OMS/OPS · Instituto Nacional de Alimentos (INAL)<br>
+          <span style="font-size:0.7rem">Rangos calóricos adaptados al sedentarismo promedio argentino. Referencia adicional: Dietary Reference Intakes (DRI), Institute of Medicine (IOM).</span>
+        </p>
 
-        <p style="margin-bottom:6px"><strong style="color:#e2e8f0">📊 Valores por edad</strong><br>
-        National Institutes of Health (NIH) · Dietary Guidelines for Americans 2020–2025</p>
+        <p style="margin-bottom:12px">
+          <strong style="color:#a78bfa">🥩 Proteínas</strong><br>
+          OMS · Sociedad Argentina de Nutrición (SAN)<br>
+          <span style="font-size:0.7rem">0.8–1.2g/kg de peso corporal para adultos. Valores aumentados en planes de adultos mayores (1.0–1.5g/kg) según recomendaciones para sarcopenia.</span>
+        </p>
 
-        <p style="margin-top:12px;padding:10px;background:rgba(248,113,113,0.08);border-radius:8px;border:1px solid rgba(248,113,113,0.2);color:#fca5a5;font-size:0.75rem">
-        ⚠️ Esta app es una guía orientativa. Los valores son estimaciones aproximadas y no reemplazan la consulta con un médico o nutricionista.
+        <p style="margin-bottom:12px">
+          <strong style="color:#f87171">🩸 Hierro</strong><br>
+          OMS · ANMAT · Sociedad Argentina de Hematología (SAH)<br>
+          <span style="font-size:0.7rem">Hombre adulto: 8mg/día · Mujer en edad fértil: 18mg/día · Embarazo: 27mg/día · Adultos mayores: 8mg/día. El plan anemia contempla deficiencia diagnosticada con supervisión médica.</span>
+        </p>
+
+        <p style="margin-bottom:12px">
+          <strong style="color:#fbbf24">👴 Adultos mayores (65+)</strong><br>
+          INCAP · OPS · Guía de Nutrición de la Persona Adulta Mayor — Ministerio de Salud Argentina<br>
+          <span style="font-size:0.7rem">Reducción calórica con mantenimiento proteico, énfasis en calcio, vitamina D y textura de alimentos adaptada.</span>
+        </p>
+
+        <p style="margin-bottom:12px">
+          <strong style="color:#34d399">📊 Valores de referencia adicionales</strong><br>
+          NIH (National Institutes of Health) · Dietary Guidelines for Americans 2020–2025 · USDA FoodData Central<br>
+          <span style="font-size:0.7rem">Usados para completar datos no disponibles en fuentes argentinas.</span>
+        </p>
+
+        <p style="margin-top:14px;padding:12px;background:rgba(248,113,113,0.08);border-radius:8px;border:1px solid rgba(248,113,113,0.2);color:#fca5a5;font-size:0.75rem;line-height:1.6">
+          ⚠️ Esta app es una guía orientativa basada en referencias validadas. Los valores son estimaciones generales y <strong>no reemplazan la consulta con un médico, nutricionista o licenciado en nutrición matriculado en Argentina (Ley 17.132 y Ley 24.301).</strong>
         </p>
       </div>
     </div>
@@ -2341,62 +2370,68 @@ function renderDay() {
   const d=planData[currentSex], day=d.days[currentDay];
   const dayDate = getDateForPlanDay(currentDay).toISOString().split('T')[0];
   document.getElementById('day-title').textContent=day.day+' '+formatShortDate(getDateForPlanDay(currentDay));
-  document.getElementById('kcal-badge').textContent=day.total+' kcal';
-  const pct=Math.min(Math.round((day.total/d.kcalTarget)*100),100);
+
+  // Primer pase: acumular totales de comidas tildadas
+  let totalKcalDone=0, totalProtein=0, totalIron=0;
+  const mealData={};
+  ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
+    const originalMeal=day.meals[key];
+    const doneKey=dayDate+'-'+currentDay+'-'+key;
+    const isDone=!!doneMeals[doneKey];
+    const altKey=currentSex+'-'+currentDay+'-'+key;
+    const altIndex=mealReplacements[altKey]||0;
+    const alternatives=(mealAlternatives[currentSex]&&mealAlternatives[currentSex][key])||[];
+    const totalOptions=1+alternatives.length;
+    const safeAltIndex=altIndex<totalOptions?altIndex:0;
+    if(safeAltIndex!==altIndex){mealReplacements[altKey]=0;saveDoneMeals();}
+    const meal=safeAltIndex===0?originalMeal:alternatives[safeAltIndex-1];
+    const safeMeal=(meal&&meal.name&&meal.items)?meal:originalMeal;
+    const proteinG=estimateProtein(safeMeal);
+    const ironMg=estimateIron(safeMeal);
+    if(isDone){totalKcalDone+=safeMeal.kcal;totalProtein+=proteinG;totalIron+=ironMg;}
+    mealData[key]={safeMeal,accent:d.mealAccents[key],doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg};
+  });
+
+  // Barras de progreso
+  const pctKcal=Math.min(Math.round((totalKcalDone/d.kcalTarget)*100),100);
+  document.getElementById('kcal-badge').textContent=totalKcalDone+' / '+day.total+' kcal';
   const fill=document.getElementById('progress-fill');
-  fill.style.width=pct+'%';
-  fill.className='progress-fill'+(day.total>d.kcalTarget?' over':'');
-  document.getElementById('progress-note').textContent=day.total<=d.kcalTarget?'✓ Dentro del objetivo':'⚠ Ligeramente sobre el objetivo';
+  fill.style.width=pctKcal+'%';
+  fill.className='progress-fill'+(totalKcalDone>d.kcalTarget?' over':'');
+  document.getElementById('progress-note').textContent=
+    totalKcalDone===0?'Tildá comidas para ver tu progreso'
+    :totalKcalDone>=d.kcalTarget?'✓ Objetivo alcanzado'
+    :`${d.kcalTarget-totalKcalDone} kcal restantes`;
+
+  const proteinTarget=d.proteinTarget||100;
+  document.getElementById('protein-progress-value').textContent=`${totalProtein} / ${proteinTarget}g`;
+  const proteinFill=document.getElementById('protein-fill');
+  proteinFill.style.width=Math.min(Math.round((totalProtein/proteinTarget)*100),100)+'%';
+  proteinFill.className='progress-fill protein-fill'+(totalProtein>proteinTarget?' over':'');
+
+  const ironTarget=d.ironTarget||8;
+  totalIron=Math.round(totalIron*10)/10;
+  document.getElementById('iron-progress-value').textContent=`${totalIron} / ${ironTarget}mg`;
+  const ironFill=document.getElementById('iron-fill');
+  ironFill.style.width=Math.min(Math.round((totalIron/ironTarget)*100),100)+'%';
+  ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
+
   updateDoneCounter();
+
+  // Render tarjetas
   const mealsEl=document.getElementById('meals');
   mealsEl.innerHTML='';
-  let totalProtein=0, totalIron=0;
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
-    const originalMeal=day.meals[key], accent=d.mealAccents[key], doneKey=dayDate+'-'+currentDay+'-'+key, isDone=!!doneMeals[doneKey];
-    const altKey=currentSex+'-'+currentDay+'-'+key;
-    const altIndex=mealReplacements[altKey] || 0;
-    const alternatives=(mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
-    const totalOptions=1+alternatives.length;
-    // Protección: si altIndex está fuera de rango, volver a la original
-    const safeAltIndex = altIndex < totalOptions ? altIndex : 0;
-    if(safeAltIndex !== altIndex) { mealReplacements[altKey] = 0; saveDoneMeals(); }
-    const meal=safeAltIndex===0?originalMeal:alternatives[safeAltIndex-1];
-    // Protección extra: si meal es undefined usar la original
-    const safeMeal = (meal && meal.name && meal.items) ? meal : originalMeal;
-    const proteinG=estimateProtein(safeMeal);
-    totalProtein+=proteinG;
-    const ironMg=estimateIron(safeMeal);
-    totalIron+=ironMg;
+    const {safeMeal,accent,doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg}=mealData[key];
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
     card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${safeMeal.items.map(item=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
-    if(replaceBtn){
-      replaceBtn.addEventListener('click',e=>{
-        e.stopPropagation();
-        mealReplacements[altKey]=(altIndex+1)%totalOptions;
-        localStorage.setItem('mealReplacements',JSON.stringify(mealReplacements));
-        renderDay();
-      });
-    }
+    if(replaceBtn){replaceBtn.addEventListener('click',e=>{e.stopPropagation();mealReplacements[altKey]=(altIndex+1)%totalOptions;localStorage.setItem('mealReplacements',JSON.stringify(mealReplacements));renderDay();});}
     mealsEl.appendChild(card);
   });
-  const proteinTarget=d.proteinTarget||100;
-  const proteinPct=Math.min(Math.round((totalProtein/proteinTarget)*100),100);
-  document.getElementById('protein-progress-value').textContent=`${totalProtein} / ${proteinTarget}g`;
-  const proteinFill=document.getElementById('protein-fill');
-  proteinFill.style.width=proteinPct+'%';
-  proteinFill.className='progress-fill protein-fill'+(totalProtein>proteinTarget?' over':'');
-
-  const ironTarget=d.ironTarget||8;
-  totalIron=Math.round(totalIron*10)/10;
-  const ironPct=Math.min(Math.round((totalIron/ironTarget)*100),100);
-  document.getElementById('iron-progress-value').textContent=`${totalIron} / ${ironTarget}mg`;
-  const ironFill=document.getElementById('iron-fill');
-  ironFill.style.width=ironPct+'%';
-  ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
 }
 
 function renderTips() {
