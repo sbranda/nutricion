@@ -2442,6 +2442,10 @@ const mealAlternatives = {
 
 const mealIcons={desayuno:"🌅",merienda:"🍎",almuerzo:"☀️",cena:"🌙"};
 const mealLabels={desayuno:"DESAYUNO",merienda:"MERIENDA",almuerzo:"ALMUERZO",cena:"CENA"};
+const AGUA_META_ML = 2000;
+const AGUA_VASO_ML = 250;
+const AGUA_META_VASOS = AGUA_META_ML / AGUA_VASO_ML; // 8
+
 let currentSex=null, currentDay=0, doneMeals={};
 
 function doneMealsKey() { return 'done-meals-'+(currentSex||'global'); }
@@ -2896,9 +2900,6 @@ initNotificaciones();
 // ===== ESCÁNER DE PLATO =====
 
 // ===== AGUA DIARIA =====
-const AGUA_META_ML = 2000;
-const AGUA_VASO_ML = 250;
-const AGUA_META_VASOS = AGUA_META_ML / AGUA_VASO_ML; // 8
 
 function aguaKey() {
   return 'agua-' + new Date().toISOString().split('T')[0];
