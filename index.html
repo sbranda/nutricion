@@ -1008,8 +1008,6 @@
         font-weight:700;cursor:pointer;margin-bottom:16px;
         display:flex;align-items:center;justify-content:center;gap:8px
       ">✨ Sugerirme 3 opciones de cena</button>
-
-      <!-- Loading -->
       <div id="qc-loading" style="display:none;text-align:center;padding:24px">
         <div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px"></div>
         <div style="font-size:0.875rem;color:var(--muted)">Pensando opciones para vos...</div>
@@ -3041,55 +3039,77 @@ function renderQueComoHoy() {
   window._qcContext = { kcalLibres, protFalta, ironFalta, perfil: d.title, ironTarget, protTarget };
 }
 
-async function sugerirCenas() {
+// ===== BASE DE CENAS LOCALES =====
+const CENAS_DB = [
+  // Proteína alta, hierro alto
+  { nombre:'Hígado de pollo salteado', kcal:280, proteina_g:28, hierro_mg:8.5, ingredientes:['150g hígado de pollo','Cebolla y morón','Aceite de oliva','Arroz integral opcional'], por_que:'Fuente excepcional de hierro hem y proteína completa.', tags:['hierro','proteina'] },
+  { nombre:'Lentejas con espinaca', kcal:320, proteina_g:18, hierro_mg:6.5, ingredientes:['200g lentejas cocidas','Espinaca salteada','Ajo y comino','1 huevo duro opcional'], por_que:'Combo de hierro vegetal + vitamina C para mejor absorción.', tags:['hierro','proteina','vegetal'] },
+  { nombre:'Carne magra con brócoli', kcal:350, proteina_g:32, hierro_mg:5.0, ingredientes:['150g peceto o lomo','Brócoli al vapor','Aceite de oliva','Limón'], por_que:'Proteína completa con hierro hem de alta biodisponibilidad.', tags:['hierro','proteina'] },
+  { nombre:'Atún con garbanzos', kcal:310, proteina_g:30, hierro_mg:4.5, ingredientes:['1 lata atún al natural','100g garbanzos cocidos','Tomate y cebolla','Limón y aceite'], por_que:'Doble fuente de proteína con hierro vegetal y hem.', tags:['hierro','proteina'] },
+  { nombre:'Salmón al horno con espárragos', kcal:330, proteina_g:30, hierro_mg:2.5, ingredientes:['150g salmón','Espárragos al vapor','Limón y eneldo','Aceite de oliva'], por_que:'Proteína de alta calidad con omega-3 antiinflamatorio.', tags:['proteina'] },
+  // Proteína alta, hierro bajo
+  { nombre:'Pechuga con ensalada verde', kcal:290, proteina_g:35, hierro_mg:1.5, ingredientes:['150g pechuga a la plancha','Lechuga, tomate y pepino','Aceite de oliva','Limón'], por_que:'Proteína magra con muy pocas calorías y grasas.', tags:['proteina','liviano'] },
+  { nombre:'Omelette de claras con queso', kcal:240, proteina_g:28, hierro_mg:1.8, ingredientes:['4 claras + 1 yema','30g queso descremado','Tomate y rúcula','Aceite de oliva en spray'], por_que:'Alta proteína, muy pocas calorías, fácil y rápido.', tags:['proteina','liviano'] },
+  { nombre:'Merluza al horno con vegetales', kcal:280, proteina_g:30, hierro_mg:2.0, ingredientes:['180g merluza al horno','Zapallito y morón asado','Ajo y perejil','Aceite de oliva'], por_que:'Pescado blanco magro ideal para cenas livianas.', tags:['proteina','liviano'] },
+  { nombre:'Tofu salteado con arroz integral', kcal:370, proteina_g:22, hierro_mg:3.5, ingredientes:['200g tofu firme','½ taza arroz integral','Salsa de soja baja en sodio','Semillas de sésamo'], por_que:'Proteína vegetal completa con carbohidratos de absorción lenta.', tags:['proteina','vegetal'] },
+  { nombre:'Yogur griego con semillas y nueces', kcal:220, proteina_g:18, hierro_mg:1.5, ingredientes:['200g yogur griego natural','1 cda semillas de chía','6 nueces','Canela al gusto'], por_que:'Cena liviana rica en proteína y grasas saludables.', tags:['proteina','liviano','muy_liviano'] },
+  // Liviano, pocas calorías
+  { nombre:'Sopa de verduras con huevo pochado', kcal:180, proteina_g:12, hierro_mg:2.0, ingredientes:['Caldo de verduras casero','Zanahoria, apio y puerro','1 huevo pochado','Perejil fresco'], por_que:'Muy liviana, saciante y reconfortante para la noche.', tags:['liviano','muy_liviano'] },
+  { nombre:'Ensalada de garbanzos y vegetales', kcal:290, proteina_g:14, hierro_mg:3.5, ingredientes:['150g garbanzos cocidos','Pepino, tomate y rúcula','Tahini diluido','Limón y comino'], por_que:'Ensalada completa con proteína vegetal y fibra.', tags:['liviano','hierro','vegetal'] },
+  { nombre:'Revuelto de claras con vegetales', kcal:190, proteina_g:20, hierro_mg:1.2, ingredientes:['4 claras + 1 yema','Espinaca y champiñones','Cebolla y ajo','Aceite de oliva'], por_que:'Cena muy liviana y proteica, lista en 10 minutos.', tags:['liviano','muy_liviano','proteina'] },
+  { nombre:'Cazuela de pollo liviana', kcal:310, proteina_g:28, hierro_mg:2.0, ingredientes:['130g pollo sin piel','Zapallo, zanahoria y cebolla','Caldo sin sal','Hierbas frescas'], por_que:'Reconfortante, nutritiva y sin exceso de calorías.', tags:['proteina','liviano'] },
+  { nombre:'Ensalada de quinoa con atún', kcal:340, proteina_g:26, hierro_mg:3.0, ingredientes:['½ taza quinoa cocida','1 lata atún al natural','Tomate, pepino y palta','Limón y aceite'], por_que:'Proteína completa con todos los aminoácidos esenciales.', tags:['proteina','hierro'] },
+];
+
+function sugerirCenas() {
   const ctx = window._qcContext;
   if (!ctx) return;
   document.getElementById('qc-suggest-btn').style.display = 'none';
   document.getElementById('qc-loading').style.display = 'block';
   document.getElementById('qc-suggestions').style.display = 'none';
 
-  // Obtener cenas que suele registrar el perfil como referencia
-  const cenasDelPerfil = (planData[currentSex]?.days || [])
-    .map(d => d.meals?.cena?.name).filter(Boolean).slice(0, 7).join(', ');
+  setTimeout(() => {
+    try {
+      const { kcalLibres, protFalta, ironFalta } = ctx;
 
-  const prompt = `Sos un nutricionista. El usuario tiene este perfil: "${ctx.perfil}".
-Le quedan hoy: ${ctx.kcalLibres} kcal libres, necesita ${ctx.protFalta}g más de proteína y ${ctx.ironFalta}mg más de hierro (objetivo: ${ctx.protTarget}g proteína, ${ctx.ironTarget}mg hierro).
-Sus cenas habituales en el plan son: ${cenasDelPerfil}.
-Sugerí exactamente 3 opciones de cena livianas, ricas en proteína${ctx.ironFalta > 2 ? ' y hierro' : ''}, que entren en las calorías disponibles.
-Respondé SOLO con JSON válido, sin texto extra ni backticks:
-[
-  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"frase corta explicando por qué es buena opción"},
-  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"..."},
-  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"..."}
-]`;
+      // Filtrar cenas que entren en las calorías disponibles (con margen)
+      const limite = Math.max(kcalLibres, 150); // mínimo 150 para siempre mostrar algo
+      let candidatas = CENAS_DB.filter(c => c.kcal <= limite + 80);
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+      // Si no hay suficientes con ese límite, relajar
+      if (candidatas.length < 3) candidatas = [...CENAS_DB];
+
+      // Puntuar según lo que falta
+      const puntuadas = candidatas.map(c => {
+        let score = 0;
+        // Priorizar hierro si falta mucho
+        if (ironFalta > 3) score += c.hierro_mg * 3;
+        else score += c.hierro_mg;
+        // Priorizar proteína si falta
+        if (protFalta > 20) score += c.proteina_g * 2;
+        else score += c.proteina_g;
+        // Penalizar si se pasan de calorías
+        if (c.kcal > limite) score -= (c.kcal - limite) * 0.5;
+        // Bonus si las calorías se acercan bien al límite
+        const diff = Math.abs(c.kcal - Math.min(kcalLibres, 400));
+        score -= diff * 0.1;
+        // Algo de aleatoriedad para que no siempre salgan las mismas
+        score += Math.random() * 5;
+        return { ...c, score };
+      });
+
+      // Ordenar y tomar top 3
+      puntuadas.sort((a, b) => b.score - a.score);
+      const top3 = puntuadas.slice(0, 3);
+
+      document.getElementById('qc-loading').style.display = 'none';
+      mostrarSugerencias(top3);
+    } catch(e) {
+      document.getElementById('qc-loading').style.display = 'none';
+      document.getElementById('qc-suggest-btn').style.display = 'flex';
+      showToast('⚠️ Error al generar sugerencias');
     }
-    const data = await res.json();
-    const raw = (data.content || []).map(i => i.text || '').join('');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const opciones = JSON.parse(clean);
-    mostrarSugerencias(opciones);
-  } catch (err) {
-    document.getElementById('qc-loading').style.display = 'none';
-    document.getElementById('qc-suggest-btn').style.display = 'flex';
-    showToast('⚠️ ' + (err.message || 'Error al obtener sugerencias'));
-  }
+  }, 600); // pequeño delay para que el loading se vea
 }
 
 function mostrarSugerencias(opciones) {
