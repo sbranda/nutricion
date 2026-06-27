@@ -676,7 +676,7 @@
     </div>
 
     <div style="position:relative">
-      <div id="dia-libre-overlay" style="display:none;position:absolute;inset:0;z-index:10;border-radius:14px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);margin:10px 16px;display:none;align-items:center;justify-content:center;flex-direction:column;padding:28px;text-align:center">
+      <div id="dia-libre-overlay" style="display:none;position:absolute;inset:0;z-index:10;border-radius:14px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);margin:10px 16px;padding:28px;text-align:center;flex-direction:column;align-items:center;justify-content:center">
         <div style="font-size:2.5rem;margin-bottom:8px">🏖️</div>
         <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#fbbf24;margin-bottom:6px">Día libre activado</div>
         <div style="font-size:0.8125rem;color:var(--muted);line-height:1.5;margin-bottom:14px">Hoy no conta para el plan. Descansá y retomás mañana 💛</div>
@@ -2650,7 +2650,7 @@ function renderDay() {
     card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
-    if(replaceBtn){replaceBtn.addEventListener('click',e=>{e.stopPropagation();mealReplacements[altKey]=(altIndex+1)%totalOptions;localStorage.setItem('mealReplacements',JSON.stringify(mealReplacements));renderDay();});}
+    if(replaceBtn){replaceBtn.addEventListener('click',e=>{e.stopPropagation();mealReplacements[altKey]=(altIndex+1)%totalOptions;localStorage.setItem('meal-replacements',JSON.stringify(mealReplacements));renderDay();});}
     mealsEl.appendChild(card);
   });
 }
