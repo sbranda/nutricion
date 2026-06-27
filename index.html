@@ -2662,16 +2662,25 @@ renderPeso();
 // ===== ESCÁNER DE PLATO =====
 let scanImageBase64 = null;
 
+let scanMediaType = 'image/jpeg';
+
 function handleScanFile(event) {
   const file = event.target.files[0];
   if (!file) return;
+  // Detectar media type real del archivo
+  scanMediaType = file.type && file.type.startsWith('image/') ? file.type : 'image/jpeg';
+  // La API solo acepta jpeg, png, gif, webp
+  if (!['image/jpeg','image/png','image/gif','image/webp'].includes(scanMediaType)) {
+    scanMediaType = 'image/jpeg';
+  }
   const reader = new FileReader();
   reader.onload = function(e) {
-    scanImageBase64 = e.target.result.split(',')[1];
+    const dataUrl = e.target.result;
+    scanImageBase64 = dataUrl.split(',')[1];
     const preview = document.getElementById('scan-preview');
     const previewWrap = document.getElementById('scan-preview-wrap');
     const scanBtn = document.getElementById('scan-btn');
-    preview.src = e.target.result;
+    preview.src = dataUrl;
     preview.style.display = 'block';
     previewWrap.style.display = 'none';
     scanBtn.style.display = 'block';
@@ -2693,7 +2702,10 @@ async function analyzePhoto() {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
@@ -2702,28 +2714,32 @@ async function analyzePhoto() {
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: 'image/jpeg', data: scanImageBase64 }
+              source: { type: 'base64', media_type: scanMediaType, data: scanImageBase64 }
             },
             {
               type: 'text',
-              text: `Analizá esta foto de comida y respondé SOLO con JSON válido, sin texto extra ni backticks. Formato exacto:
-{"nombre":"nombre del plato en español","kcal":número,"proteina_g":número,"hierro_mg":número con decimales,"ingredientes":["ingrediente 1","ingrediente 2"],"observaciones":"breve consejo nutricional en español de 1-2 oraciones"}
-Estimá las calorías, proteínas (gramos) y hierro (mg) de forma realista según lo que se ve en la imagen.`
+              text: 'Analizá esta foto de comida y respondé SOLO con JSON válido, sin texto extra ni backticks. Formato exacto:\n{"nombre":"nombre del plato en español","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["ingrediente 1","ingrediente 2"],"observaciones":"breve consejo nutricional en español de 1-2 oraciones"}\nEstimá las calorías, proteínas (gramos) y hierro (mg) de forma realista según lo que se ve en la imagen.'
             }
           ]
         }]
       })
     });
 
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const msg = errData?.error?.message || `HTTP ${response.status}`;
+      throw new Error(msg);
+    }
+
     const data = await response.json();
-    const rawText = data.content.map(i => i.text || '').join('');
+    const rawText = (data.content || []).map(i => i.text || '').join('');
     const clean = rawText.replace(/```json|```/g, '').trim();
     const result = JSON.parse(clean);
     showScanResult(result);
   } catch (err) {
     document.getElementById('scan-loading').style.display = 'none';
     document.getElementById('scan-btn').style.display = 'block';
-    showToast('⚠️ Error al analizar. Intentá de nuevo.');
+    showToast('⚠️ ' + (err.message || 'Error al analizar. Intentá de nuevo.'));
   }
 }
 
