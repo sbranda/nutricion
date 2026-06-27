@@ -1052,9 +1052,9 @@
     padding:24px;width:100%;max-width:340px;
   ">
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:2.5rem;margin-bottom:8px">⚖️</div>
-      <div style="font-family:'DM Serif Display',serif;font-size:1.25rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px">Registrá tu peso primero</div>
-      <div style="font-size:0.8125rem;color:var(--muted);line-height:1.5">Para calcular tus necesidades reales de proteína y darte sugerencias personalizadas, necesitamos tu peso actual.</div>
+      <div style="font-size:2.5rem;margin-bottom:8px" id="modal-peso-emoji">⚖️</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:1.25rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px" id="modal-peso-titulo">Un dato más antes de empezar</div>
+      <div style="font-size:0.8125rem;color:var(--muted);line-height:1.5" id="modal-peso-desc">Con tu peso y altura podemos personalizar las metas de proteína e hierro de tu plan.</div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
@@ -1074,12 +1074,12 @@
       width:100%;padding:14px;border-radius:12px;border:none;
       background:linear-gradient(135deg,#0ea5e9,#6366f1);
       color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9375rem;font-weight:700;cursor:pointer;margin-bottom:10px
-    ">Guardar y continuar</button>
+    ">Guardar y ver mi plan</button>
 
-    <button onclick="cerrarModalPeso()" style="
+    <button onclick="cerrarModalPeso()" id="modal-peso-skip" style="
       width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);
       background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer
-    ">Ahora no</button>
+    ">Completar después</button>
   </div>
 </div>
 
@@ -1175,11 +1175,11 @@ function mostrarModalPeso(destinoTab) {
 
 function cerrarModalPeso() {
   document.getElementById('modal-peso').style.display = 'none';
-  // Ir igual a la pestaña destino
   if (window._modalDestino) {
     _irATab(window._modalDestino);
     window._modalDestino = null;
   }
+  // Si no hay destino, simplemente cierra (ya estamos en el plan)
 }
 
 function guardarPesoModal() {
@@ -1208,6 +1208,7 @@ function guardarPesoModal() {
     _irATab(window._modalDestino);
     window._modalDestino = null;
   }
+  // Si no hay destino ya estamos en el plan — solo cerramos el modal
 }
 
 function _irATab(tab) {
@@ -1222,7 +1223,12 @@ function _irATab(tab) {
 
 function showTab(tab) {
   if ((tab === 'peso' || tab === 'quecomо') && !tienePesoRegistrado()) {
-    mostrarModalPeso(tab);
+    window._modalDestino = tab;
+    document.getElementById('modal-peso-titulo').textContent = 'Registrá tu peso primero';
+    document.getElementById('modal-peso-desc').textContent = 'Para personalizar esta sección necesitamos tu peso actual.';
+    document.getElementById('modal-peso-skip').style.display = 'block';
+    document.getElementById('modal-peso').style.display = 'flex';
+    setTimeout(() => document.getElementById('modal-peso-input').focus(), 150);
     return;
   }
   _irATab(tab);
@@ -2514,6 +2520,16 @@ function selectSex(sex) {
   document.getElementById('header-right').textContent=d.kcalRange;
   loadPesoForProfile();
   renderDays(); renderDay(); renderTips();
+
+  // Mostrar modal de peso como paso de onboarding si no tiene peso registrado
+  if (!tienePesoRegistrado()) {
+    window._modalDestino = null; // no redirigir a otra tab, ya estamos en el plan
+    document.getElementById('modal-peso-titulo').textContent = 'Un dato más antes de empezar';
+    document.getElementById('modal-peso-desc').textContent = 'Con tu peso y altura personalizamos las metas de proteína e hierro de tu plan.';
+    document.getElementById('modal-peso-skip').style.display = 'block';
+    document.getElementById('modal-peso').style.display = 'flex';
+    setTimeout(() => document.getElementById('modal-peso-input').focus(), 150);
+  }
 }
 
 function goBack() {
