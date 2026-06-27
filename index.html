@@ -150,6 +150,7 @@
     border: 1px solid rgba(239,68,68,0.25); background: transparent;
     color: #ef4444; font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; cursor: pointer;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* PWA splash screen fix */
   @media (display-mode: standalone) {
@@ -849,6 +850,63 @@
   </div>
 </div>
 
+<!-- SCREEN: QUÉ COMO -->
+<div id="screen-quecomо" class="screen">
+  <div class="settings-header">
+    <div class="settings-eyebrow">ASISTENTE NUTRICIONAL</div>
+    <h1 class="settings-title">🤔 ¿Qué como hoy?</h1>
+  </div>
+
+  <!-- RESUMEN DEL DÍA -->
+  <div style="padding:16px 16px 0">
+    <div id="qc-no-profile" style="display:none;text-align:center;padding:32px 16px;color:var(--muted);font-size:0.875rem">
+      <div style="font-size:2.5rem;margin-bottom:10px">🥗</div>
+      Seleccioná un perfil en la pestaña <strong>PLAN</strong> para ver tus necesidades del día.
+    </div>
+    <div id="qc-content" style="display:none">
+      <!-- Título del día -->
+      <div style="font-family:'DM Mono',monospace;font-size:0.625rem;letter-spacing:3px;color:var(--muted);margin-bottom:10px">RESUMEN DE HOY</div>
+
+      <!-- Tarjetas de macros restantes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:12px;padding:12px;text-align:center">
+          <div id="qc-kcal-rest" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#38bdf8">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted);letter-spacing:1px;margin-top:2px">KCAL LIBRES</div>
+        </div>
+        <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:12px;padding:12px;text-align:center">
+          <div id="qc-prot-rest" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#a78bfa">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted);letter-spacing:1px;margin-top:2px">PROT. FALTA</div>
+        </div>
+        <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:12px;text-align:center">
+          <div id="qc-iron-rest" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#f87171">—</div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted);letter-spacing:1px;margin-top:2px">HIERRO FALTA</div>
+        </div>
+      </div>
+
+      <!-- Comidas del día marcadas -->
+      <div id="qc-meals-done" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;font-size:0.8125rem"></div>
+
+      <!-- Botón sugerir -->
+      <button id="qc-suggest-btn" onclick="sugerirCenas()" style="
+        width:100%;padding:14px;border-radius:12px;border:none;
+        background:linear-gradient(135deg,#0ea5e9,#6366f1);
+        color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9375rem;
+        font-weight:700;cursor:pointer;margin-bottom:16px;
+        display:flex;align-items:center;justify-content:center;gap:8px
+      ">✨ Sugerirme 3 opciones de cena</button>
+
+      <!-- Loading -->
+      <div id="qc-loading" style="display:none;text-align:center;padding:24px">
+        <div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px"></div>
+        <div style="font-size:0.875rem;color:var(--muted)">Pensando opciones para vos...</div>
+      </div>
+
+      <!-- Sugerencias -->
+      <div id="qc-suggestions" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <nav class="tab-bar" role="navigation" aria-label="Navegación principal">
   <button class="tab-btn active" id="tab-plan" onclick="showTab('plan')" role="tab" aria-selected="true" aria-label="Plan de comidas">
     <span class="tab-icon" aria-hidden="true">🥗</span>
@@ -857,6 +915,10 @@
   <button class="tab-btn" id="tab-peso" onclick="showTab('peso')" role="tab" aria-selected="false" aria-label="Seguimiento de peso">
     <span class="tab-icon" aria-hidden="true">⚖️</span>
     <span class="tab-label">PESO</span>
+  </button>
+  <button class="tab-btn" id="tab-quecomо" onclick="showTab('quecomо')" role="tab" aria-selected="false" aria-label="Qué como hoy">
+    <span class="tab-icon" aria-hidden="true">🤔</span>
+    <span class="tab-label">¿QUÉ COMO?</span>
   </button>
   <button class="tab-btn" id="tab-ajustes" onclick="showTab('ajustes')" role="tab" aria-selected="false" aria-label="Ajustes de la app">
     <span class="tab-icon" aria-hidden="true">⚙️</span>
@@ -951,6 +1013,7 @@ function showTab(tab) {
   tabBtn.classList.add('active');
   tabBtn.setAttribute('aria-selected','true');
   if (tab === 'peso') { loadPesoForProfile(); renderPeso(); }
+  if (tab === 'quecomо') { renderQueComoHoy(); }
 }
 
 // ===== ACCESIBILIDAD =====
@@ -2558,6 +2621,161 @@ function showToast(msg) {
 renderPeso();
 
 // ===== ESCÁNER DE PLATO =====
+
+// ===== QUÉ COMO HOY =====
+function renderQueComoHoy() {
+  const noProfile = document.getElementById('qc-no-profile');
+  const content = document.getElementById('qc-content');
+  if (!currentSex || !planData[currentSex]) {
+    noProfile.style.display = 'block';
+    content.style.display = 'none';
+    return;
+  }
+  noProfile.style.display = 'none';
+  content.style.display = 'block';
+
+  const d = planData[currentSex];
+  const todayIdx = getTodayPlanDay();
+  const day = d.days[todayIdx];
+  const dayDate = getDateForPlanDay(todayIdx).toISOString().split('T')[0];
+  const mealKeys = ['desayuno','almuerzo','merienda','cena'];
+
+  // Calcular consumido en comidas marcadas como hechas
+  let kcalConsumida = 0, protConsumida = 0, ironConsumida = 0;
+  const mealsDoneHtml = [];
+
+  mealKeys.forEach(key => {
+    const doneKey = dayDate + '-' + todayIdx + '-' + key;
+    const isDone = !!doneMeals[doneKey];
+    const altKey = currentSex + '-' + todayIdx + '-' + key;
+    const altIndex = mealReplacements[altKey] || 0;
+    const alternatives = (mealAlternatives[currentSex] && mealAlternatives[currentSex][key]) || [];
+    const originalMeal = day.meals[key];
+    const meal = altIndex === 0 ? originalMeal : (alternatives[altIndex - 1] || originalMeal);
+    const prot = estimateProtein(meal);
+    const iron = estimateIron(meal);
+
+    if (isDone) {
+      kcalConsumida += meal.kcal;
+      protConsumida += prot;
+      ironConsumida += iron;
+    }
+
+    const icon = isDone ? '✅' : '⬜';
+    const opacity = isDone ? '1' : '0.45';
+    mealsDoneHtml.push(`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);opacity:${opacity}">
+      <span style="font-size:1rem">${icon}</span>
+      <span style="flex:1;font-size:0.8125rem">${mealLabels[key]}: <strong>${meal.name}</strong></span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.6875rem;color:var(--muted)">${meal.kcal} kcal</span>
+    </div>`);
+  });
+
+  const kcalTarget = d.kcalTarget;
+  const protTarget = d.proteinTarget || 100;
+  const ironTarget = d.ironTarget || 8;
+
+  const kcalLibres = Math.max(0, kcalTarget - kcalConsumida);
+  const protFalta = Math.max(0, protTarget - Math.round(protConsumida));
+  const ironFalta = Math.max(0, Math.round((ironTarget - ironConsumida) * 10) / 10);
+
+  document.getElementById('qc-kcal-rest').textContent = kcalLibres;
+  document.getElementById('qc-prot-rest').textContent = protFalta + 'g';
+  document.getElementById('qc-iron-rest').textContent = ironFalta + 'mg';
+
+  document.getElementById('qc-meals-done').innerHTML =
+    `<div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px">COMIDAS DE HOY</div>` +
+    mealsDoneHtml.join('') +
+    `<div style="margin-top:10px;font-size:0.75rem;color:var(--muted)">Tildá las comidas en la pestaña <strong>PLAN</strong> para actualizar los valores.</div>`;
+
+  // Reset sugerencias si cambiaron los datos
+  document.getElementById('qc-suggestions').style.display = 'none';
+  document.getElementById('qc-suggest-btn').style.display = 'flex';
+  document.getElementById('qc-loading').style.display = 'none';
+
+  // Guardar contexto para la llamada a la API
+  window._qcContext = { kcalLibres, protFalta, ironFalta, perfil: d.title, ironTarget, protTarget };
+}
+
+async function sugerirCenas() {
+  const ctx = window._qcContext;
+  if (!ctx) return;
+  document.getElementById('qc-suggest-btn').style.display = 'none';
+  document.getElementById('qc-loading').style.display = 'block';
+  document.getElementById('qc-suggestions').style.display = 'none';
+
+  // Obtener cenas que suele registrar el perfil como referencia
+  const cenasDelPerfil = (planData[currentSex]?.days || [])
+    .map(d => d.meals?.cena?.name).filter(Boolean).slice(0, 7).join(', ');
+
+  const prompt = `Sos un nutricionista. El usuario tiene este perfil: "${ctx.perfil}".
+Le quedan hoy: ${ctx.kcalLibres} kcal libres, necesita ${ctx.protFalta}g más de proteína y ${ctx.ironFalta}mg más de hierro (objetivo: ${ctx.protTarget}g proteína, ${ctx.ironTarget}mg hierro).
+Sus cenas habituales en el plan son: ${cenasDelPerfil}.
+Sugerí exactamente 3 opciones de cena livianas, ricas en proteína${ctx.ironFalta > 2 ? ' y hierro' : ''}, que entren en las calorías disponibles.
+Respondé SOLO con JSON válido, sin texto extra ni backticks:
+[
+  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"frase corta explicando por qué es buena opción"},
+  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"..."},
+  {"nombre":"...","kcal":número,"proteina_g":número,"hierro_mg":número,"ingredientes":["..."],"por_que":"..."}
+]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const raw = (data.content || []).map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const opciones = JSON.parse(clean);
+    mostrarSugerencias(opciones);
+  } catch (err) {
+    document.getElementById('qc-loading').style.display = 'none';
+    document.getElementById('qc-suggest-btn').style.display = 'flex';
+    showToast('⚠️ ' + (err.message || 'Error al obtener sugerencias'));
+  }
+}
+
+function mostrarSugerencias(opciones) {
+  document.getElementById('qc-loading').style.display = 'none';
+  const colores = ['#38bdf8','#34d399','#a78bfa'];
+  const bgs = ['rgba(56,189,248,0.06)','rgba(52,211,153,0.06)','rgba(167,139,250,0.06)'];
+  const borders = ['rgba(56,189,248,0.2)','rgba(52,211,153,0.2)','rgba(167,139,250,0.2)'];
+
+  const html = opciones.map((op, i) => `
+    <div style="background:${bgs[i]};border:1px solid ${borders[i]};border-radius:14px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:0.9375rem;font-weight:700;color:var(--text);flex:1;padding-right:8px">${op.nombre}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:${colores[i]};white-space:nowrap">${op.kcal} kcal</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <span style="font-family:'DM Mono',monospace;font-size:0.625rem;color:#a78bfa">🥩 ${op.proteina_g}g prot</span>
+        <span style="font-family:'DM Mono',monospace;font-size:0.625rem;color:#f87171">🩸 ${op.hierro_mg}mg hierro</span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;line-height:1.5">${(op.ingredientes||[]).join(' · ')}</div>
+      <div style="font-size:0.75rem;color:${colores[i]};font-style:italic">💡 ${op.por_que}</div>
+    </div>
+  `).join('');
+
+  const sugEl = document.getElementById('qc-suggestions');
+  sugEl.innerHTML = `
+    <div style="font-family:'DM Mono',monospace;font-size:0.625rem;letter-spacing:3px;color:var(--muted);margin-bottom:10px">OPCIONES SUGERIDAS</div>
+    ${html}
+    <button onclick="renderQueComoHoy()" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer;margin-top:4px">🔄 Nuevas sugerencias</button>
+  `;
+  sugEl.style.display = 'block';
+}
 
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
