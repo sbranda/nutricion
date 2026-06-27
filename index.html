@@ -2966,7 +2966,7 @@ function renderAgua() {
 }
 
 // ===== BASE DE CENAS LOCALES =====
-const CENAS_DB = [
+var CENAS_DB = [
   { nombre:'Hígado de pollo salteado', kcal:280, proteina_g:28, hierro_mg:8.5, ingredientes:['150g hígado de pollo','Cebolla y morón','Aceite de oliva','Arroz integral opcional'], por_que:'Fuente excepcional de hierro hem y proteína completa.', tags:['hierro','proteina'] },
   { nombre:'Lentejas con espinaca', kcal:320, proteina_g:18, hierro_mg:6.5, ingredientes:['200g lentejas cocidas','Espinaca salteada','Ajo y comino','1 huevo duro opcional'], por_que:'Combo de hierro vegetal + vitamina C para mejor absorción.', tags:['hierro','proteina','vegetal'] },
   { nombre:'Carne magra con brócoli', kcal:350, proteina_g:32, hierro_mg:5.0, ingredientes:['150g peceto o lomo','Brócoli al vapor','Aceite de oliva','Limón'], por_que:'Proteína completa con hierro hem de alta biodisponibilidad.', tags:['hierro','proteina'] },
@@ -3220,10 +3220,10 @@ function renderHistorialSemana() {
 }
 
 // ===== NOTIFICACIONES =====
-const NOTIF_KEY = 'notif-activas';
-const HORARIOS_KEY = 'notif-horarios';
-const HORARIOS_DEFAULT = { desayuno:'08:00', almuerzo:'13:00', merienda:'17:00', cena:'21:00' };
-const NOTIF_LABELS = { desayuno:'🌅 Desayuno', almuerzo:'☀️ Almuerzo', merienda:'🍎 Merienda', cena:'🌙 Cena' };
+var NOTIF_KEY = 'notif-activas';
+var HORARIOS_KEY = 'notif-horarios';
+var HORARIOS_DEFAULT = { desayuno:'08:00', almuerzo:'13:00', merienda:'17:00', cena:'21:00' };
+var NOTIF_LABELS = { desayuno:'🌅 Desayuno', almuerzo:'☀️ Almuerzo', merienda:'🍎 Merienda', cena:'🌙 Cena' };
 let notifIntervalId = null;
 
 function getHorarios() {
