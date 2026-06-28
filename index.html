@@ -2680,8 +2680,8 @@ function renderDay() {
   ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
 
   updateDoneCounter();
-  renderAgua();
-  renderHistorialSemana();
+  try { renderAgua(); } catch(e) { console.error('renderAgua error:', e); }
+  try { renderHistorialSemana(); } catch(e) { console.error('renderHistorialSemana error:', e); }
   mealsEl.innerHTML='';
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
     const {safeMeal,accent,doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg}=mealData[key];
@@ -2698,13 +2698,13 @@ function renderDay() {
     console.error('renderDay error:', e);
     const mealsDiv = document.getElementById('meals');
     if (mealsDiv) mealsDiv.innerHTML = `<div style="margin:16px;padding:16px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:12px;color:#fca5a5;font-size:0.8125rem;line-height:1.6">
-      <strong>⚠️ Error al cargar las comidas</strong><br>
-      <code style="font-size:0.7rem;word-break:break-all">${e.message}</code><br><br>
+      <strong>⚠️ Error</strong><br>
+      <code style="font-size:0.7rem;word-break:break-all">${e.message}</code><br>
+      <code style="font-size:0.65rem;word-break:break-all;opacity:0.7">${(e.stack||'').split('\n').slice(0,3).join(' | ')}</code><br><br>
       Perfil: ${currentSex} · Día: ${currentDay}<br>
-      ¿Plan cargado? ${planData[currentSex] ? 'Sí' : 'No'}<br>
-      ¿Días? ${planData[currentSex]?.days?.length ?? 'N/A'}<br>
-      ¿Día actual? ${planData[currentSex]?.days?.[currentDay] ? 'OK' : 'FALTA'}<br>
-      ¿Meals? ${planData[currentSex]?.days?.[currentDay]?.meals ? 'OK' : 'FALTA'}
+      ¿Días? ${planData[currentSex]?.days?.length ?? 'N/A'} · ¿Meals? ${planData[currentSex]?.days?.[currentDay]?.meals ? 'OK' : 'FALTA'}<br>
+      AGUA_VASO_ML: ${typeof AGUA_VASO_ML !== 'undefined' ? AGUA_VASO_ML : 'NO DEFINIDA'}<br>
+      CENAS_DB: ${typeof CENAS_DB !== 'undefined' ? 'OK('+CENAS_DB.length+')' : 'NO DEFINIDA'}
     </div>`;
   }
 }
