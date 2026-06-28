@@ -669,7 +669,10 @@
         <div class="header-eyebrow">PLAN NUTRICIONAL</div>
         <div class="header-title" id="header-title"></div>
       </div>
-      <div class="header-right" id="header-right"></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div class="header-right" id="header-right"></div>
+        <div id="streak-badge" style="display:none;font-family:'DM Mono',monospace;font-size:0.6rem;padding:2px 8px;border-radius:8px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;white-space:nowrap"></div>
+      </div>
     </div>
     <div class="days-row" id="days-row"></div>
     <div class="day-header">
@@ -2807,6 +2810,7 @@ function renderDay() {
   updateDoneCounter();
   try { renderAgua(); } catch(e) { console.error('renderAgua error:', e); }
   try { renderHistorialSemana(); } catch(e) { console.error('renderHistorialSemana error:', e); }
+  try { renderStreak(); } catch(e) { console.error('renderStreak error:', e); }
   mealsEl.innerHTML='';
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
     const {safeMeal,accent,doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg}=mealData[key];
@@ -3604,6 +3608,59 @@ function itemConflictua(itemText) {
     var keywords = ALERGIA_KEYWORDS[alergia] || [];
     return keywords.some(re => re.test(itemText));
   });
+}
+
+// ===== RACHA (STREAK) =====
+function calcularRacha() {
+  if (!currentSex) return 0;
+  const mealKeys = ['desayuno','almuerzo','merienda','cena'];
+  const planDayToJS = [1,2,3,4,5,6,0];
+  let racha = 0;
+  const hoy = new Date();
+
+  // Empezar desde hoy (offset 0) hacia atrás
+  for (let offset = 0; offset <= 60; offset++) {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() - offset);
+    const dateStr = fecha.toISOString().split('T')[0];
+
+    // Día libre cuenta
+    if (localStorage.getItem('dia-libre-' + dateStr) === '1') {
+      racha++;
+      continue;
+    }
+
+    const jsDay = fecha.getDay();
+    const planIdx = planDayToJS.indexOf(jsDay);
+    if (planIdx < 0) continue;
+
+    const completadas = mealKeys.filter(k =>
+      doneMeals[dateStr + '-' + planIdx + '-' + k]
+    ).length;
+
+    // Hoy: contar si tiene al menos 1 comida (está en progreso)
+    // Días anteriores: necesita al menos 3
+    const minimo = offset === 0 ? 1 : 3;
+    if (completadas >= minimo) racha++;
+    else if (offset > 0) break;
+  }
+  return racha;
+}
+
+function renderStreak() {
+  const badge = document.getElementById('streak-badge');
+  if (!badge) return;
+  const racha = calcularRacha();
+  if (racha >= 2) {
+    let emoji = '🔥';
+    if (racha >= 30) emoji = '🏆';
+    else if (racha >= 14) emoji = '⭐';
+    else if (racha >= 7) emoji = '💪';
+    badge.textContent = `${emoji} ${racha} días seguidos`;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
