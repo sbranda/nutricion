@@ -3346,6 +3346,7 @@ function agregarAgua(ml) {
   if (nuevo >= AGUA_META_ML && actual < AGUA_META_ML) {
     showToast('🎉 ¡Meta de agua alcanzada!');
   }
+  try { verificarLogros(); } catch(e) {}
 }
 
 function resetAgua() {
