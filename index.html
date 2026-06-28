@@ -2512,7 +2512,7 @@ function selectSex(sex, isRestore) {
   document.body.classList.add(sex);
   document.getElementById('selector').style.display='none';
   const pc=document.getElementById('plan-content');
-  pc.style.display='block';
+  pc.style.cssText='display:block!important';
   const d=planData[sex];
   document.getElementById('header-title').textContent=d.title;
   document.getElementById('header-right').textContent=d.kcalRange;
@@ -2532,9 +2532,11 @@ function selectSex(sex, isRestore) {
 
 function goBack() {
   localStorage.removeItem('ultimo-perfil');
+  localStorage.removeItem('ultimo-dia');
+  currentSex = null;
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor');
   document.getElementById('selector').style.display='flex';
-  document.getElementById('plan-content').style.display='none';
+  document.getElementById('plan-content').style.cssText='display:none';
   showCatStep();
 }
 
