@@ -2504,7 +2504,7 @@ function toggleDiaLibre() {
 }
 let mealReplacements=JSON.parse(localStorage.getItem('meal-replacements')||'{}');
 
-function selectSex(sex) {
+function selectSex(sex, isRestore) {
   currentSex=sex; currentDay=getTodayPlanDay(); doneMeals={};
   localStorage.setItem('ultimo-perfil', sex);
   loadDoneMeals();
@@ -2519,9 +2519,9 @@ function selectSex(sex) {
   loadPesoForProfile();
   renderDays(); renderDay(); renderTips();
 
-  // Mostrar modal de peso como paso de onboarding si no tiene peso registrado
-  if (!tienePesoRegistrado()) {
-    window._modalDestino = null; // no redirigir a otra tab, ya estamos en el plan
+  // Mostrar modal de peso solo si es primera vez (no restauración)
+  if (!isRestore && !tienePesoRegistrado()) {
+    window._modalDestino = null;
     document.getElementById('modal-peso-titulo').textContent = 'Un dato más antes de empezar';
     document.getElementById('modal-peso-desc').textContent = 'Con tu peso y altura personalizamos las metas de proteína e hierro de tu plan.';
     document.getElementById('modal-peso-skip').style.display = 'block';
@@ -2571,7 +2571,7 @@ function renderDays() {
     btn.className='day-btn'+(i===currentDay?' active':'');
     const fecha = formatShortDate(getDateForPlanDay(i));
     btn.innerHTML=`<span style="display:block">${day.short}</span><span style="font-size:0.55rem;opacity:0.7">${fecha}</span>`;
-    btn.onclick=()=>{currentDay=i;renderDays();renderDay();};
+    btn.onclick=()=>{currentDay=i;localStorage.setItem('ultimo-dia',i);renderDays();renderDay();};
     row.appendChild(btn);
   });
 }
@@ -3195,7 +3195,7 @@ function renderHistorialSemana() {
       border-radius:10px;border:1px solid ${borderColor};
       background:${bgColor};margin-bottom:6px;cursor:pointer;
       ${esHoy ? 'box-shadow:0 0 0 1px rgba(255,255,255,0.08)' : ''}
-    " onclick="currentDay=${i};renderDays();renderDay()">
+    " onclick="currentDay=${i};localStorage.setItem('ultimo-dia',${i});renderDays();renderDay()">
       <div style="width:28px;text-align:center">
         <div style="font-family:'DM Mono',monospace;font-size:0.625rem;font-weight:600;color:${nameColor}">${dayNames[i]}</div>
         <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted)">${formatShortDate(date)}</div>
@@ -3438,7 +3438,14 @@ function resetSettings() {
   // Cargar último perfil guardado
   const ultimoPerfil = localStorage.getItem('ultimo-perfil');
   if (ultimoPerfil && planData[ultimoPerfil]) {
-    selectSex(ultimoPerfil);
+    selectSex(ultimoPerfil, true); // true = restauración, no mostrar modal
+    // Restaurar día activo
+    const savedDay = parseInt(localStorage.getItem('ultimo-dia') || '-1', 10);
+    if (savedDay >= 0 && savedDay <= 6) {
+      currentDay = savedDay;
+      renderDays();
+      renderDay();
+    }
   }
 })();
 </script>
