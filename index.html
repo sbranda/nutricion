@@ -581,6 +581,24 @@
 </style>
 </head>
 <body>
+<script>
+// Restauración de estado ANTES de pintar — evita flash del selector
+(function() {
+  var perfil = localStorage.getItem('ultimo-perfil');
+  if (perfil) {
+    // Ocultar selector e iniciar plan-content inmediatamente via atributo
+    document.addEventListener('DOMContentLoaded', function() {
+      var sel = document.getElementById('selector');
+      var pc  = document.getElementById('plan-content');
+      if (sel) sel.style.setProperty('display','none','important');
+      if (pc)  pc.style.setProperty('display','block','important');
+    });
+  }
+  // Aplicar tema guardado inmediatamente para evitar flash
+  var theme = localStorage.getItem('app-theme') || 'theme-azul';
+  document.documentElement.className = theme;
+})();
+</script>
 
 <!-- SCREEN: PLAN -->
 <div id="screen-plan" class="screen active">
@@ -2510,9 +2528,9 @@ function selectSex(sex, isRestore) {
   loadDoneMeals();
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor');
   document.body.classList.add(sex);
-  document.getElementById('selector').style.display='none';
+  document.getElementById('selector').style.setProperty('display','none','important');
   const pc=document.getElementById('plan-content');
-  pc.style.cssText='display:block!important';
+  pc.style.setProperty('display','block','important');
   const d=planData[sex];
   document.getElementById('header-title').textContent=d.title;
   document.getElementById('header-right').textContent=d.kcalRange;
@@ -2535,8 +2553,8 @@ function goBack() {
   localStorage.removeItem('ultimo-dia');
   currentSex = null;
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor');
-  document.getElementById('selector').style.display='flex';
-  document.getElementById('plan-content').style.cssText='display:none';
+  document.getElementById('selector').style.setProperty('display','flex','important');
+  document.getElementById('plan-content').style.setProperty('display','none','important');
   showCatStep();
 }
 
