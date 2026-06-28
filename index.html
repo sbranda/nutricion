@@ -1256,17 +1256,17 @@
         <div style="flex:1">
           <div style="font-family:'DM Mono',monospace;font-size:0.575rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">ALTURA (cm)</div>
           <input id="modal-altura-input" type="number" step="1" min="100" max="250" placeholder="168"
-            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:1rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none">
+            style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:1rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none" oninput="previsualizarKcalModal()">
         </div>
       </div>
       <div>
         <div style="font-family:'DM Mono',monospace;font-size:0.575rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">EDAD</div>
         <input id="modal-edad-input" type="number" step="1" min="14" max="100" placeholder="ej: 32 años"
-          style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:1rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none">
+          style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:1rem;font-family:'DM Mono',monospace;outline:none;-webkit-appearance:none" oninput="previsualizarKcalModal()">
       </div>
       <div>
         <div style="font-family:'DM Mono',monospace;font-size:0.575rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">NIVEL DE ACTIVIDAD</div>
-        <select id="modal-actividad-input"
+        <select id="modal-actividad-input" onchange="previsualizarKcalModal()"
           style="width:100%;background:#1a2540;border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:0.8125rem;font-family:'DM Sans',monospace;outline:none;-webkit-appearance:none;appearance:none">
           <option value="1.2">🪑 Sedentario (poco o sin ejercicio)</option>
           <option value="1.375" selected>🚶 Ligeramente activo (1-3 días/sem)</option>
@@ -1277,7 +1277,7 @@
       </div>
       <div>
         <div style="font-family:'DM Mono',monospace;font-size:0.575rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px">OBJETIVO</div>
-        <select id="modal-objetivo-input"
+        <select id="modal-objetivo-input" onchange="previsualizarKcalModal()"
           style="width:100%;background:#1a2540;border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:0.8125rem;font-family:'DM Sans',monospace;outline:none;-webkit-appearance:none;appearance:none">
           <option value="deficit">📉 Bajar de peso (-300 kcal)</option>
           <option value="mantener" selected>⚖️ Mantener peso</option>
@@ -1286,10 +1286,21 @@
       </div>
 
       <!-- Preview kcal calculadas -->
-      <div id="modal-kcal-preview" style="display:none;padding:10px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px;text-align:center">
-        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:2px">TU META CALÓRICA PERSONALIZADA</div>
-        <div id="modal-kcal-valor" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:#38bdf8"></div>
-        <div id="modal-kcal-detalle" style="font-size:0.7rem;color:var(--muted);margin-top:2px"></div>
+      <div id="modal-kcal-preview" style="display:none;padding:12px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:10px">
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:4px;text-align:center">TU META CALÓRICA PERSONALIZADA</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div id="modal-kcal-valor" style="font-family:'DM Serif Display',serif;font-size:1.75rem;color:#38bdf8;line-height:1"></div>
+            <div id="modal-kcal-detalle" style="font-size:0.65rem;color:var(--muted);margin-top:3px"></div>
+          </div>
+          <button id="modal-fijar-meta" onclick="fijarMetaModal()" style="
+            padding:8px 14px;border-radius:10px;border:none;
+            background:linear-gradient(135deg,#0ea5e9,#6366f1);
+            color:#fff;font-family:'DM Sans',sans-serif;font-size:0.8125rem;font-weight:700;cursor:pointer;
+            white-space:nowrap;flex-shrink:0
+          ">✓ Fijar meta</button>
+        </div>
+        <div id="modal-meta-fijada" style="display:none;margin-top:8px;font-family:'DM Mono',monospace;font-size:0.6rem;color:#34d399;text-align:center">✓ Meta fijada — se aplicará al guardar</div>
       </div>
     </div>
 
@@ -1448,11 +1459,11 @@ function cerrarModalPeso() {
 
 function guardarPesoModal() {
   const w = parseFloat(document.getElementById('modal-peso-input').value);
+  if (!w || w < 30 || w > 300) { showToast('⚠️ Ingresá un peso válido'); return; }
   const h = parseFloat(document.getElementById('modal-altura-input').value);
   const edad = parseFloat(document.getElementById('modal-edad-input')?.value || '0');
   const actividad = parseFloat(document.getElementById('modal-actividad-input')?.value || '1.375');
   const objetivo = document.getElementById('modal-objetivo-input')?.value || 'mantener';
-  if (!w || w < 30 || w > 300) { showToast('⚠️ Ingresá un peso válido'); return; }
 
   loadPesoForProfile();
   const today = new Date().toISOString().split('T')[0];
@@ -1469,15 +1480,18 @@ function guardarPesoModal() {
     const sexoBio = currentSex.includes('mujer') || currentSex.includes('vegana') || currentSex.includes('vegetariana') ? 'm' : 'h';
     const { tdee } = calcularHarrisBenedict(w, h, edad, sexoBio, actividad);
     const ajuste = objetivo === 'deficit' ? -300 : objetivo === 'superavit' ? 300 : 0;
-    const meta = tdee + ajuste;
+    // Usar meta fijada por el usuario si existe, si no calcular
+    const meta = window._metaModalFijada || (tdee + ajuste);
     localStorage.setItem('kcal-personalizada', meta);
     localStorage.setItem('met-datos', JSON.stringify({ peso:w, altura:h, edad, sexo:sexoBio, actividad, objetivo: ajuste }));
+    window._metaModalFijada = null;
     showToast('✓ Peso registrado · Meta: ' + meta + ' kcal/día');
   } else {
     showToast('✓ Peso registrado: ' + w + ' kg');
   }
 
   document.getElementById('modal-peso').style.display = 'none';
+  window._metaModalFijada = null;
   if (window._modalDestino) { _irATab(window._modalDestino); window._modalDestino = null; }
   if (currentSex) renderDay();
 }
@@ -3918,6 +3932,38 @@ function renderStreak() {
   }
 }
 
+function previsualizarPesoModal() {
+  const w = parseFloat(document.getElementById('modal-peso-input')?.value);
+  const preview = document.getElementById('modal-peso-preview');
+  if (!preview) return;
+  if (!w || w < 30 || w > 300) { preview.style.display = 'none'; return; }
+  document.getElementById('modal-peso-valor').textContent = w + ' kg';
+  preview.style.display = 'block';
+  // Reset confirmación si cambió el valor
+  window._pesoModalConfirmado = null;
+  const btn = document.getElementById('modal-fijar-peso');
+  const badge = document.getElementById('modal-peso-fijado');
+  if (btn) btn.style.display = 'block';
+  if (badge) badge.style.display = 'none';
+  previsualizarKcalModal();
+}
+
+function fijarPesoModal() {
+  const w = parseFloat(document.getElementById('modal-peso-input')?.value);
+  if (!w) return;
+  window._pesoModalConfirmado = w;
+  document.getElementById('modal-fijar-peso').style.display = 'none';
+  document.getElementById('modal-peso-fijado').style.display = 'block';
+}
+
+function fijarMetaModal() {
+  const valor = document.getElementById('modal-kcal-valor')?.textContent;
+  if (!valor) return;
+  window._metaModalFijada = parseInt(valor);
+  document.getElementById('modal-fijar-meta').style.display = 'none';
+  document.getElementById('modal-meta-fijada').style.display = 'block';
+}
+
 function previsualizarKcalModal() {
   const w = parseFloat(document.getElementById('modal-peso-input')?.value);
   const h = parseFloat(document.getElementById('modal-altura-input')?.value);
@@ -3934,6 +3980,12 @@ function previsualizarKcalModal() {
     document.getElementById('modal-kcal-valor').textContent = meta + ' kcal/día';
     document.getElementById('modal-kcal-detalle').textContent = `TMB ${tmb} · TDEE ${tdee}`;
     preview.style.display = 'block';
+    // Reset fijada si cambió el valor
+    window._metaModalFijada = null;
+    const btn = document.getElementById('modal-fijar-meta');
+    const badge = document.getElementById('modal-meta-fijada');
+    if (btn) btn.style.display = 'block';
+    if (badge) badge.style.display = 'none';
   }
 }
 
