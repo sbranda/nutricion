@@ -1127,6 +1127,17 @@
   </div>
 </div>
 
+<!-- MODAL: CONFIRMAR RESET -->
+<div id="modal-reset" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px">
+  <div style="background:#0f1929;border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:10px">🗑️</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:1.125rem;color:#f87171;margin-bottom:8px">¿Borrar todo?</div>
+    <div style="font-size:0.8125rem;color:var(--muted);line-height:1.6;margin-bottom:20px">Se borrarán el perfil, el peso, las comidas tildadas, el agua y todas las preferencias. Esta acción no se puede deshacer.</div>
+    <button onclick="confirmarReset()" style="width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9375rem;font-weight:700;cursor:pointer;margin-bottom:10px">Sí, borrar todo</button>
+    <button onclick="document.getElementById('modal-reset').style.display='none'" style="width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer">Cancelar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -3570,13 +3581,32 @@ function setTheme(theme, el) {
 }
 
 function resetSettings() {
+  document.getElementById('modal-reset').style.display = 'flex';
+}
+
+function confirmarReset() {
+  document.getElementById('modal-reset').style.display = 'none';
+
+  localStorage.clear();
+
+  currentSex = null;
+  currentDay = 0;
+  doneMeals = {};
+  pesoEntries = [];
+  pesoGoal = 0;
+  mealReplacements = {};
+
   applyFontScale(1);
   applyTheme('theme-azul');
   applyA11y(false);
-  localStorage.removeItem('app-font-scale');
-  localStorage.removeItem('app-theme');
-  localStorage.removeItem('a11y-large');
-  showToast('✓ Ajustes restaurados');
+  document.querySelectorAll('.alergia-btn').forEach(b => b.classList.remove('activa'));
+  document.body.className = '';
+
+  goBack();
+  showCatStep();
+  showTab('plan');
+
+  showToast('✓ App reiniciada');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
