@@ -267,6 +267,8 @@
   .meal-card.open .meal-items { display: block; }
   .meal-item { display: flex; align-items: center; gap: 9px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.8125rem; }
   .meal-item:last-child { border-bottom: none; }
+  .meal-card.open .meal-item-text:hover { background: rgba(255,255,255,0.05); color: var(--text) !important; cursor: text; }
+  .meal-card.open .meal-item-text[contenteditable="true"] { background: rgba(255,255,255,0.08); color: var(--text) !important; }
   .meal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
   .meal-check-btn { width: 28px; height: 28px; border-radius: 8px; border: 2px solid; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; flex-shrink: 0; transition: all 0.2s; margin-left: 4px; }
   .meal-check-btn:hover { opacity: 0.8; }
@@ -2687,8 +2689,59 @@ function renderDay() {
     const {safeMeal,accent,doneKey,isDone,altKey,altIndex,totalOptions,proteinG,ironMg}=mealData[key];
     const card=document.createElement('div');
     card.className='meal-card'+(isDone?' done':'');
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${(safeMeal.items||[]).map(item=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span style="color:#94a3b8">${item}</span></div>`).join('')}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
-    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
+    const itemsKey = currentSex + '-' + currentDay + '-' + key + '-items';
+    const savedItems = JSON.parse(localStorage.getItem(itemsKey) || 'null');
+    const displayItems = savedItems || (safeMeal.items||[]);
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${displayItems.map((item,idx)=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span class="meal-item-text" contenteditable="false" data-idx="${idx}" data-key="${itemsKey}" style="color:#94a3b8;flex:1;outline:none;border-radius:4px;padding:1px 3px;cursor:text" title="Tocá para editar">${item}</span></div>`).join('')}${savedItems?`<button class="meal-items-reset" style="margin-top:6px;font-family:'DM Mono',monospace;font-size:0.5625rem;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer">↺ restaurar original</button>`:''}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
+    // Make items editable on tap
+    card.querySelectorAll('.meal-item-text').forEach(span => {
+      span.addEventListener('click', e => {
+        if (!card.classList.contains('open')) return; // solo si está expandida
+        e.stopPropagation();
+        span.contentEditable = 'true';
+        span.style.background = 'rgba(255,255,255,0.06)';
+        span.style.color = 'var(--text)';
+        span.focus();
+        // Select all text
+        const range = document.createRange();
+        range.selectNodeContents(span);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      });
+      span.addEventListener('blur', () => {
+        span.contentEditable = 'false';
+        span.style.background = '';
+        span.style.color = '#94a3b8';
+        // Save edited items
+        const key2 = span.dataset.key;
+        const allSpans = card.querySelectorAll('.meal-item-text');
+        const newItems = Array.from(allSpans).map(s => s.textContent.trim());
+        localStorage.setItem(key2, JSON.stringify(newItems));
+        // Re-render reset button if needed
+        const resetBtn = card.querySelector('.meal-items-reset');
+        if (!resetBtn) {
+          const mealItemsDiv = card.querySelector('.meal-items');
+          const btn = document.createElement('button');
+          btn.className = 'meal-items-reset';
+          btn.style.cssText = 'margin-top:6px;font-family:\'DM Mono\',monospace;font-size:0.5625rem;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer';
+          btn.textContent = '↺ restaurar original';
+          btn.addEventListener('click', e2 => { e2.stopPropagation(); localStorage.removeItem(key2); renderDay(); });
+          mealItemsDiv.appendChild(btn);
+        }
+      });
+      span.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+      });
+    });
+    // Reset button handler
+    const resetBtn = card.querySelector('.meal-items-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        localStorage.removeItem(itemsKey);
+        renderDay();
+      });
+    }    card.querySelector('.meal-check-btn').addEventListener('click',e=>{e.stopPropagation();doneMeals[doneKey]=!doneMeals[doneKey];saveDoneMeals();renderDay();});
     card.querySelector('.meal-top').addEventListener('click',e=>{if(e.target.closest('.meal-check-btn'))return;card.classList.toggle('open');});
     const replaceBtn=card.querySelector('.meal-replace-btn');
     if(replaceBtn){replaceBtn.addEventListener('click',e=>{e.stopPropagation();mealReplacements[altKey]=(altIndex+1)%totalOptions;localStorage.setItem('meal-replacements',JSON.stringify(mealReplacements));renderDay();});}
