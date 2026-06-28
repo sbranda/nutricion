@@ -2928,8 +2928,10 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-renderPeso();
-initNotificaciones();
+document.addEventListener('DOMContentLoaded', function() {
+  renderPeso();
+  initNotificaciones();
+});
 
 // ===== ESCÁNER DE PLATO =====
 
@@ -3448,6 +3450,7 @@ function resetSettings() {
   showToast('✓ Ajustes restaurados');
 }
 
+document.addEventListener('DOMContentLoaded', function() {
 (function initSettings() {
   const savedScale = parseFloat(localStorage.getItem('app-font-scale') || '1');
   const savedTheme = localStorage.getItem('app-theme') || 'theme-azul';
@@ -3468,6 +3471,7 @@ function resetSettings() {
     }
   }
 })();
+});
 </script>
 </body>
 </html>
