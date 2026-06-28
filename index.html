@@ -748,7 +748,10 @@
 
     <!-- HISTORIAL SEMANAL -->
     <div style="margin:0 16px 24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px">
-      <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:3px;color:var(--muted);margin-bottom:12px">SEMANA EN CURSO</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:3px;color:var(--muted)">SEMANA EN CURSO</div>
+        <button onclick="compartirSemana()" style="font-family:'DM Mono',monospace;font-size:0.5625rem;padding:3px 10px;border-radius:8px;border:1px solid rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);color:#38bdf8;cursor:pointer">📤 Compartir</button>
+      </div>
       <div id="historial-semana"></div>
     </div>
   </div>
@@ -3759,6 +3762,204 @@ function renderStreak() {
   } else {
     badge.style.display = 'none';
   }
+}
+
+// ===== COMPARTIR SEMANA =====
+async function compartirSemana() {
+  if (!currentSex || !planData[currentSex]) { showToast('⚠️ Seleccioná un perfil primero'); return; }
+
+  const W = 640, H = 820;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const d = planData[currentSex];
+  const mealKeys = ['desayuno','almuerzo','merienda','cena'];
+  const mealEmojis = { desayuno:'🌅', almuerzo:'☀️', merienda:'🍎', cena:'🌙' };
+  const dayNames = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const planDayToJS = [1,2,3,4,5,6,0];
+  const hoy = new Date();
+  const lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1));
+
+  // Fondo
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#080e1a');
+  grad.addColorStop(1, '#0d1526');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Borde sutil
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(1, 1, W-2, H-2);
+
+  // Header: logo
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 28px monospace';
+  ctx.fillText('NutriPlan', 32, 52);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '13px monospace';
+  ctx.fillText('nutriplan.app', 32, 76);
+
+  // Perfil
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(W-200, 28, 170, 56, 12); ctx.fill();
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(d.title.replace(/[^\w\s·]/gu, '').trim(), W-28, 52);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px monospace';
+  ctx.fillText(d.kcalRange, W-28, 70);
+  ctx.textAlign = 'left';
+
+  // Separador
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(32, 100, W-64, 1);
+
+  // Título semana
+  const fechaStr = lunes.toLocaleDateString('es-AR', { day:'numeric', month:'long' });
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '11px monospace';
+  ctx.fillText('SEMANA DEL ' + fechaStr.toUpperCase(), 32, 128);
+
+  // Días
+  let totalComidas = 0, totalPosibles = 0;
+  const rowH = 72, rowStart = 148;
+
+  for (let i = 0; i < 7; i++) {
+    const fecha = new Date(lunes);
+    fecha.setDate(lunes.getDate() + i);
+    const dateStr = fecha.toISOString().split('T')[0];
+    const esLibre = localStorage.getItem('dia-libre-' + dateStr) === '1';
+    const esFuturo = fecha > hoy;
+    const jsDay = fecha.getDay();
+    const planIdx = planDayToJS.indexOf(jsDay);
+    const completadas = (!esLibre && planIdx >= 0) ? mealKeys.filter(k => doneMeals[dateStr+'-'+planIdx+'-'+k]) : [];
+    const count = completadas.length;
+    const esHoy = fecha.toDateString() === hoy.toDateString();
+
+    if (!esFuturo && !esLibre) { totalComidas += count; totalPosibles += 4; }
+
+    const y = rowStart + i * rowH;
+
+    // Fondo fila
+    let rowBg = 'rgba(255,255,255,0.03)';
+    if (esLibre) rowBg = 'rgba(251,191,36,0.07)';
+    else if (count === 4) rowBg = 'rgba(52,211,153,0.07)';
+    else if (count > 0) rowBg = 'rgba(56,189,248,0.05)';
+    ctx.fillStyle = rowBg;
+    ctx.beginPath(); ctx.roundRect(32, y, W-64, rowH-6, 10); ctx.fill();
+
+    // Badge HOY
+    if (esHoy) {
+      ctx.fillStyle = 'rgba(56,189,248,0.2)';
+      ctx.beginPath(); ctx.roundRect(33, y+1, W-66, rowH-8, 9); ctx.fill();
+    }
+
+    // Nombre día
+    ctx.fillStyle = esLibre ? '#fbbf24' : count === 4 ? '#34d399' : count > 0 ? '#38bdf8' : esFuturo ? 'rgba(255,255,255,0.2)' : '#f87171';
+    ctx.font = 'bold 14px monospace';
+    ctx.fillText(dayNames[i], 50, y + 26);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '10px monospace';
+    ctx.fillText(fecha.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit' }), 50, y + 42);
+
+    // Emojis comidas
+    const emojiX = 130;
+    if (esLibre) {
+      ctx.font = '20px serif';
+      ctx.fillText('🏖️', emojiX, y + 36);
+    } else {
+      mealKeys.forEach((k, ki) => {
+        const done = completadas.includes(k);
+        ctx.globalAlpha = done ? 1 : 0.15;
+        ctx.font = '18px serif';
+        ctx.fillText(mealEmojis[k], emojiX + ki * 44, y + 36);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    // Contador
+    ctx.textAlign = 'right';
+    ctx.fillStyle = esLibre ? '#fbbf24' : count === 4 ? '#34d399' : 'rgba(255,255,255,0.3)';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText(esLibre ? 'libre' : esFuturo ? '—' : `${count}/4`, W-48, y + 32);
+    ctx.textAlign = 'left';
+  }
+
+  // Separador
+  const bottomY = rowStart + 7 * rowH + 8;
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(32, bottomY, W-64, 1);
+
+  // Adherencia + racha
+  const pct = totalPosibles > 0 ? Math.round((totalComidas / totalPosibles) * 100) : 0;
+  const racha = calcularRacha();
+  const pctColor = pct >= 80 ? '#34d399' : pct >= 50 ? '#38bdf8' : '#f87171';
+
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.beginPath(); ctx.roundRect(32, bottomY + 16, W-64, 70, 12); ctx.fill();
+
+  ctx.font = '11px monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillText('ADHERENCIA SEMANAL', 50, bottomY + 40);
+  ctx.font = 'bold 32px serif';
+  ctx.fillStyle = pctColor;
+  ctx.fillText(pct + '%', 50, bottomY + 72);
+
+  if (racha >= 2) {
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = '11px monospace';
+    ctx.fillText('RACHA ACTUAL', W-50, bottomY + 40);
+    ctx.font = 'bold 28px serif';
+    ctx.fillText((racha >= 30 ? '🏆' : racha >= 14 ? '⭐' : racha >= 7 ? '💪' : '🔥') + ' ' + racha + ' días', W-50, bottomY + 72);
+    ctx.textAlign = 'left';
+  }
+
+  // Logros desbloqueados
+  const desbloqueados = getLogrosDesbloqueados();
+  if (desbloqueados.length > 0) {
+    const lY = bottomY + 108;
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '11px monospace';
+    ctx.fillText('LOGROS', 50, lY);
+    desbloqueados.slice(0, 8).forEach((id, i) => {
+      const logro = LOGROS.find(l => l.id === id);
+      if (logro) {
+        ctx.font = '20px serif';
+        ctx.fillText(logro.emoji, 50 + i * 38, lY + 28);
+      }
+    });
+  }
+
+  // Footer
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Generado con NutriPlan · Plan nutricional personalizado', W/2, H - 20);
+  ctx.textAlign = 'left';
+
+  // Compartir
+  canvas.toBlob(async (blob) => {
+    const file = new File([blob], 'nutriplan-semana.png', { type: 'image/png' });
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Mi semana en NutriPlan', text: `Adherencia: ${pct}%${racha >= 2 ? ' · Racha: ' + racha + ' días 🔥' : ''}` });
+      } catch(e) { if (e.name !== 'AbortError') descargarCanvas(canvas); }
+    } else {
+      descargarCanvas(canvas);
+    }
+  }, 'image/png');
+}
+
+function descargarCanvas(canvas) {
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'nutriplan-semana.png';
+  a.click();
+  showToast('📥 Imagen descargada');
 }
 
 // ===== SISTEMA DE LOGROS =====
