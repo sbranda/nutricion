@@ -1309,11 +1309,6 @@
       background:linear-gradient(135deg,#0ea5e9,#6366f1);
       color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9375rem;font-weight:700;cursor:pointer;margin-bottom:10px
     ">Guardar y ver mi plan</button>
-
-    <button onclick="cerrarModalPeso()" id="modal-peso-skip" style="
-      width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);
-      background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.8125rem;cursor:pointer
-    ">Completar después</button>
   </div>
 </div>
 
@@ -1512,7 +1507,6 @@ function showTab(tab) {
     window._modalDestino = tab;
     document.getElementById('modal-peso-titulo').textContent = 'Registrá tu peso primero';
     document.getElementById('modal-peso-desc').textContent = 'Para personalizar esta sección necesitamos tu peso actual.';
-    document.getElementById('modal-peso-skip').style.display = 'block';
     document.getElementById('modal-peso').style.display = 'flex';
     setTimeout(() => document.getElementById('modal-peso-input').focus(), 150);
     return;
@@ -2871,8 +2865,7 @@ function selectSex(sex, isRestore) {
   if (!isRestore && !tienePesoRegistrado()) {
     window._modalDestino = null;
     document.getElementById('modal-peso-titulo').textContent = 'Un dato más antes de empezar';
-    document.getElementById('modal-peso-desc').textContent = 'Con tu peso y altura personalizamos las metas de proteína e hierro de tu plan.';
-    document.getElementById('modal-peso-skip').style.display = 'block';
+    document.getElementById('modal-peso-desc').textContent = 'Con estos datos calculamos tus calorías reales con la fórmula Harris-Benedict.';
     document.getElementById('modal-peso').style.display = 'flex';
     setTimeout(() => document.getElementById('modal-peso-input').focus(), 150);
   }
