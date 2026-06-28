@@ -668,6 +668,7 @@
       <div class="header-center">
         <div class="header-eyebrow">PLAN NUTRICIONAL</div>
         <div class="header-title" id="header-title"></div>
+        <div id="frase-dia" style="font-size:0.7rem;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.4;display:none"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div class="header-right" id="header-right"></div>
@@ -2995,6 +2996,7 @@ function renderDay() {
   ironFill.className='progress-fill iron-fill'+(totalIron>=ironTarget?' over':'');
 
   updateDoneCounter();
+  try { renderFraseDia(); } catch(e) { console.error('renderFraseDia error:', e); }
   try { renderAgua(); } catch(e) { console.error('renderAgua error:', e); }
   try { renderHistorialSemana(); } catch(e) { console.error('renderHistorialSemana error:', e); }
   try { renderKcalChart(); } catch(e) { console.error('renderKcalChart error:', e); }
@@ -3933,6 +3935,84 @@ function previsualizarKcalModal() {
     document.getElementById('modal-kcal-detalle').textContent = `TMB ${tmb} · TDEE ${tdee}`;
     preview.style.display = 'block';
   }
+}
+
+// ===== FRASE MOTIVACIONAL DEL DÍA =====
+var FRASES = {
+  _general: [
+    "Consistencia > perfección. Un día a la vez.",
+    "Cada comida es una oportunidad, no una obligación.",
+    "No se trata de comer menos, sino de comer mejor.",
+    "Tu cuerpo recuerda lo que hacés hoy.",
+    "El hábito se construye un día a la vez.",
+    "Pequeños cambios, grandes resultados.",
+    "Hoy es un buen día para cuidarte.",
+  ],
+  anemia: [
+    "El hierro de hoy es la energía de mañana.",
+    "Cada comida rica en hierro es un paso hacia más vitalidad.",
+    "Tu sangre te lo agradece: comé con conciencia.",
+    "La vitamina C potencia el hierro — combiná bien tus comidas.",
+    "Recuperar el hierro es un proceso, no una carrera.",
+    "Tu energía depende de lo que ponés en el plato hoy.",
+    "Cada día de buen plan es un paso hacia sentirte mejor.",
+  ],
+  mayor: [
+    "Nutrir bien el cuerpo a esta edad es el mejor antienvejecimiento.",
+    "La proteína de hoy sostiene tus músculos mañana.",
+    "Comer bien es una forma de quererse.",
+    "La constancia en la alimentación se nota con el tiempo.",
+    "Tu bienestar empieza en cada comida bien elegida.",
+    "A esta edad, la calidad de lo que comés importa más que nunca.",
+    "Cuidar tu nutrición es cuidar tu independencia.",
+  ],
+  vegetal: [
+    "Cada comida plant-based es una decisión consciente.",
+    "Las legumbres son el corazón de una alimentación vegetal completa.",
+    "Proteína vegetal + vitamina C = combo ganador.",
+    "Hoy también recordá tu B12 — es esencial.",
+    "Comer con valores y bien nutrido es posible.",
+    "La variedad vegetal es la clave de un plan completo.",
+    "Tu cuerpo florece con una alimentación consciente y equilibrada.",
+  ],
+  joven: [
+    "Construís tus hábitos ahora para toda la vida.",
+    "La energía que tenés necesita el combustible correcto.",
+    "Lo que comés hoy define cómo te sentís mañana.",
+    "Invertir en tu nutrición es la mejor inversión a largo plazo.",
+    "Un buen plan nutricional es el mejor suplemento que existe.",
+    "Comé bien hoy, rendí mejor mañana.",
+    "La consistencia de hoy es el resultado de mañana.",
+  ],
+  maduro: [
+    "A esta edad, la calidad supera a la cantidad.",
+    "Tu metabolismo cambia — tu plan también puede adaptarse.",
+    "Cada elección nutricional es una inversión en tu bienestar.",
+    "Mantener el músculo requiere proteína — tu plan lo tiene.",
+    "La experiencia también se aplica a comer mejor.",
+    "Un cuerpo bien nutrido tiene más energía para todo lo que importa.",
+    "Hoy es un buen día para seguir con el plan.",
+  ],
+};
+
+function getFrases() {
+  if (!currentSex) return FRASES._general;
+  if (currentSex.includes('anemia')) return FRASES.anemia;
+  if (currentSex.includes('mayor')) return FRASES.mayor;
+  if (currentSex.includes('vegano') || currentSex.includes('vegana') || currentSex.includes('vegetariano') || currentSex.includes('vegetariana')) return FRASES.vegetal;
+  if (currentSex.includes('joven')) return FRASES.joven;
+  if (currentSex.includes('maduro') || currentSex.includes('madura')) return FRASES.maduro;
+  return FRASES._general;
+}
+
+function renderFraseDia() {
+  const el = document.getElementById('frase-dia');
+  if (!el) return;
+  const frases = getFrases();
+  // Rotar por día de la semana + día del plan para variedad
+  const idx = (new Date().getDay() + currentDay) % frases.length;
+  el.textContent = '"' + frases[idx] + '"';
+  el.style.display = 'block';
 }
 
 // ===== NOTAS DEL DÍA =====
