@@ -965,6 +965,25 @@
     </div>
 
     <div class="settings-card">
+      <div class="settings-card-title">📁 MIS DATOS</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button onclick="exportarCSV()" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(56,189,248,0.25);background:rgba(56,189,248,0.06);color:#38bdf8;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.25rem">📊</span>
+          <div><div>Exportar peso a CSV</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7">Compatible con Excel y Google Sheets</div></div>
+        </button>
+        <button onclick="exportarBackup()" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);color:#34d399;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.25rem">💾</span>
+          <div><div>Backup completo (JSON)</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7">Guarda todos tus datos: peso, comidas, logros</div></div>
+        </button>
+        <button onclick="document.getElementById('restore-input').click()" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(167,139,250,0.25);background:rgba(167,139,250,0.06);color:#a78bfa;font-family:'DM Sans',sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px">
+          <span style="font-size:1.25rem">📂</span>
+          <div><div>Restaurar desde backup</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7">Cargá un archivo JSON previamente exportado</div></div>
+        </button>
+        <input type="file" id="restore-input" accept=".json" style="display:none" onchange="restaurarBackup(event)">
+      </div>
+    </div>
+
+    <div class="settings-card">
       <div class="settings-card-title">⚠️ INTOLERANCIAS Y ALERGIAS</div>
       <div style="font-size:0.75rem;color:var(--muted);margin-bottom:12px;line-height:1.5">Marcá tus intolerancias para que la app resalte los ingredientes conflictivos en tu plan.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="alergias-grid">
@@ -3762,6 +3781,93 @@ function renderStreak() {
   } else {
     badge.style.display = 'none';
   }
+}
+
+// ===== EXPORTAR / BACKUP / RESTORE =====
+function exportarCSV() {
+  if (!currentSex) { showToast('⚠️ Seleccioná un perfil primero'); return; }
+  loadPesoForProfile();
+  if (!pesoEntries.length) { showToast('⚠️ No hay registros de peso'); return; }
+
+  const perfil = planData[currentSex]?.title || currentSex;
+  const altura = parseFloat(localStorage.getItem(alturaKey()) || '0');
+
+  let csv = 'Fecha,Peso (kg),IMC,Nota,Perfil\n';
+  pesoEntries.forEach(e => {
+    const imc = altura > 0 ? calcularIMC(e.weight, altura).toFixed(1) : '';
+    const nota = (e.note || '').replace(/,/g, ';');
+    csv += `${e.date},${e.weight},${imc},"${nota}","${perfil}"\n`;
+  });
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `nutriplan-peso-${currentSex}-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📊 CSV exportado');
+}
+
+function exportarBackup() {
+  const backup = {
+    version: 1,
+    fecha: new Date().toISOString(),
+    perfil: currentSex,
+    datos: {}
+  };
+
+  // Guardar todo el localStorage
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    backup.datos[key] = localStorage.getItem(key);
+  }
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `nutriplan-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Backup exportado');
+}
+
+function restaurarBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (!backup.version || !backup.datos) {
+        showToast('⚠️ Archivo inválido'); return;
+      }
+      // Restaurar localStorage
+      localStorage.clear();
+      Object.entries(backup.datos).forEach(([key, val]) => {
+        localStorage.setItem(key, val);
+      });
+      // Recargar app
+      const perfil = backup.perfil || localStorage.getItem('ultimo-perfil');
+      if (perfil && planData[perfil]) {
+        selectSex(perfil, true);
+        const savedDay = parseInt(localStorage.getItem('ultimo-dia') || '-1', 10);
+        if (savedDay >= 0 && savedDay <= 6) {
+          currentDay = savedDay;
+          renderDays();
+          renderDay();
+        }
+      }
+      initAlergias();
+      renderLogros();
+      showToast('✓ Backup restaurado correctamente');
+    } catch(err) {
+      showToast('⚠️ Error al leer el archivo');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ===== COMPARTIR SEMANA =====
