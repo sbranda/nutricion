@@ -150,6 +150,17 @@
     border: 1px solid rgba(239,68,68,0.25); background: transparent;
     color: #ef4444; font-family: 'DM Sans', sans-serif; font-size: 0.8125rem; cursor: pointer;
   }
+  .alergia-btn {
+    padding: 9px 8px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.8125rem; cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .alergia-btn.activa {
+    border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); color: #fbbf24;
+  }
+  .meal-item.conflicto .meal-item-text { color: #fbbf24 !important; }
+  .meal-item.conflicto .meal-dot { background: #fbbf24 !important; }
+  .meal-item.conflicto::after { content: ' ⚠️'; font-size: 0.75rem; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* PWA splash screen fix */
@@ -921,6 +932,21 @@
             🔔 Probar notificación ahora
           </button>
         </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-card-title">⚠️ INTOLERANCIAS Y ALERGIAS</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-bottom:12px;line-height:1.5">Marcá tus intolerancias para que la app resalte los ingredientes conflictivos en tu plan.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="alergias-grid">
+        <button class="alergia-btn" data-alergia="gluten" onclick="toggleAlergia(this)">🌾 Gluten</button>
+        <button class="alergia-btn" data-alergia="lacteos" onclick="toggleAlergia(this)">🥛 Lácteos</button>
+        <button class="alergia-btn" data-alergia="huevo" onclick="toggleAlergia(this)">🥚 Huevo</button>
+        <button class="alergia-btn" data-alergia="mariscos" onclick="toggleAlergia(this)">🦐 Mariscos</button>
+        <button class="alergia-btn" data-alergia="pescado" onclick="toggleAlergia(this)">🐟 Pescado</button>
+        <button class="alergia-btn" data-alergia="soja" onclick="toggleAlergia(this)">🫘 Soja</button>
+        <button class="alergia-btn" data-alergia="frutosSec" onclick="toggleAlergia(this)">🥜 Frutos secos</button>
+        <button class="alergia-btn" data-alergia="cerdo" onclick="toggleAlergia(this)">🐷 Cerdo</button>
       </div>
     </div>
 
@@ -2692,7 +2718,13 @@ function renderDay() {
     const itemsKey = currentSex + '-' + currentDay + '-' + key + '-items';
     const savedItems = JSON.parse(localStorage.getItem(itemsKey) || 'null');
     const displayItems = savedItems || (safeMeal.items||[]);
-    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${displayItems.map((item,idx)=>`<div class="meal-item" role="listitem"><div class="meal-dot" style="background:${accent}" aria-hidden="true"></div><span class="meal-item-text" contenteditable="false" data-idx="${idx}" data-key="${itemsKey}" style="color:#94a3b8;flex:1;outline:none;border-radius:4px;padding:1px 3px;cursor:text" title="Tocá para editar">${item}</span></div>`).join('')}${savedItems?`<button class="meal-items-reset" style="margin-top:6px;font-family:'DM Mono',monospace;font-size:0.5625rem;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer">↺ restaurar original</button>`:''}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
+    const tieneConflicto = displayItems.some(item => itemConflictua(item));
+    const itemsHtml = displayItems.map((item,idx) => {
+      const conflicto = itemConflictua(item);
+      return `<div class="meal-item${conflicto?' conflicto':''}" role="listitem"><div class="meal-dot" style="background:${conflicto?'#fbbf24':accent}" aria-hidden="true"></div><span class="meal-item-text" contenteditable="false" data-idx="${idx}" data-key="${itemsKey}" style="color:${conflicto?'#fbbf24':'#94a3b8'};flex:1;outline:none;border-radius:4px;padding:1px 3px;cursor:text" title="Tocá para editar">${item}</span>${conflicto?'<span style="font-size:0.7rem">⚠️</span>':''}</div>`;
+    }).join('');
+    const resetBtnHtml = savedItems ? `<button class="meal-items-reset" style="margin-top:6px;font-family:'DM Mono',monospace;font-size:0.5625rem;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--muted);cursor:pointer">↺ restaurar original</button>` : '';
+    card.innerHTML=`<div class="meal-top"><div class="meal-left"><div class="meal-icon" style="background:${accent}1a;border:1px solid ${accent}33" aria-hidden="true">${mealIcons[key]}</div><div><div class="meal-tag" style="color:${accent}">${mealLabels[key]}</div><div class="meal-name">${safeMeal.name}${tieneConflicto?' <span style="font-size:0.65rem;padding:1px 6px;border-radius:6px;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);vertical-align:middle">⚠️ alergia</span>':''}</div><div class="meal-protein" style="color:#ffffff">🥩 ~${proteinG}g proteína · 🩸 ~${ironMg}mg hierro</div></div></div><div class="meal-right"><span class="meal-kcal" style="color:${accent};font-family:'DM Mono',monospace;font-size:0.75rem" aria-label="${safeMeal.kcal} calorías">${safeMeal.kcal} kcal</span><button class="meal-check-btn" style="border-color:${accent};color:${accent}" aria-label="Marcar ${mealLabels[key]}" aria-pressed="${isDone}">${isDone?'✓':''}</button><span class="meal-arrow" aria-hidden="true">▾</span></div></div><div class="meal-items" role="list">${itemsHtml}${resetBtnHtml}</div>${totalOptions>1?`<div class="meal-replace-row"><span class="meal-alt-indicator">Opción ${altIndex+1} de ${totalOptions}</span><button class="meal-replace-btn" aria-label="Reemplazar comida">🔄 REEMPLAZAR</button></div>`:''}`;
     // Make items editable on tap
     card.querySelectorAll('.meal-item-text').forEach(span => {
       span.addEventListener('click', e => {
@@ -2984,6 +3016,7 @@ function showToast(msg) {
 document.addEventListener('DOMContentLoaded', function() {
   renderPeso();
   initNotificaciones();
+  initAlergias();
 });
 
 // ===== ESCÁNER DE PLATO =====
@@ -3430,6 +3463,49 @@ function probarNotificacion() {
     body: meal ? `Ejemplo: ${meal.name} · ${meal.kcal} kcal` : 'Tus recordatorios están listos',
     icon: '/icon192.png',
     tag: 'nutriplan-test',
+  });
+}
+
+// ===== INTOLERANCIAS Y ALERGIAS =====
+var ALERGIA_KEYWORDS = {
+  gluten:    [/pan\b/i, /tostada/i, /harina/i, /integral/i, /avena/i, /cebada/i, /centeno/i, /pasta/i, /fideos/i, /galleta/i, /bizcocho/i, /trigo/i, /wraps/i, /wrap/i, /tortilla de trigo/i],
+  lacteos:   [/leche/i, /yogur/i, /queso/i, /manteca/i, /crema/i, /ricota/i, /cac(?:ao|co)/i, /lácteo/i],
+  huevo:     [/huevo/i, /clara/i, /yema/i, /omelette/i, /revuelto/i],
+  mariscos:  [/camarón/i, /langostino/i, /mejillón/i, /almeja/i, /pulpo/i, /calamar/i, /marisco/i],
+  pescado:   [/merluza/i, /salmón/i, /atún/i, /sardina/i, /pescado/i, /bacalao/i, /brótola/i, /pejerrey/i, /dorado/i],
+  soja:      [/soja/i, /tofu/i, /edamame/i, /miso/i, /salsa de soja/i, /tamari/i],
+  frutosSec: [/nuez/i, /nueces/i, /almendra/i, /maní/i, /castaña/i, /pistacho/i, /avellana/i, /anacardo/i, /pecán/i],
+  cerdo:     [/cerdo/i, /jamón/i, /tocino/i, /bacon/i, /panceta/i, /salame/i, /chorizo/i, /mortadela/i],
+};
+
+function getAlergias() {
+  return JSON.parse(localStorage.getItem('alergias') || '[]');
+}
+
+function toggleAlergia(btn) {
+  var alergia = btn.dataset.alergia;
+  var activas = getAlergias();
+  var idx = activas.indexOf(alergia);
+  if (idx >= 0) activas.splice(idx, 1);
+  else activas.push(alergia);
+  localStorage.setItem('alergias', JSON.stringify(activas));
+  btn.classList.toggle('activa', activas.includes(alergia));
+  renderDay(); // re-render para actualizar avisos
+  showToast(activas.includes(alergia) ? '⚠️ Intolerancia marcada' : '✓ Intolerancia removida');
+}
+
+function initAlergias() {
+  var activas = getAlergias();
+  document.querySelectorAll('.alergia-btn').forEach(btn => {
+    btn.classList.toggle('activa', activas.includes(btn.dataset.alergia));
+  });
+}
+
+function itemConflictua(itemText) {
+  var activas = getAlergias();
+  return activas.some(alergia => {
+    var keywords = ALERGIA_KEYWORDS[alergia] || [];
+    return keywords.some(re => re.test(itemText));
   });
 }
 
