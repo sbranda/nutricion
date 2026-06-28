@@ -748,6 +748,17 @@
       <div style="display:flex;gap:4px;margin-top:5px" id="kcal-chart-labels"></div>
     </div>
 
+    <!-- NOTAS DEL DÍA -->
+    <div style="margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:3px;color:var(--muted)">📝 NOTA DEL DÍA</div>
+        <span id="nota-guardada-badge" style="display:none;font-family:'DM Mono',monospace;font-size:0.5rem;color:#34d399">✓ guardado</span>
+      </div>
+      <textarea id="nota-dia-input" placeholder="¿Cómo te sentiste? ¿Hiciste ejercicio? Anotá lo que quieras..." rows="3"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;resize:none;line-height:1.5;box-sizing:border-box"
+        oninput="guardarNotaDia(this.value)"></textarea>
+    </div>
+
     <div class="tips-box">
       <div class="tips-eyebrow">REGLAS DIARIAS</div>
       <div id="tips-list"></div>
@@ -2987,6 +2998,7 @@ function renderDay() {
   try { renderAgua(); } catch(e) { console.error('renderAgua error:', e); }
   try { renderHistorialSemana(); } catch(e) { console.error('renderHistorialSemana error:', e); }
   try { renderKcalChart(); } catch(e) { console.error('renderKcalChart error:', e); }
+  try { renderNotaDia(); } catch(e) { console.error('renderNotaDia error:', e); }
   try { renderStreak(); } catch(e) { console.error('renderStreak error:', e); }
   try { verificarLogros(); } catch(e) { console.error('verificarLogros error:', e); }
   mealsEl.innerHTML='';
@@ -3921,6 +3933,39 @@ function previsualizarKcalModal() {
     document.getElementById('modal-kcal-detalle').textContent = `TMB ${tmb} · TDEE ${tdee}`;
     preview.style.display = 'block';
   }
+}
+
+// ===== NOTAS DEL DÍA =====
+var _notaTimer = null;
+
+function notaKey() {
+  const dateStr = getDateForPlanDay(currentDay).toISOString().split('T')[0];
+  return 'nota-' + (currentSex || 'global') + '-' + dateStr;
+}
+
+function guardarNotaDia(texto) {
+  clearTimeout(_notaTimer);
+  _notaTimer = setTimeout(() => {
+    if (texto.trim()) {
+      localStorage.setItem(notaKey(), texto);
+    } else {
+      localStorage.removeItem(notaKey());
+    }
+    const badge = document.getElementById('nota-guardada-badge');
+    if (badge) {
+      badge.style.display = 'inline';
+      setTimeout(() => { badge.style.display = 'none'; }, 2000);
+    }
+  }, 600);
+}
+
+function renderNotaDia() {
+  const input = document.getElementById('nota-dia-input');
+  if (!input) return;
+  const nota = localStorage.getItem(notaKey()) || '';
+  input.value = nota;
+  const badge = document.getElementById('nota-guardada-badge');
+  if (badge) badge.style.display = 'none';
 }
 
 // ===== BÚSQUEDA EN PLAN =====
