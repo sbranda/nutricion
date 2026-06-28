@@ -508,6 +508,10 @@
   body.vegano_hombre .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
   body.vegana_mujer .progress-fill { background: linear-gradient(90deg,#c084fc,#22c55e); }
   body.vegana_mujer .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.celiaco_hombre .progress-fill { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+  body.celiaco_hombre .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
+  body.celiaca_mujer .progress-fill { background: linear-gradient(90deg,#f472b6,#fbbf24); }
+  body.celiaca_mujer .progress-fill.over { background: linear-gradient(90deg,#f97316,#ef4444); }
   body.mujer_mayor .tips-eyebrow { color: #065f46; }
   body.mujer_mayor .tip-row { color: #6ee7b7; }
   #btn-anemia-mujer { border-color: rgba(251,113,133,0.3); }
@@ -650,6 +654,11 @@
         <button class="cat-btn" onclick="showCategory('vegetal')" style="--cat-grad:linear-gradient(135deg,#22c55e,#86efac)">
           <span style="font-size:1.5rem">🌱</span>
           <div><div class="cat-btn-title">Plan Vegano / Vegetariano</div><div class="cat-btn-sub">Hombre y Mujer · 18-49 años</div></div>
+          <span class="cat-arrow">›</span>
+        </button>
+        <button class="cat-btn" onclick="showCategory('sintacc')" style="--cat-grad:linear-gradient(135deg,#f59e0b,#fbbf24)">
+          <span style="font-size:1.5rem">🌾</span>
+          <div><div class="cat-btn-title">Plan Sin TACC · Celiaquía</div><div class="cat-btn-sub">Hombre y Mujer · 18-64 años</div></div>
           <span class="cat-arrow">›</span>
         </button>
       </div>
@@ -1384,6 +1393,13 @@ const categories = {
       {sex:'vegano_hombre',      emoji:'🌱🧑', label:'Vegano · H 18-49',      sub:'1.800–2.000 kcal · 100% vegetal'},
       {sex:'vegana_mujer',       emoji:'🌱👩', label:'Vegana · M 18-49',      sub:'1.500–1.700 kcal · 100% vegetal'},
     ]
+  },
+  sintacc: {
+    title: "Plan Sin TACC · Celiaquía",
+    profiles: [
+      {sex:'celiaco_hombre', emoji:'🌾🧑', label:'Sin TACC · Hombre 18-64', sub:'1.800–2.000 kcal · sin trigo, avena, cebada, centeno'},
+      {sex:'celiaca_mujer',  emoji:'🌾👩', label:'Sin TACC · Mujer 18-64',  sub:'1.500–1.700 kcal · sin trigo, avena, cebada, centeno'},
+    ]
   }
 };
 
@@ -1416,6 +1432,8 @@ function showCategory(cat) {
     vegetariana_mujer:   ['#a78bfa','#34d399'],
     vegano_hombre:       ['#22c55e','#86efac'],
     vegana_mujer:        ['#c084fc','#22c55e'],
+    celiaco_hombre:      ['#f59e0b','#fbbf24'],
+    celiaca_mujer:       ['#f472b6','#fbbf24'],
   };
   const btns = document.getElementById('profile-btns');
   btns.innerHTML = c.profiles.map(p => {
@@ -1903,6 +1921,36 @@ const planData = {
       {day:"Viernes",short:"VIE",total:1530,meals:{desayuno:{name:"Bowl de granola y frutas",items:["3 cdas granola sin azúcar","200ml leche de almendras enriquecida","Frutillas y arándanos (vit. C)","1 cda semillas de chía"],kcal:360},almuerzo:{name:"Guiso vegano de porotos",items:["¾ taza porotos colorados","Zanahoria, zapallo y cebolla","Caldo de verduras y comino","Pan integral"],kcal:490},merienda:{name:"Manzana + crema de maní",items:["1 manzana","1 cda crema de maní natural","Canela"],kcal:200},cena:{name:"Crema de calabaza y lentejas",items:["½ taza lentejas rojas","Calabaza y cebolla","Leche de avena","Cúrcuma y pimienta"],kcal:370}}},
       {day:"Sábado",short:"SÁB",total:1610,meals:{desayuno:{name:"Panqueques veganos de banana",items:["1 banana pisada + ½ taza avena","Leche de avena","Arándanos","Miel de agave o dátil"],kcal:400},almuerzo:{name:"Bowl de arroz con tempeh",items:["½ taza arroz integral","130g tempeh salteado","Brócoli, zanahoria y edamame","Salsa de soja y limón"],kcal:490},merienda:{name:"Smoothie morado antioxidante",items:["Arándanos + banana","Leche de avena","1 cda semillas de lino"],kcal:240},cena:{name:"Pasta integral con salsa de tomate y legumbres",items:["70g pasta integral","½ taza lentejas en salsa","Tomate, ajo y albahaca","Levadura nutricional"],kcal:400}}},
       {day:"Domingo",short:"DOM",total:1580,meals:{desayuno:{name:"Tostadas con crema de anacardo",items:["2 tostadas integrales","1 cda crema de anacardo","½ banana en rodajas","Semillas de sésamo"],kcal:380},almuerzo:{name:"Ensalada mega proteica vegana",items:["½ taza garbanzos cocidos","½ taza quinoa","Espinaca, pepino y tomate","Tahini y limón"],kcal:490},merienda:{name:"Fruta + nueces + té verde",items:["1 pera o kiwi (vit. C)","5 nueces","Té verde sin azúcar"],kcal:180},cena:{name:"Sopa de miso con tofu y wakame",items:["130g tofu suave","1 cda pasta de miso","Wakame y cebollita de verdeo","Fideos soba"],kcal:400}}}
+    ]
+  },
+
+  celiaco_hombre: {
+    title:"🌾 Sin TACC · Hombre 18-64", kcalRange:"1.800–2.000 kcal", kcalTarget:1900, proteinTarget:110, ironTarget:8,
+    mealAccents:{desayuno:"#f59e0b",merienda:"#fbbf24",almuerzo:"#22c55e",cena:"#38bdf8"},
+    tips:[["⚠️","Sin TACC: eliminá trigo, avena, cebada y centeno completamente"],["🌾","Reemplazos: arroz, maíz, papa, quinoa, mandioca, amaranto"],["🏷️","Revisá etiquetas — el gluten se oculta en salsas, aderezos y embutidos"],["🍳","Usar utensilios exclusivos para evitar contaminación cruzada"],["💊","Consultar suplementación de hierro y B12 con tu médico"],["🥩","Carnes, huevos, legumbres y lácteos son libres de TACC naturalmente"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:1880,meals:{desayuno:{name:"Huevos con arroz y fruta",items:["3 huevos revueltos","½ taza arroz cocido","1 naranja","Café sin azúcar (verificar sin TACC)"],kcal:480},almuerzo:{name:"Pollo al horno con papa y ensalada",items:["180g pollo al horno con hierbas","1 papa mediana al horno","Ensalada de rúcula, tomate y zanahoria","Aceite de oliva y limón"],kcal:560},merienda:{name:"Yogur con frutas y semillas",items:["200g yogur natural sin TACC","Banana o frutillas","1 cda semillas de chía","6 almendras"],kcal:300},cena:{name:"Pescado con puré de zapallo",items:["180g merluza al horno","Puré de zapallo sin manteca","Limón y perejil"],kcal:380}}},
+      {day:"Martes",short:"MAR",total:1860,meals:{desayuno:{name:"Polenta con huevo y tomate",items:["½ taza polenta cocida","2 huevos revueltos","Tomate fresco","Té sin TACC"],kcal:460},almuerzo:{name:"Carne con lentejas y vegetales",items:["170g carne magra a la plancha","¾ taza lentejas cocidas","Zapallito y pimiento salteados","Limón"],kcal:560},merienda:{name:"Fruta + nueces + mate",items:["1 manzana","8 nueces","Mate sin azúcar"],kcal:250},cena:{name:"Tortilla de papa y espinaca",items:["2 papas medianas","3 huevos","Espinaca salteada","Aceite de oliva"],kcal:430}}},
+      {day:"Miércoles",short:"MIÉ",total:1870,meals:{desayuno:{name:"Smoothie proteico + arroz inflado",items:["200ml leche sin TACC","1 banana","2 cdas mantequilla de maní sin TACC","Arroz inflado sin azúcar"],kcal:470},almuerzo:{name:"Quinoa con pollo y vegetales",items:["½ taza quinoa cocida","170g pollo desmenuzado","Morón, cebolla y tomate","Aceite de oliva"],kcal:550},merienda:{name:"Yogur con arroz inflado",items:["200g yogur natural","Arroz inflado sin azúcar","Frutas del bosque"],kcal:290},cena:{name:"Sopa de garbanzos y calabaza",items:["¾ taza garbanzos cocidos","Calabaza, cebolla y ajo","Caldo casero sin TACC","Comino y limón"],kcal:400}}},
+      {day:"Jueves",short:"JUE",total:1850,meals:{desayuno:{name:"Omelette con papa rallada",items:["3 huevos","1 papa rallada tipo rösti","Cebolla y morón","Café sin TACC"],kcal:460},almuerzo:{name:"Salmón con arroz y brócoli",items:["180g salmón al horno","½ taza arroz integral","Brócoli al vapor","Limón y eneldo"],kcal:560},merienda:{name:"Manzana + almendras + queso",items:["1 manzana","8 almendras","30g queso sin TACC"],kcal:280},cena:{name:"Estofado de carne con papa",items:["150g carne magra","2 papas medianas","Zanahoria y cebolla","Caldo casero sin TACC"],kcal:440}}},
+      {day:"Viernes",short:"VIE",total:1840,meals:{desayuno:{name:"Porridge de arroz con frutas",items:["¾ taza arroz cocido con leche sin TACC","Banana y frutillas","Canela y miel"],kcal:450},almuerzo:{name:"Milanesa de pollo sin TACC + ensalada",items:["170g milanesa de pollo con pan rallado de maíz","Ensalada mixta grande","Aceite de oliva"],kcal:560},merienda:{name:"Batido de frutas con leche",items:["200ml leche sin TACC","1 banana","1 cda cacao puro sin TACC"],kcal:270},cena:{name:"Fideos de arroz con atún",items:["80g fideos de arroz","1 lata atún al natural","Tomate, ajo y albahaca","Aceite de oliva"],kcal:430}}},
+      {day:"Sábado",short:"SÁB",total:1920,meals:{desayuno:{name:"Tostadas de maíz con palta y huevo",items:["3 tostadas de maíz sin TACC","¼ palta","2 huevos pochados","Jugo de naranja"],kcal:490},almuerzo:{name:"Asado magro + papa + ensalada",items:["180g vacío o lomo magro","2 papas medianas al horno","Ensalada grande de rúcula y tomate","Chimichurri sin TACC"],kcal:590},merienda:{name:"Yogur con semillas y fruta",items:["200g yogur natural sin TACC","Kiwi o durazno","1 cda semillas de girasol"],kcal:260},cena:{name:"Pollo al limón con puré de papa",items:["150g pollo a la plancha","Puré de papa con aceite de oliva","Ensalada de pepino"],kcal:450}}},
+      {day:"Domingo",short:"DOM",total:1890,meals:{desayuno:{name:"Panqueques de harina de arroz",items:["½ taza harina de arroz + 2 huevos + leche sin TACC","Frutillas y miel","Café sin TACC"],kcal:480},almuerzo:{name:"Guiso de porotos sin TACC",items:["1 taza porotos colorados","Papa, zanahoria y calabaza","Caldo casero sin TACC","Pimentón ahumado"],kcal:570},merienda:{name:"Fruta + nueces + mate",items:["1 pera o naranja","8 nueces","Mate sin azúcar"],kcal:240},cena:{name:"Omelette con queso y vegetales",items:["3 huevos","30g queso sin TACC","Espinaca, tomate y cebolla"],kcal:380}}}
+    ]
+  },
+
+  celiaca_mujer: {
+    title:"🌾 Sin TACC · Mujer 18-64", kcalRange:"1.500–1.700 kcal", kcalTarget:1600, proteinTarget:85, ironTarget:18,
+    mealAccents:{desayuno:"#f472b6",merienda:"#fbbf24",almuerzo:"#22c55e",cena:"#a78bfa"},
+    tips:[["⚠️","Sin TACC: eliminá trigo, avena, cebada y centeno completamente"],["🌾","Reemplazos seguros: arroz, maíz, papa, quinoa, mandioca, amaranto"],["🩸","Hierro prioritario — la celiaquía puede causar malabsorción de hierro"],["🏷️","Leer etiquetas siempre — el gluten se oculta en muchos productos"],["🍳","Utensilios y superficies exclusivos sin TACC"],["💊","Control médico regular de hierro, B12, vitamina D y calcio"]],
+    days:[
+      {day:"Lunes",short:"LUN",total:1570,meals:{desayuno:{name:"Huevos con espinaca y arroz",items:["2 huevos revueltos con espinaca","½ taza arroz cocido","1 naranja (vitamina C para hierro)","Té sin TACC"],kcal:380},almuerzo:{name:"Pollo con quinoa y vegetales",items:["150g pollo al horno","½ taza quinoa cocida","Morón, zapallito y tomate","Aceite de oliva y limón"],kcal:490},merienda:{name:"Yogur con frutas y semillas",items:["170g yogur natural sin TACC","Frutillas o arándanos","1 cda semillas de chía"],kcal:210},cena:{name:"Sopa de lentejas con papa",items:["¾ taza lentejas cocidas","1 papa mediana","Cebolla, ajo y pimentón","Limón"],kcal:370}}},
+      {day:"Martes",short:"MAR",total:1550,meals:{desayuno:{name:"Polenta con huevo y tomate",items:["½ taza polenta cocida","2 huevos revueltos","Tomate fresco y perejil","Té sin azúcar"],kcal:360},almuerzo:{name:"Carne con garbanzos y ensalada",items:["140g carne magra","¾ taza garbanzos cocidos","Espinaca, tomate y rúcula","Limón y aceite de oliva"],kcal:490},merienda:{name:"Manzana + almendras + mate",items:["1 manzana","6 almendras","Mate sin azúcar"],kcal:190},cena:{name:"Tortilla de papa y espinaca",items:["2 huevos + 1 papa mediana","Espinaca salteada con ajo","Aceite de oliva"],kcal:370}}},
+      {day:"Miércoles",short:"MIÉ",total:1560,meals:{desayuno:{name:"Smoothie verde + arroz inflado",items:["Espinaca, banana y leche sin TACC","1 cda semillas de chía","Arroz inflado sin azúcar"],kcal:360},almuerzo:{name:"Salmón con papa y brócoli",items:["150g salmón al horno","1 papa mediana","Brócoli al vapor","Limón y eneldo"],kcal:490},merienda:{name:"Yogur con arroz inflado",items:["150g yogur natural sin TACC","Arroz inflado","1 kiwi (vitamina C)"],kcal:200},cena:{name:"Ensalada completa con huevo",items:["2 huevos duros","Espinaca, tomate y pepino","¾ taza garbanzos","Aceite de oliva y limón"],kcal:390}}},
+      {day:"Jueves",short:"JUE",total:1540,meals:{desayuno:{name:"Huevos con harina de maíz",items:["2 huevos revueltos","½ taza polenta o harina de maíz cocida","Jugo de naranja"],kcal:350},almuerzo:{name:"Guiso de porotos y zapallo",items:["¾ taza porotos negros","Zapallo, zanahoria y cebolla","Caldo casero sin TACC","Comino y pimentón"],kcal:490},merienda:{name:"Fruta + nueces",items:["1 naranja o mandarina","5 nueces","Té sin TACC"],kcal:180},cena:{name:"Pollo al limón con puré",items:["130g pollo a la plancha","Puré de papa con aceite de oliva","Ensalada de tomate"],kcal:380}}},
+      {day:"Viernes",short:"VIE",total:1530,meals:{desayuno:{name:"Porridge de arroz con frutas",items:["½ taza arroz con leche sin TACC","Banana y canela","Semillas de girasol"],kcal:350},almuerzo:{name:"Fideos de arroz con atún y vegetales",items:["70g fideos de arroz","1 lata atún al natural","Tomate, ajo y albahaca","Aceite de oliva"],kcal:480},merienda:{name:"Yogur + fruta cítrica",items:["150g yogur natural sin TACC","1 naranja o kiwi"],kcal:190},cena:{name:"Crema de calabaza y lentejas",items:["½ taza lentejas rojas","Calabaza y cebolla","Leche sin TACC","Cúrcuma y pimienta"],kcal:360}}},
+      {day:"Sábado",short:"SÁB",total:1610,meals:{desayuno:{name:"Tostadas de maíz con palta y huevo",items:["3 tostadas de maíz sin TACC","¼ palta","2 huevos pochados","Jugo de naranja"],kcal:400},almuerzo:{name:"Milanesa de pollo sin TACC",items:["150g milanesa con pan rallado de maíz","Ensalada mixta grande","Aceite de oliva"],kcal:490},merienda:{name:"Batido de frutas con leche",items:["200ml leche sin TACC","1 banana","Frutas del bosque"],kcal:220},cena:{name:"Revuelto de huevos con papa y espinaca",items:["2 huevos + 1 papa rallada","Espinaca y tomate","Aceite de oliva"],kcal:370}}},
+      {day:"Domingo",short:"DOM",total:1580,meals:{desayuno:{name:"Panqueques de harina de arroz",items:["½ taza harina de arroz + 1 huevo + leche sin TACC","Frutillas y miel","Café sin TACC"],kcal:380},almuerzo:{name:"Estofado de carne sin TACC",items:["140g carne magra","Papa, zanahoria y cebolla","Caldo casero sin TACC","Perejil y pimentón"],kcal:490},merienda:{name:"Manzana + almendras + mate",items:["1 manzana","6 almendras","Mate sin azúcar"],kcal:180},cena:{name:"Omelette con queso y vegetales",items:["2 huevos","30g queso sin TACC","Espinaca y tomate salteados"],kcal:340}}}
     ]
   }
 };
@@ -2850,7 +2898,7 @@ function selectSex(sex, isRestore) {
   currentSex=sex; currentDay=getTodayPlanDay(); doneMeals={};
   localStorage.setItem('ultimo-perfil', sex);
   loadDoneMeals();
-  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor','vegetariano_hombre','vegetariana_mujer','vegano_hombre','vegana_mujer');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor','vegetariano_hombre','vegetariana_mujer','vegano_hombre','vegana_mujer','celiaco_hombre','celiaca_mujer');
   document.body.classList.add(sex);
   document.getElementById('selector').style.setProperty('display','none','important');
   const pc=document.getElementById('plan-content');
@@ -2875,7 +2923,7 @@ function goBack() {
   localStorage.removeItem('ultimo-perfil');
   localStorage.removeItem('ultimo-dia');
   currentSex = null;
-  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor','vegetariano_hombre','vegetariana_mujer','vegano_hombre','vegana_mujer');
+  document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor','vegetariano_hombre','vegetariana_mujer','vegano_hombre','vegana_mujer','celiaco_hombre','celiaca_mujer');
   document.getElementById('selector').style.setProperty('display','flex','important');
   document.getElementById('plan-content').style.setProperty('display','none','important');
   showCatStep();
