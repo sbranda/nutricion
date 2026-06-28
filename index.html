@@ -674,6 +674,13 @@
         <div id="streak-badge" style="display:none;font-family:'DM Mono',monospace;font-size:0.6rem;padding:2px 8px;border-radius:8px;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;white-space:nowrap"></div>
       </div>
     </div>
+    <!-- BUSCADOR -->
+    <div style="padding:10px 14px 0;position:relative">
+      <input id="plan-search" type="search" placeholder="🔍 Buscar comida en el plan..." oninput="buscarEnPlan(this.value)"
+        style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;-webkit-appearance:none;box-sizing:border-box">
+      <div id="plan-search-results" style="display:none;position:absolute;left:14px;right:14px;top:52px;background:#0f1929;border:1px solid var(--border);border-radius:12px;z-index:100;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4)"></div>
+    </div>
+
     <div class="days-row" id="days-row"></div>
     <div class="day-header">
       <h2 class="day-title" id="day-title"></h2>
@@ -3915,6 +3922,82 @@ function previsualizarKcalModal() {
     preview.style.display = 'block';
   }
 }
+
+// ===== BÚSQUEDA EN PLAN =====
+function buscarEnPlan(query) {
+  const resultsEl = document.getElementById('plan-search-results');
+  if (!resultsEl) return;
+  query = query.trim().toLowerCase();
+  if (!query || !currentSex || !planData[currentSex]) {
+    resultsEl.style.display = 'none';
+    return;
+  }
+
+  const d = planData[currentSex];
+  const mealLabelsMap = { desayuno:'Desayuno', almuerzo:'Almuerzo', merienda:'Merienda', cena:'Cena' };
+  const mealIconsMap = { desayuno:'🌅', almuerzo:'☀️', merienda:'🍎', cena:'🌙' };
+  const results = [];
+
+  d.days.forEach((day, dayIdx) => {
+    Object.entries(day.meals).forEach(([key, meal]) => {
+      const inName = meal.name.toLowerCase().includes(query);
+      const matchItems = (meal.items || []).filter(item => item.toLowerCase().includes(query));
+      if (inName || matchItems.length > 0) {
+        results.push({ dayIdx, dayName: day.day, dayShort: day.short, key, meal, matchItems, inName });
+      }
+    });
+  });
+
+  if (!results.length) {
+    resultsEl.innerHTML = `<div style="padding:14px;text-align:center;font-size:0.8125rem;color:var(--muted)">Sin resultados para "${query}"</div>`;
+    resultsEl.style.display = 'block';
+    return;
+  }
+
+  resultsEl.innerHTML = results.slice(0, 8).map((r, i) => {
+    const matchText = r.matchItems.length ? `<div style="font-size:0.7rem;color:var(--muted);margin-top:2px">${r.matchItems[0]}</div>` : '';
+    return `<div onclick="irAResultado(${r.dayIdx})" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''">
+      <span style="font-size:1.125rem">${mealIconsMap[r.key]}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.8125rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.meal.name}</div>
+        ${matchText}
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--accent)">${r.dayShort}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted)">${mealLabelsMap[r.key]}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (results.length > 8) {
+    resultsEl.innerHTML += `<div style="padding:8px;text-align:center;font-size:0.7rem;color:var(--muted)">${results.length - 8} resultados más — afinás la búsqueda</div>`;
+  }
+
+  resultsEl.style.display = 'block';
+}
+
+function irAResultado(dayIdx) {
+  currentDay = dayIdx;
+  localStorage.setItem('ultimo-dia', dayIdx);
+  renderDays();
+  renderDay();
+  // Limpiar búsqueda
+  const input = document.getElementById('plan-search');
+  const results = document.getElementById('plan-search-results');
+  if (input) input.value = '';
+  if (results) results.style.display = 'none';
+  // Scroll al top del plan
+  document.getElementById('screen-plan').scrollTop = 0;
+}
+
+// Cerrar resultados al tocar fuera
+document.addEventListener('click', function(e) {
+  const results = document.getElementById('plan-search-results');
+  const input = document.getElementById('plan-search');
+  if (results && !results.contains(e.target) && e.target !== input) {
+    results.style.display = 'none';
+  }
+});
 
 // ===== CALCULADORA HARRIS-BENEDICT (Mifflin-St Jeor) =====
 function calcularHarrisBenedict(peso, altura, edad, sexo, actividad) {
