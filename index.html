@@ -731,6 +731,16 @@
       </div>
       <div class="meals" id="meals"></div>
     </div>
+    <!-- GRÁFICO SEMANAL DE KCAL -->
+    <div style="margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-family:'DM Mono',monospace;font-size:0.5625rem;letter-spacing:3px;color:var(--muted)">KCAL ESTA SEMANA</div>
+        <div id="kcal-chart-avg" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted)"></div>
+      </div>
+      <div id="kcal-chart" style="display:flex;align-items:flex-end;gap:4px;height:72px"></div>
+      <div style="display:flex;gap:4px;margin-top:5px" id="kcal-chart-labels"></div>
+    </div>
+
     <div class="tips-box">
       <div class="tips-eyebrow">REGLAS DIARIAS</div>
       <div id="tips-list"></div>
@@ -2810,6 +2820,7 @@ function renderDay() {
   updateDoneCounter();
   try { renderAgua(); } catch(e) { console.error('renderAgua error:', e); }
   try { renderHistorialSemana(); } catch(e) { console.error('renderHistorialSemana error:', e); }
+  try { renderKcalChart(); } catch(e) { console.error('renderKcalChart error:', e); }
   try { renderStreak(); } catch(e) { console.error('renderStreak error:', e); }
   mealsEl.innerHTML='';
   ['desayuno','almuerzo','merienda','cena'].forEach(key=>{
@@ -3608,6 +3619,69 @@ function itemConflictua(itemText) {
     var keywords = ALERGIA_KEYWORDS[alergia] || [];
     return keywords.some(re => re.test(itemText));
   });
+}
+
+// ===== GRÁFICO SEMANAL KCAL =====
+function renderKcalChart() {
+  const chartEl = document.getElementById('kcal-chart');
+  const labelsEl = document.getElementById('kcal-chart-labels');
+  const avgEl = document.getElementById('kcal-chart-avg');
+  if (!chartEl || !currentSex || !planData[currentSex]) return;
+
+  const d = planData[currentSex];
+  const mealKeys = ['desayuno','almuerzo','merienda','cena'];
+  const dayNames = ['L','M','X','J','V','S','D'];
+  const hoy = new Date();
+  const todayPlanIdx = getTodayPlanDay();
+  const planDayToJS = [1,2,3,4,5,6,0];
+
+  const datos = [];
+  for (let i = 0; i < 7; i++) {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() - (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1) + i); // lunes de esta semana
+    const dateStr = fecha.toISOString().split('T')[0];
+    const esFuturo = fecha > hoy && i !== todayPlanIdx;
+    const esLibre = localStorage.getItem('dia-libre-' + dateStr) === '1';
+
+    let kcalDone = 0;
+    if (!esFuturo && !esLibre) {
+      const jsDay = fecha.getDay();
+      const planIdx = planDayToJS.indexOf(jsDay < 0 ? 0 : jsDay);
+      if (planIdx >= 0) {
+        mealKeys.forEach(k => {
+          const dk = dateStr + '-' + planIdx + '-' + k;
+          if (doneMeals[dk]) {
+            const day = d.days[planIdx];
+            if (day && day.meals && day.meals[k]) kcalDone += day.meals[k].kcal;
+          }
+        });
+      }
+    }
+
+    datos.push({ dia: dayNames[i], kcal: kcalDone, esFuturo, esLibre, esHoy: i === (hoy.getDay() === 0 ? 6 : hoy.getDay() - 1) });
+  }
+
+  const objetivo = d.kcalTarget;
+  const maxVal = Math.max(objetivo * 1.1, ...datos.map(d => d.kcal), 100);
+  const promedio = Math.round(datos.filter(d => !d.esFuturo && d.kcal > 0).reduce((s, d) => s + d.kcal, 0) / Math.max(1, datos.filter(d => !d.esFuturo && d.kcal > 0).length));
+
+  // Línea objetivo (como porcentaje de altura)
+  const objPct = Math.min((objetivo / maxVal) * 100, 100);
+
+  chartEl.innerHTML = datos.map(d => {
+    const pct = d.kcal > 0 ? Math.min((d.kcal / maxVal) * 100, 100) : 0;
+    const over = d.kcal > objetivo;
+    let barColor = over ? '#f87171' : d.esHoy ? 'var(--accent)' : d.esFuturo ? 'rgba(255,255,255,0.06)' : d.esLibre ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.15)';
+    const hasData = d.kcal > 0;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:72px;position:relative">
+      ${!d.esFuturo ? `<div style="position:absolute;bottom:${objPct}%;left:0;right:0;height:1px;background:rgba(255,255,255,0.12);z-index:0"></div>` : ''}
+      <div style="width:100%;background:${barColor};border-radius:4px 4px 0 0;height:${pct}%;min-height:${hasData?'3px':'0'};transition:height 0.4s;position:relative;z-index:1"></div>
+    </div>`;
+  }).join('');
+
+  labelsEl.innerHTML = datos.map(d => `<div style="flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:0.5rem;color:${d.esHoy ? 'var(--accent)' : 'var(--muted)'};font-weight:${d.esHoy ? '700' : '400'}">${d.dia}</div>`).join('');
+
+  avgEl.textContent = promedio > 0 ? `promedio ${promedio} kcal` : `objetivo ${objetivo} kcal`;
 }
 
 // ===== RACHA (STREAK) =====
