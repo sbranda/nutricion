@@ -2922,11 +2922,28 @@ function selectSex(sex, isRestore) {
 function goBack() {
   localStorage.removeItem('ultimo-perfil');
   localStorage.removeItem('ultimo-dia');
+  localStorage.removeItem('ultimo-dia-fecha');
   currentSex = null;
   document.body.classList.remove('hombre','mujer','anemia_hombre','anemia_mujer','hombre_joven','mujer_joven','hombre_maduro','mujer_madura','hombre_mayor','mujer_mayor','anemia_hombre_joven','anemia_mujer_joven','anemia_hombre_maduro','anemia_mujer_madura','anemia_hombre_mayor','anemia_mujer_mayor','vegetariano_hombre','vegetariana_mujer','vegano_hombre','vegana_mujer','celiaco_hombre','celiaca_mujer');
   document.getElementById('selector').style.setProperty('display','flex','important');
   document.getElementById('plan-content').style.setProperty('display','none','important');
   showCatStep();
+}
+
+// Guarda el día seleccionado junto con la fecha real en que se guardó,
+// para poder detectar al recargar la app si ya pasó a otro día.
+function guardarUltimoDia(i) {
+  localStorage.setItem('ultimo-dia', i);
+  localStorage.setItem('ultimo-dia-fecha', new Date().toISOString().split('T')[0]);
+}
+
+// Devuelve el día guardado SOLO si fue guardado hoy; si es de otro día, devuelve -1
+// para forzar a que se recalcule el día actual real.
+function getUltimoDiaSiEsHoy() {
+  const savedFecha = localStorage.getItem('ultimo-dia-fecha');
+  const hoy = new Date().toISOString().split('T')[0];
+  if (savedFecha !== hoy) return -1;
+  return parseInt(localStorage.getItem('ultimo-dia') || '-1', 10);
 }
 
 // Mapeo: índice del plan (0=Lunes) → día de la semana JS (1=Lunes...0=Domingo)
@@ -2962,7 +2979,7 @@ function renderDays() {
     btn.className='day-btn'+(i===currentDay?' active':'');
     const fecha = formatShortDate(getDateForPlanDay(i));
     btn.innerHTML=`<span style="display:block">${day.short}</span><span style="font-size:0.55rem;opacity:0.7">${fecha}</span>`;
-    btn.onclick=()=>{currentDay=i;localStorage.setItem('ultimo-dia',i);renderDays();renderDay();};
+    btn.onclick=()=>{currentDay=i;guardarUltimoDia(i);renderDays();renderDay();};
     row.appendChild(btn);
   });
 }
@@ -3655,7 +3672,7 @@ function renderHistorialSemana() {
       border-radius:10px;border:1px solid ${borderColor};
       background:${bgColor};margin-bottom:6px;cursor:pointer;
       ${esHoy ? 'box-shadow:0 0 0 1px rgba(255,255,255,0.08)' : ''}
-    " onclick="currentDay=${i};localStorage.setItem('ultimo-dia',${i});renderDays();renderDay()">
+    " onclick="currentDay=${i};guardarUltimoDia(${i});renderDays();renderDay()">
       <div style="width:28px;text-align:center">
         <div style="font-family:'DM Mono',monospace;font-size:0.625rem;font-weight:600;color:${nameColor}">${dayNames[i]}</div>
         <div style="font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--muted)">${formatShortDate(date)}</div>
@@ -4200,7 +4217,7 @@ function buscarEnPlan(query) {
 
 function irAResultado(dayIdx) {
   currentDay = dayIdx;
-  localStorage.setItem('ultimo-dia', dayIdx);
+  guardarUltimoDia(dayIdx);
   renderDays();
   renderDay();
   // Limpiar búsqueda
@@ -4368,7 +4385,7 @@ function restaurarBackup(event) {
       const perfil = backup.perfil || localStorage.getItem('ultimo-perfil');
       if (perfil && planData[perfil]) {
         selectSex(perfil, true);
-        const savedDay = parseInt(localStorage.getItem('ultimo-dia') || '-1', 10);
+        const savedDay = getUltimoDiaSiEsHoy();
         if (savedDay >= 0 && savedDay <= 6) {
           currentDay = savedDay;
           renderDays();
@@ -4704,7 +4721,7 @@ function renderLogros() {
 // ===== SERVICE WORKER (funciona offline, prioriza red para evitar versiones viejas) =====
 if ('serviceWorker' in navigator) {
   const swCode = `
-    const CACHE = 'nutriplan-v24';
+    const CACHE = 'nutriplan-v25';
     self.addEventListener('install', e => {
       self.skipWaiting();
       e.waitUntil(caches.open(CACHE).then(c => c.add(location.href)));
@@ -4820,8 +4837,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const ultimoPerfil = localStorage.getItem('ultimo-perfil');
   if (ultimoPerfil && planData[ultimoPerfil]) {
     selectSex(ultimoPerfil, true); // true = restauración, no mostrar modal
-    // Restaurar día activo
-    const savedDay = parseInt(localStorage.getItem('ultimo-dia') || '-1', 10);
+    // Restaurar día activo SOLO si fue guardado hoy; si no, selectSex ya dejó currentDay en el día real de hoy
+    const savedDay = getUltimoDiaSiEsHoy();
     if (savedDay >= 0 && savedDay <= 6) {
       currentDay = savedDay;
       renderDays();
