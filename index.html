@@ -3372,7 +3372,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== AGUA DIARIA =====
 
 function aguaKey() {
-  return 'agua-' + new Date().toISOString().split('T')[0];
+  return 'agua-' + getDateForPlanDay(currentDay).toISOString().split('T')[0];
 }
 
 function getAguaMl() {
